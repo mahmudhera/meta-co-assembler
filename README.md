@@ -78,3 +78,9 @@ iteration selection, and the unavailable execution boundary.
 tests on Linux, macOS, and Windows. Separate jobs test Rust 1.85 and check
 formatting/Clippy. Executables are retained as build artifacts for seven days.
 The workflow runs on pushes, pull requests, and manual dispatch.
+
+Start future development with the [milestone roadmap](ROADMAP.md) and
+[intended architecture](docs/architecture.md). Development agents enter through
+[AGENTS.md](AGENTS.md) and the shared [agent guide](agents/AGENT.md).
+The owner creates each feature branch manually; later milestones are
+conditional on the contig pilot demonstrating value.

@@ -1,6 +1,9 @@
 /target/
 /results/
 /work/
+/data/
+/databases/
+/scratch/
 *.fastq
 *.fastq.gz
 *.fq
