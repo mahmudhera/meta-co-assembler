@@ -100,3 +100,111 @@ pub enum IterationStrategy {
     ResidualOnly,
     Recruitment,
 }
+
+#[cfg(test)]
+mod tests {
+    use clap::{CommandFactory, error::ErrorKind};
+
+    use super::*;
+
+    fn plan_args(extra: &[&str]) -> Vec<String> {
+        [
+            "meta-co-assembler",
+            "plan",
+            "--samples",
+            "samples.tsv",
+            "--metadata",
+            "metadata.tsv",
+            "--group-by",
+            "habitat",
+            "--memory-gib",
+            "8",
+        ]
+        .into_iter()
+        .chain(extra.iter().copied())
+        .map(str::to_owned)
+        .collect()
+    }
+
+    fn parse_plan(extra: &[&str]) -> PlanArgs {
+        match Cli::try_parse_from(plan_args(extra)).unwrap().command {
+            Command::Plan(args) => args,
+            _ => panic!("expected plan command"),
+        }
+    }
+
+    #[test]
+    fn command_definition_is_consistent() {
+        Cli::command().debug_assert();
+    }
+
+    #[test]
+    fn defaults_bound_exploratory_execution() {
+        let args = parse_plan(&[]);
+        assert_eq!(args.iteration_strategy, IterationStrategy::ResidualOnly);
+        assert_eq!(args.max_rounds.get(), 1);
+        assert_eq!(args.jobs.get(), 1);
+        assert_eq!(args.threads.get(), 1);
+        assert!(args.validate().is_ok());
+    }
+
+    #[test]
+    fn recruitment_and_round_limit_are_explicit_options() {
+        let args = parse_plan(&["--iteration-strategy", "recruitment", "--max-rounds", "5"]);
+        assert_eq!(args.iteration_strategy, IterationStrategy::Recruitment);
+        assert_eq!(args.max_rounds.get(), 5);
+    }
+
+    #[test]
+    fn all_resource_and_round_limits_must_be_positive_integers() {
+        for flag in ["--threads", "--jobs", "--max-rounds", "--max-group-samples"] {
+            for value in ["0", "-1", "many"] {
+                assert!(
+                    Cli::try_parse_from(plan_args(&[flag, value])).is_err(),
+                    "{flag}={value}"
+                );
+            }
+        }
+        for value in ["0", "-1", "many"] {
+            let mut args = plan_args(&[]);
+            *args.last_mut().unwrap() = value.to_owned();
+            assert!(Cli::try_parse_from(args).is_err(), "--memory-gib={value}");
+        }
+    }
+
+    #[test]
+    fn memory_budget_is_required() {
+        let mut args = plan_args(&[]);
+        args.truncate(args.len() - 2);
+        assert_eq!(
+            Cli::try_parse_from(args).unwrap_err().kind(),
+            ErrorKind::MissingRequiredArgument
+        );
+    }
+
+    #[test]
+    fn concurrency_cannot_exceed_total_thread_budget() {
+        let args = parse_plan(&["--threads", "2", "--jobs", "3"]);
+        assert_eq!(args.validate().unwrap_err().exit_code(), 2);
+        assert!(
+            parse_plan(&["--threads", "4", "--jobs", "2"])
+                .validate()
+                .is_ok()
+        );
+    }
+
+    #[test]
+    fn grouping_must_use_a_metadata_column() {
+        for column in ["", "   ", "sample_id"] {
+            let mut args = parse_plan(&[]);
+            args.group_by = column.to_owned();
+            assert!(args.validate().is_err());
+        }
+    }
+
+    #[test]
+    fn unknown_strategies_and_flags_are_rejected() {
+        assert!(Cli::try_parse_from(plan_args(&["--iteration-strategy", "automatic"])).is_err());
+        assert!(Cli::try_parse_from(plan_args(&["--use-ai"])).is_err());
+    }
+}

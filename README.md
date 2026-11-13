@@ -60,3 +60,16 @@ grouping and assembly.
 
 See the [CLI contract](docs/cli-contract.md) for input formats, defaults, exit
 codes, and future execution boundaries.
+
+## Development checks
+
+```sh
+cargo fmt --all --check
+cargo clippy --locked --all-targets -- -D warnings
+cargo test --locked --all-targets
+```
+
+The tests use tiny, temporary fixtures and require no reference database,
+biological tool, or real sequencing data. They exercise CLI contracts,
+resource validation, sample/metadata integrity, deterministic grouping,
+iteration selection, and the unavailable execution boundary.

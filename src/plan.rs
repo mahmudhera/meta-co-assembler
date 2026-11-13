@@ -134,3 +134,98 @@ fn group_samples(
     }
     Ok(groups)
 }
+
+#[cfg(test)]
+mod tests {
+    use std::path::PathBuf;
+
+    use super::*;
+
+    fn inputs(rows: &[(&str, &str)]) -> (Vec<Sample>, Metadata) {
+        let samples = rows
+            .iter()
+            .map(|(id, _)| Sample {
+                sample_id: (*id).into(),
+                read1: PathBuf::new(),
+                read2: PathBuf::new(),
+            })
+            .collect();
+        let rows = rows
+            .iter()
+            .map(|(id, value)| {
+                (
+                    (*id).into(),
+                    BTreeMap::from([("habitat".into(), (*value).into())]),
+                )
+            })
+            .collect();
+        (
+            samples,
+            Metadata {
+                columns: vec!["habitat".into()],
+                rows,
+            },
+        )
+    }
+
+    #[test]
+    fn batching_preserves_every_sample_once_and_keeps_metadata_groups_separate() {
+        let (samples, metadata) = inputs(&[
+            ("d", "soil"),
+            ("b", "soil"),
+            ("c", "soil"),
+            ("a", "water"),
+            ("e", "soil"),
+        ]);
+        let groups = group_samples(&samples, &metadata, "habitat", 3).unwrap();
+        assert_eq!(groups.len(), 3);
+        assert_eq!(groups[0].sample_ids, ["b", "c", "d"]);
+        assert_eq!(groups[1].sample_ids, ["e"]);
+        assert_eq!(groups[2].sample_ids, ["a"]);
+        assert_eq!(groups[0].metadata_value, "soil");
+        assert_eq!(groups[2].metadata_value, "water");
+        let mut ids: Vec<_> = groups
+            .iter()
+            .flat_map(|g| g.sample_ids.iter().cloned())
+            .collect();
+        ids.sort();
+        assert_eq!(ids, ["a", "b", "c", "d", "e"]);
+        assert!(groups.iter().all(|g| g.sample_ids.len() <= 3));
+    }
+
+    #[test]
+    fn group_membership_and_ids_do_not_depend_on_sample_row_order() {
+        let (mut samples, metadata) = inputs(&[("z", "water"), ("b", "soil"), ("a", "soil")]);
+        let first = group_samples(&samples, &metadata, "habitat", 1).unwrap();
+        samples.reverse();
+        let second = group_samples(&samples, &metadata, "habitat", 1).unwrap();
+        assert_eq!(
+            serde_json::to_value(&first).unwrap(),
+            serde_json::to_value(&second).unwrap()
+        );
+        assert_eq!(first[0].group_id, "group-000001");
+    }
+
+    #[test]
+    fn missing_column_or_empty_group_values_cannot_create_an_implicit_group() {
+        let (samples, metadata) = inputs(&[("a", "soil")]);
+        assert!(group_samples(&samples, &metadata, "absent", 1).is_err());
+        for value in ["", "  "] {
+            let (samples, metadata) = inputs(&[("a", value)]);
+            assert!(group_samples(&samples, &metadata, "habitat", 1).is_err());
+        }
+    }
+
+    #[test]
+    fn raw_metadata_values_never_become_output_path_components() {
+        let (samples, metadata) = inputs(&[("a", "../../soil"), ("b", "SOIL"), ("c", "soil")]);
+        let groups = group_samples(&samples, &metadata, "habitat", 32).unwrap();
+        assert_eq!(groups.len(), 3);
+        assert!(
+            groups
+                .iter()
+                .all(|group| group.group_id.starts_with("group-"))
+        );
+        assert_eq!(groups[0].metadata_value, "../../soil");
+    }
+}
