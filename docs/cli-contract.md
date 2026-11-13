@@ -1,0 +1,166 @@
+# CLI contract: exploratory foundation
+
+Status: implemented CLI and planning contract, version 0.1.0. Biological
+execution is unavailable. Before 1.0, documented contract changes are allowed
+with corresponding tests and migration notes. JSON has its own integer
+`schema_version`, currently 1.
+
+## Decisions
+
+- Rust 2024, minimum Rust 1.85; external tools are subprocess adapters.
+- AI agents develop the software and do not participate in execution.
+- Initial inputs are already processed, paired-end Illumina FASTQ or gzip FASTQ.
+- Initial execution targets one node; the Rust CLI targets Linux/macOS/Windows.
+- Metadata grouping comes first. Sketch grouping is a later strategy.
+- The initial research output is contigs. Binning and MAG assessment come later.
+- Discovery is relative to an explicitly versioned reference catalogue.
+- The project owner chooses the profiler, mapper, extraction tool, assembler,
+  catalogue, and biological thresholds when those features are implemented.
+
+## Commands
+
+```text
+meta-co-assembler --help
+meta-co-assembler --version
+meta-co-assembler validate --samples FILE [--metadata FILE]
+meta-co-assembler plan --samples FILE --metadata FILE --group-by COLUMN
+    --memory-gib N [--threads N] [--jobs N] [--max-group-samples N]
+    [--iteration-strategy residual-only|recruitment] [--max-rounds N]
+meta-co-assembler run <the same options as plan> --output-dir DIR
+```
+
+`validate` prints a JSON summary containing sample count, metadata columns, and
+missing-value counts per metadata column. It validates paths and tables, not
+FASTQ structure, compression integrity, mate synchronization, read quality, or
+host depletion. These checks belong to later input-processing milestones.
+
+`plan` validates all inputs and prints a JSON research plan with sample paths,
+full sample metadata, deterministic group membership, resource limits, iteration
+settings, pair-retention policy, intended stages, and unresolved decisions.
+`executable` is always false. This is a design artifact, not an executable
+workflow or a catalogue-independent claim about which reads will be retained.
+The current implementation stores table metadata in memory proportional to
+table size; it never loads reads.
+
+`run` is reserved and returns 3 with an actionable diagnostic. After parsing
+its arguments it reads no inputs, creates no directories, and runs no tools.
+Reference and adapter configuration flags will be designed with the owner
+when execution is implemented. No mock assemblies or success-shaped outputs
+are produced by this command.
+
+## Flags and defaults
+
+| Flag | Default | Contract |
+| --- | --- | --- |
+| `--samples` | required | Sample TSV; readable read files must already exist |
+| `--metadata` | required for plan/run | Metadata TSV with exactly the same sample IDs |
+| `--group-by` | required for plan/run | A metadata column other than sample_id; all values nonempty |
+| `--memory-gib` | required for plan/run | Positive integer total budget in binary GiB |
+| `--threads` | 1 | Positive integer total thread budget, across tasks |
+| `--jobs` | 1 | Positive task concurrency, no greater than threads |
+| `--max-group-samples` | 32 | Positive sample-count cap per planned assembly group |
+| `--iteration-strategy` | residual-only | residual-only or recruitment |
+| `--max-rounds` | 1 | Positive upper bound including the initial assembly |
+| `--output-dir` | required for run | Reserved execution output location |
+
+The sample-count cap is an operational guardrail, not a biological optimum or
+a memory prediction. CPU and memory values are recorded, not enforced during
+planning. The scheduler must enforce admission budgets before real execution;
+the OS does not impose a hard memory limit merely because this flag is set.
+Volume-based grouping limits and tool memory estimates are future requirements.
+
+Unknown commands/flags, unsupported strategies, zero/negative numeric limits,
+and missing required options fail. Missing group values fail rather than
+implicitly mixing unrelated samples. Non-group metadata cells may be empty.
+
+## Sample TSV
+
+UTF-8 tab-delimited table, with exactly `sample_id`, `read1`, and `read2`
+headers in any order. CSV-style quoted fields and CRLF line endings are accepted.
+There is no comment syntax; blank lines are ignored.
+
+```text
+sample_id    read1                    read2
+sample_a     reads/a_R1.fastq.gz      reads/a_R2.fastq.gz
+sample_b     reads/b_R1.fastq.gz      reads/b_R2.fastq.gz
+```
+
+The separators above are illustrative; actual files use tabs.
+
+- At least one sample is required; one read pair of files per sample.
+- IDs are unique, case sensitive, and match `[A-Za-z0-9][A-Za-z0-9._-]*`.
+- IDs and headers are not implicitly trimmed or case normalized.
+- Read files must be readable, nonempty regular files with one of these
+  extensions: `.fastq`, `.fq`, `.fastq.gz`, `.fq.gz`.
+- Relative read paths resolve against the sample TSV directory, regardless of
+  the process working directory; emitted paths are canonical absolute paths.
+- A canonical file path cannot be reused between mates or between samples.
+  Hard-link aliasing is not detected. Multiple lanes are a future input feature.
+- Gzip headers and FASTQ records are not inspected in this foundation.
+
+## Metadata TSV
+
+UTF-8 tab-delimited table with a unique `sample_id` column and at least one
+other column. Header names must be unique, nonempty, and have no surrounding
+whitespace. Each sample has exactly one row; missing, duplicate, or unknown
+sample IDs are errors. Other columns are retained verbatim as strings.
+
+`--group-by` chooses one column. Exact, case-sensitive values determine groups;
+`soil` and `Soil` are different values. Whitespace-only grouping values are
+errors. Nonempty values are not trimmed or interpreted as numeric/date types.
+
+Group values and sample IDs are sorted lexically. Each metadata group is split
+into consecutive batches at `--max-group-samples`. IDs such as `group-000001`
+are generated in that order and never constructed from raw metadata values.
+Reordering table rows does not change the plan. Adding samples may change
+batch boundaries and generated IDs; future checkpoints must bind to the plan
+content, not just group names. This batching is not similarity clustering.
+
+## Read states and iteration semantics
+
+`Unassigned` is relative to the selected reference set, mapper, and explicit
+alignment/coverage policy. A profiler suggests candidate references; classifier
+labels alone must not discard reads. A taxon call must be translated into real
+reference accessions through a recorded catalogue/taxonomy crosswalk.
+
+A pair remains in the discovery pool if either mate lacks confident assignment,
+including ambiguous assignment. Both mates stay together. Conserved regions,
+reference gaps, low abundance, technical artifacts, and host carryover can all
+affect this pool; catalogue absence is not evidence of a novel species.
+
+- `residual-only`: after each group assembly, map against cumulative accepted
+  contigs and assemble only pairs still unassigned to those contigs.
+- `recruitment`: use new contigs to recruit pairs and their mates from the
+  group's preserved original discovery pool for refinement or extension.
+  This pool is the retained input after reference subtraction, not a pool
+  destructively overwritten after every round.
+
+Both strategies preserve original input files, sample identity, and prior
+round outputs. Read IDs can collide across samples: downstream extraction must
+use sample-aware identifiers and preserve mate identity. Thresholds, acceptance
+rules, and convergence criteria remain research decisions.
+
+`--max-rounds` always bounds execution once available. Empty pools, no valid
+new contigs, and insufficient measurable progress must also stop iteration
+under an explicit policy. Reassembling identical inputs with identical
+parameters is not automatically useful. No numerical convergence defaults
+are chosen before benchmarking.
+
+## Streams, exits, and future outputs
+
+Help/version and successful JSON reports go to stdout. Diagnostics go to
+stderr. Output JSON ordering is stable for the same files, metadata, and
+arguments on the same host; absolute paths differ across machines.
+
+| Exit code | Meaning |
+| --- | --- |
+| 0 | Help/version, successful validation, or successful planning |
+| 1 | I/O or unexpected operational failure |
+| 2 | Invalid arguments or input table contents |
+| 3 | Execution backend unavailable |
+
+Future execution will produce versioned provenance, per-sample profiling and
+read-state counts, group membership, per-round contig FASTA, mapping summaries,
+and stop reasons. Output layout, safe resume, atomic stage completion, and tool
+configuration are separate milestones before the first real run. Existing
+outputs must never be silently overwritten.

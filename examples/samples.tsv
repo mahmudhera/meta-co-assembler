@@ -1,0 +1,3 @@
+sample_id	read1	read2
+sample_a	/path/to/sample_a_R1.fastq.gz	/path/to/sample_a_R2.fastq.gz
+sample_b	/path/to/sample_b_R1.fastq.gz	/path/to/sample_b_R2.fastq.gz

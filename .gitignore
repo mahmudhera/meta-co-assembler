@@ -1,0 +1,11 @@
+/target/
+/results/
+/work/
+*.fastq
+*.fastq.gz
+*.fq
+*.fq.gz
+*.bam
+*.bai
+*.cram
+*.crai
