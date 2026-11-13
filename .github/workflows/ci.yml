@@ -1,0 +1,88 @@
+name: CI
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  CARGO_TERM_COLOR: always
+  CARGO_INCREMENTAL: "0"
+
+jobs:
+  build-and-test:
+    name: Stable Rust on ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 20
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: ubuntu-latest
+            binary: meta-co-assembler
+          - os: macos-latest
+            binary: meta-co-assembler
+          - os: windows-latest
+            binary: meta-co-assembler.exe
+    steps:
+      - name: Check out source
+        uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with:
+          persist-credentials: false
+      - name: Install stable Rust
+        uses: dtolnay/rust-toolchain@b725eda525362e7cf34af9a7243cac1e3f01a7ec # stable
+        with:
+          toolchain: stable
+      - name: Test all targets
+        run: cargo test --locked --all-targets
+      - name: Build release executable
+        run: cargo build --locked --release
+      - name: Upload executable
+        uses: actions/upload-artifact@330a01c490aca151604b8cf639adc76d48f6c5d4 # v5
+        with:
+          name: meta-co-assembler-${{ runner.os }}-${{ runner.arch }}
+          path: target/release/${{ matrix.binary }}
+          if-no-files-found: error
+          retention-days: 7
+
+  minimum-rust:
+    name: Minimum Rust 1.85
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: Check out source
+        uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with:
+          persist-credentials: false
+      - name: Install minimum supported Rust
+        uses: dtolnay/rust-toolchain@b725eda525362e7cf34af9a7243cac1e3f01a7ec # stable
+        with:
+          toolchain: "1.85.0"
+      - name: Test locked dependencies on minimum Rust
+        run: cargo test --locked --all-targets
+
+  quality:
+    name: Formatting and Clippy
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: Check out source
+        uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with:
+          persist-credentials: false
+      - name: Install stable Rust with development tools
+        uses: dtolnay/rust-toolchain@b725eda525362e7cf34af9a7243cac1e3f01a7ec # stable
+        with:
+          toolchain: stable
+          components: rustfmt, clippy
+      - name: Check formatting
+        run: cargo fmt --all --check
+      - name: Check Clippy
+        run: cargo clippy --locked --all-targets -- -D warnings

@@ -73,3 +73,8 @@ The tests use tiny, temporary fixtures and require no reference database,
 biological tool, or real sequencing data. They exercise CLI contracts,
 resource validation, sample/metadata integrity, deterministic grouping,
 iteration selection, and the unavailable execution boundary.
+
+[GitHub Actions](.github/workflows/ci.yml) builds release executables and runs
+tests on Linux, macOS, and Windows. Separate jobs test Rust 1.85 and check
+formatting/Clippy. Executables are retained as build artifacts for seven days.
+The workflow runs on pushes, pull requests, and manual dispatch.
