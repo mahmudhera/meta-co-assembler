@@ -8,6 +8,8 @@ with corresponding tests and migration notes. JSON has its own integer
 ## Decisions
 
 - Rust 2024, minimum Rust 1.85; external tools are subprocess adapters.
+- Local development uses `meta-co-assembler-env` from `environment.yml`;
+  Cargo.lock pins Rust libraries. See the README for environment setup.
 - AI agents develop the software and do not participate in execution.
 - Initial inputs are already processed, paired-end Illumina FASTQ or gzip FASTQ.
 - Initial execution targets one node; the Rust CLI targets Linux/macOS/Windows.

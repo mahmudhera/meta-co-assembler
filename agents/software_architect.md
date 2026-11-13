@@ -8,6 +8,8 @@ architect process or agent is unnecessary for routine features.
 
 - Keep the first useful endpoint small: reproducible single-node contig
   recovery with measurable runtime, memory, and scientific behavior.
+- Keep dependency responsibilities clear: `environment.yml` defines Conda
+  tools for `meta-co-assembler-env`; Cargo manifests/lockfiles define crates.
 - Respect confirmed decisions and identify unresolved scientific choices.
 - Keep domain data, planning, subprocess execution, and user interface concerns
   distinct without splitting the repository into many crates prematurely.

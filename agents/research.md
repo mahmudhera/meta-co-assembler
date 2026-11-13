@@ -27,6 +27,10 @@ improve discovery at acceptable resource cost.
 5. Run reproducible experiments with fixed data versions, parameters, and seeds.
 6. Report negative results and failure cases as clearly as successful ones.
 
+Run experiments in `meta-co-assembler-env`. Add confirmed external tools to
+`environment.yml` and record the actual resolved package/tool versions with
+each run; the portable environment specification is not a full platform lockfile.
+
 Test single-sample/all-read and grouped/all-read assembly baselines where
 feasible, using comparable resource budgets. Separate the effect of subtraction
 from grouping and iteration. Include rare populations, related strains, and

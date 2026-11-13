@@ -23,6 +23,23 @@ Table data is held in memory proportional to sample/metadata size. Biological
 read volume is never held in memory. The foundation does not schedule tasks,
 enforce resource budgets, cache results, fingerprint inputs, or run tools.
 
+## Dependency environment
+
+`environment.yml` defines the local Conda environment
+`meta-co-assembler-env`, initially containing the Rust toolchain and native
+C compiler/linker. Rust library dependencies remain in `Cargo.toml` and
+`Cargo.lock`. Agent sessions use the named environment through activation
+or `conda run`; builds do not depend on another project's environment.
+
+Direct tool versions are pinned. Conda resolves platform-specific transitive
+packages, so research provenance must capture their resolved versions as well.
+Add chosen biological tools to this definition when implementing their
+adapters. Installing/updating the environment is an explicit setup action;
+pipeline execution never installs dependencies automatically.
+
+The Conda environment is initially verified on Linux. Native-toolchain CI
+continues to check Linux/macOS/Windows and the Rust minimum independently.
+
 ## Target data flow
 
 ```mermaid

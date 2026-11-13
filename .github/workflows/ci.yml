@@ -86,3 +86,33 @@ jobs:
         run: cargo fmt --all --check
       - name: Check Clippy
         run: cargo clippy --locked --all-targets -- -D warnings
+
+  conda-environment:
+    name: Conda environment on Linux
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    defaults:
+      run:
+        shell: bash -el {0}
+    steps:
+      - name: Check out source
+        uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with:
+          persist-credentials: false
+      - name: Create the project environment
+        uses: conda-incubator/setup-miniconda@fc2d68f6413eb2d87b895e92f8584b5b94a10167 # v3
+        with:
+          miniforge-version: latest
+          environment-file: environment.yml
+          activate-environment: meta-co-assembler-env
+          auto-activate: false
+          channels: conda-forge
+          channel-priority: strict
+      - name: Check formatting
+        run: conda run --no-capture-output --name meta-co-assembler-env cargo fmt --all --check
+      - name: Check Clippy
+        run: conda run --no-capture-output --name meta-co-assembler-env cargo clippy --locked --all-targets -- -D warnings
+      - name: Test all targets
+        run: conda run --no-capture-output --name meta-co-assembler-env cargo test --locked --all-targets
+      - name: Build release executable
+        run: conda run --no-capture-output --name meta-co-assembler-env cargo build --locked --release

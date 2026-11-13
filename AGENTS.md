@@ -8,6 +8,12 @@ the shared development guide. Consult the relevant role guide when needed:
 - [Testing](agents/testing.md)
 - [Research](agents/research.md)
 
+Use the Conda environment `meta-co-assembler-env` for local builds, tests,
+and research commands. See [environment.yml](environment.yml) and the
+[setup instructions](README.md#environment-and-build). For sessions without
+persistent activation, prefix commands with
+`conda run --no-capture-output --name meta-co-assembler-env`.
+
 These are role guidelines, not autonomous runtime agents. A single development
 agent may use all of them; a separate architect agent is optional.
 

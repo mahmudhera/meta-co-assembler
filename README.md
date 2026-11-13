@@ -14,9 +14,29 @@ grouping plans. Profiling, mapping, read extraction, assembly, and iteration are
 not implemented. No external biological tool or reference catalogue has been
 selected. Select these with the project owner before implementing adapters.
 
-## Build
+## Environment and build
 
-Install Rust 1.85 or newer, then:
+Create the project environment from the repository root, then activate it:
+
+```sh
+conda env create --file environment.yml
+conda activate meta-co-assembler-env
+```
+
+If the environment already exists, synchronize it with the definition:
+
+```sh
+conda env update --name meta-co-assembler-env --file environment.yml --prune
+```
+
+The [environment definition](environment.yml) pins Rust 1.99.1, including Cargo,
+rustfmt, and Clippy, and the native C compiler/linker package. Conda manages
+these tools; `Cargo.toml` and `Cargo.lock` manage Rust library dependencies.
+The compiler metapackage's version is pinned; platform-specific transitive
+packages are resolved by Conda, so this file is not an exact platform lockfile.
+Biological tools will be added only after selection with the project owner.
+
+Run builds and development checks inside `meta-co-assembler-env`:
 
 ```sh
 cargo build --locked --release
@@ -25,7 +45,16 @@ cargo build --locked --release
 
 On Windows, the executable is `target/release/meta-co-assembler.exe`.
 The Rust CLI targets Linux, macOS, and Windows; initial biological execution
-will be validated on Linux.
+will be validated on Linux. The Conda environment is initially verified on
+Linux. Native-toolchain CI also tests the minimum supported Rust version, 1.85.
+
+For scripts and agent sessions that do not retain shell activation, use
+`conda run`:
+
+```sh
+conda run --no-capture-output --name meta-co-assembler-env cargo build --locked --release
+conda run --no-capture-output --name meta-co-assembler-env cargo test --locked --all-targets
+```
 
 ## Try the input contracts
 
@@ -63,6 +92,9 @@ codes, and future execution boundaries.
 
 ## Development checks
 
+Activate `meta-co-assembler-env` first, or prefix each command with
+`conda run --no-capture-output --name meta-co-assembler-env`.
+
 ```sh
 cargo fmt --all --check
 cargo clippy --locked --all-targets -- -D warnings
@@ -76,7 +108,9 @@ iteration selection, and the unavailable execution boundary.
 
 [GitHub Actions](.github/workflows/ci.yml) builds release executables and runs
 tests on Linux, macOS, and Windows. Separate jobs test Rust 1.85 and check
-formatting/Clippy. Executables are retained as build artifacts for seven days.
+formatting/Clippy. A Linux job creates `meta-co-assembler-env` from
+`environment.yml` and runs the development checks and a release build inside it.
+Executables are retained as build artifacts for seven days.
 The workflow runs on pushes, pull requests, and manual dispatch.
 
 Start future development with the [milestone roadmap](ROADMAP.md) and

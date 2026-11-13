@@ -1,0 +1,9 @@
+name: meta-co-assembler-env
+channels:
+  - conda-forge
+  - nodefaults
+dependencies:
+  # Includes Cargo, rustfmt, and Clippy.
+  - rust=1.99.1
+  # Provides the native compiler/linker used by Rust.
+  - c-compiler=2.0.0

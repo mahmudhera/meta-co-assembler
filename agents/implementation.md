@@ -5,6 +5,9 @@ Follow the shared guide and the milestone's acceptance criteria.
 
 ## Rust
 
+- Build and run checks inside `meta-co-assembler-env`; use `conda run` when
+  activation does not persist. Keep external-tool dependencies in
+  `environment.yml` and Rust library dependencies in `Cargo.toml`/`Cargo.lock`.
 - Prefer a single crate with clear modules until a real boundary needs another
   crate. Use standard library facilities and a small dependency set.
 - Use typed limits and explicit errors. Include sample/stage/path context in

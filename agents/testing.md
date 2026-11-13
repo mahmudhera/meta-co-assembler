@@ -5,6 +5,9 @@ feature. A passing Rust test suite does not establish biological usefulness.
 
 ## Fast checks
 
+- Use `meta-co-assembler-env` for local checks. In noninteractive sessions,
+  prefix commands with
+  `conda run --no-capture-output --name meta-co-assembler-env`.
 - Use `cargo fmt --all --check`,
   `cargo clippy --locked --all-targets -- -D warnings`, and
   `cargo test --locked --all-targets`.
@@ -18,6 +21,9 @@ feature. A passing Rust test suite does not establish biological usefulness.
   platform-specific checks with explicit conditions.
 - Unit-test decisions and transformations; use integration tests for actual
   CLI streams, filesystem behavior, and child process lifecycles.
+- After an environment-definition change, synchronize the environment and
+  verify formatting, Clippy, tests, and a release build with its toolchain.
+  Keep native-toolchain CI for platform and minimum Rust compatibility.
 
 ## When execution is added
 

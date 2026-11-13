@@ -18,6 +18,8 @@ the contig pilot justifies further investment.
 ## Confirmed decisions
 
 - Use Rust for the CLI and orchestration; integrate external biological tools.
+- Manage local development and external tools in `meta-co-assembler-env`,
+  declared by `environment.yml`; Cargo manages Rust crate dependencies.
 - Start with already processed paired-end Illumina FASTQ/gzip FASTQ.
 - Preserve both mates whenever either mate is unassigned or ambiguous.
 - Execute on one node with explicit total CPU/memory budgets.
@@ -74,13 +76,32 @@ reconsideration. Routine internal implementation details do not need approval.
   large dependencies, or distributed services without a concrete requirement.
 - Do not commit sequencing data, databases, large generated outputs, or secrets.
 
+## Dependency environment
+
+Create `meta-co-assembler-env` with `conda env create --file environment.yml`,
+then use `conda activate meta-co-assembler-env`. If it already exists,
+synchronize it with
+`conda env update --name meta-co-assembler-env --file environment.yml --prune`.
+Pruning removes packages no longer required by the definition.
+
+For agent or script sessions without persistent activation, use
+`conda run --no-capture-output --name meta-co-assembler-env <command>`.
+Do not fall back to base or another project's environment. Do not change
+global Rust defaults or install project dependencies into base.
+
+Declare Conda tools and version requirements in `environment.yml`; declare
+Rust libraries in `Cargo.toml` and commit the corresponding `Cargo.lock`.
+The environment file pins direct tools, not every transitive platform package.
+Record resolved versions for research runs. Add biological tools only after
+the owner's choice, and update setup documentation with dependency changes.
+
 ## Quality baseline
 
 For Rust behavior changes, run `cargo fmt --all --check`,
 `cargo clippy --locked --all-targets -- -D warnings`, and
-`cargo test --locked --all-targets`. Use the installed toolchain explicitly
-when PATH points to an unconfigured Rust shim; do not change global toolchain
-settings merely to build this project.
+`cargo test --locked --all-targets` inside `meta-co-assembler-env`.
+Native-toolchain CI is the deliberate exception for cross-platform and minimum
+Rust compatibility checks; environment validation uses the Conda definition.
 
 Use tiny synthetic fixtures for ordinary tests. Keep real-data experiments
 opt-in, resource bounded, and documented. Do not claim biological correctness

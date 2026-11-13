@@ -14,6 +14,8 @@ or switch branches automatically. Agent roles are development guides only.
 Status: complete on main.
 
 - Rust CLI and documented sample/metadata contracts.
+- Conda development environment `meta-co-assembler-env` defined in
+  `environment.yml`, with Rust crate dependencies managed by Cargo.
 - Validation and deterministic, non-executable metadata grouping plans.
 - Residual-only/recruitment CLI options and explicit total resource settings.
 - Unit/integration tests without biological tools or data downloads.
@@ -40,6 +42,8 @@ is unassigned or ambiguous.
 Acceptance:
 
 - Confirmed choices and experiment protocol are recorded in a decision document.
+- Confirmed external tools and version requirements are added to
+  `environment.yml`; development and experiments use `meta-co-assembler-env`.
 - The profiler-to-reference accession crosswalk is specified.
 - Data sources, reference identity, evaluation metrics, and budget limits are
   reproducible; real datasets are not committed.
