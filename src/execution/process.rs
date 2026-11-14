@@ -219,6 +219,31 @@ impl Group {
         (self.statuses.iter().all(Option::is_some), failure)
     }
 
+    /// Terminates group members that outlived the pipeline: their output
+    /// cannot be trusted to be finished, and they must not keep consuming
+    /// reserved resources. Returns whether any had to be terminated.
+    #[cfg(unix)]
+    fn terminate_survivors(&mut self, grace: Duration, poll: Duration) -> bool {
+        if !self.survivors() {
+            return false;
+        }
+        self.terminate(false);
+        let since = Instant::now();
+        while self.survivors() && since.elapsed() < grace {
+            thread::sleep(poll);
+        }
+        if self.survivors() {
+            self.terminate(true);
+        }
+        true
+    }
+
+    /// Descendants cannot be found without process groups.
+    #[cfg(not(unix))]
+    fn terminate_survivors(&mut self, _grace: Duration, _poll: Duration) -> bool {
+        false
+    }
+
     #[cfg(unix)]
     fn survivors(&self) -> bool {
         self.pgid
@@ -396,21 +421,7 @@ pub(crate) fn run_step(
         thread::sleep(context.poll);
     }
 
-    let mut leftover_processes_terminated = false;
-    #[cfg(unix)]
-    if group.survivors() {
-        // A descendant outlived the pipeline; its output cannot be trusted to
-        // be finished, and it must not keep consuming reserved resources.
-        leftover_processes_terminated = true;
-        group.terminate(false);
-        let since = Instant::now();
-        while group.survivors() && since.elapsed() < context.grace {
-            thread::sleep(context.poll);
-        }
-        if group.survivors() {
-            group.terminate(true);
-        }
-    }
+    let leftover_processes_terminated = group.terminate_survivors(context.grace, context.poll);
 
     let wait = context.grace.max(Duration::from_secs(1));
     let logs = drainers

@@ -78,7 +78,8 @@ impl RunLayout {
 }
 
 /// Makes a path absolute, canonicalizing its longest existing ancestor.
-/// Components below that ancestor must be plain names.
+/// Components below that ancestor must be plain names. On Windows,
+/// `std::path::absolute` already resolves `.` and `..` lexically.
 fn resolve(path: &Path) -> Result<PathBuf, Error> {
     let absolute = std::path::absolute(path)
         .map_err(io_error(format!("cannot resolve {}", path.display())))?;
@@ -444,6 +445,10 @@ mod tests {
         assert_eq!(layout.scratch_dir(), root.join("a/b/scratch"));
         assert_eq!(layout.stage_dir("s1"), root.join("a/b/stages/s1"));
         assert_eq!(layout.partial_dir("s1"), root.join("a/b/partial/s1"));
+        // Unix keeps `..` until canonicalization, so `..` below a missing
+        // component is ambiguous and rejected. Windows resolves `..`
+        // lexically before anything exists, so the same input is accepted.
+        #[cfg(unix)]
         assert!(RunLayout::new(&root.join("missing/../x"), None).is_err());
         fs::remove_dir_all(root).unwrap();
     }
