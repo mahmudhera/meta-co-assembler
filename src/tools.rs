@@ -47,3 +47,11 @@ pub enum MappingMode {
     FullReference,
     LocoveGuided,
 }
+
+/// Contig binner for `bin` (M9).
+#[derive(Clone, Copy, Debug, PartialEq, Eq, ValueEnum, Serialize)]
+#[serde(rename_all = "kebab-case")]
+pub enum Binner {
+    Metabat2,
+    Semibin2,
+}

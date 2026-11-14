@@ -7,7 +7,7 @@ use clap::{Args, Parser, Subcommand, ValueEnum};
 use serde::Serialize;
 
 use crate::error::Error;
-use crate::tools::{Assembler, Mapper, Profiler, ToolSelection};
+use crate::tools::{Assembler, Binner, Mapper, Profiler, ToolSelection};
 
 #[derive(Debug, Parser)]
 #[command(
@@ -47,6 +47,12 @@ pub enum Command {
     /// Internal: classify pairs against accepted contigs from SAM on stdin.
     #[command(hide = true)]
     ClassifyPairs(ClassifyPairsArgs),
+    /// Bin the contigs of a coassemble, assemble-reads, or iterate run, then
+    /// assess bin quality, dereplicate bins, and compare them with the catalogue.
+    Bin(BinArgs),
+    /// Internal: per-contig abundance from SAM on stdin, as strobealign --aemb.
+    #[command(hide = true)]
+    ContigAbundance,
     /// Reserved for pipeline execution; currently returns exit code 3.
     Run(RunArgs),
 }
@@ -520,6 +526,96 @@ impl IterateArgs {
     }
 }
 
+#[derive(Debug, Args)]
+pub struct BinArgs {
+    /// Output directory of a succeeded coassemble, assemble-reads, or iterate run.
+    #[arg(long)]
+    pub assembly_dir: PathBuf,
+    /// New run directory; a non-empty directory is refused without --force.
+    #[arg(long)]
+    pub output_dir: PathBuf,
+    /// Contig binner.
+    #[arg(long, value_enum, default_value = "metabat2")]
+    pub binner: Binner,
+    /// Maps every sample to the contigs for coverage: strobealign --aemb, or
+    /// minimap2 with the same abundance estimator.
+    #[arg(long, value_enum, default_value = "strobealign")]
+    pub mapper: Mapper,
+    /// Secondary alignments requested from minimap2 per read; reads are split
+    /// evenly among their best-scoring contigs.
+    #[arg(long, default_value = "50")]
+    pub secondary_alignments: usize,
+    /// CheckM2 DIAMOND database (uniref100.KO.1.dmnd); never downloaded.
+    #[arg(long)]
+    pub checkm2_database: PathBuf,
+    /// Frozen catalogue to compare bins with; defaults to the discover run's.
+    /// Required for assemble-reads runs.
+    #[arg(long)]
+    pub catalogue: Option<PathBuf>,
+    /// Binner random seed (MetaBAT 2 --seed, SemiBin2 --random-seed).
+    #[arg(long, default_value = "1")]
+    pub seed: NonZeroU64,
+    /// Bins at or above this ANI (percent) to a better bin are redundant.
+    #[arg(long, default_value = "99")]
+    pub dereplication_min_ani: f64,
+    /// A bin matches a catalogue species at or above this ANI (percent).
+    #[arg(long, default_value = "95")]
+    pub catalogue_min_ani: f64,
+    /// Minimum aligned fraction for dereplication (of the smaller bin) and
+    /// for a catalogue match (of the bin).
+    #[arg(long, default_value = "0.5")]
+    pub min_aligned_fraction: f64,
+    /// Total CPU threads.
+    #[arg(long, default_value = "1")]
+    pub threads: NonZeroUsize,
+    /// Total memory in GiB.
+    #[arg(long)]
+    pub memory_gib: NonZeroU32,
+    /// Maximum concurrent tasks; must not exceed --threads.
+    #[arg(long, default_value = "1")]
+    pub jobs: NonZeroUsize,
+    /// Temporary space; defaults to OUTPUT/scratch.
+    #[arg(long)]
+    pub scratch_dir: Option<PathBuf>,
+    /// Delete a previous meta-co-assembler run in --output-dir and rerun everything.
+    #[arg(long)]
+    pub force: bool,
+}
+
+impl BinArgs {
+    pub fn validate(&self) -> Result<(), Error> {
+        let invalid = |message: &str| Err(Error::InvalidInput(message.into()));
+        if self.jobs.get() > self.threads.get() {
+            return invalid("--jobs must not exceed the total --threads budget");
+        }
+        for (flag, value) in [
+            ("--dereplication-min-ani", self.dereplication_min_ani),
+            ("--catalogue-min-ani", self.catalogue_min_ani),
+        ] {
+            if !(value.is_finite() && value > 0.0 && value <= 100.0) {
+                return Err(Error::InvalidInput(format!(
+                    "{flag} must be a percentage greater than 0 and at most 100"
+                )));
+            }
+        }
+        if !(self.min_aligned_fraction.is_finite()
+            && self.min_aligned_fraction > 0.0
+            && self.min_aligned_fraction <= 1.0)
+        {
+            return invalid("--min-aligned-fraction must be greater than 0 and at most 1");
+        }
+        if !(1..=1000).contains(&self.secondary_alignments) {
+            return invalid("--secondary-alignments must be between 1 and 1000");
+        }
+        if self.mapper == Mapper::Minimap2 && self.threads.get() / self.jobs < 2 {
+            return invalid(
+                "--mapper minimap2 needs at least 2 threads per job: minimap2 and the abundance counter run together",
+            );
+        }
+        Ok(())
+    }
+}
+
 /// How `classify-pairs` decides that a pair needs no further assembly.
 #[derive(Clone, Copy, Debug, PartialEq, Eq, ValueEnum, Serialize)]
 #[serde(rename_all = "kebab-case")]
@@ -883,6 +979,75 @@ mod tests {
                 .unwrap_err()
                 .contains("cannot be used with")
         );
+    }
+
+    #[test]
+    fn bin_defaults_follow_the_owner_decisions_and_bounds_are_checked() {
+        let parse = |extra: &[&str]| {
+            let mut args = vec![
+                "meta-co-assembler",
+                "bin",
+                "--assembly-dir",
+                "a",
+                "--output-dir",
+                "o",
+                "--checkm2-database",
+                "d.dmnd",
+                "--memory-gib",
+                "4",
+            ];
+            args.extend_from_slice(extra);
+            match Cli::try_parse_from(args)
+                .map_err(|error| error.to_string())?
+                .command
+            {
+                Command::Bin(args) => args.validate().map(|()| args).map_err(|e| e.to_string()),
+                _ => unreachable!(),
+            }
+        };
+        let args = parse(&[]).unwrap();
+        assert_eq!(
+            (args.binner, args.mapper),
+            (Binner::Metabat2, Mapper::Strobealign)
+        );
+        assert_eq!(
+            (
+                args.dereplication_min_ani,
+                args.catalogue_min_ani,
+                args.min_aligned_fraction
+            ),
+            (99.0, 95.0, 0.5)
+        );
+        assert_eq!(args.seed.get(), 1);
+        assert!(
+            parse(&[
+                "--binner",
+                "semibin2",
+                "--mapper",
+                "minimap2",
+                "--threads",
+                "4"
+            ])
+            .is_ok()
+        );
+        for (extra, message) in [
+            (&["--seed", "0"][..], "invalid value"),
+            (&["--dereplication-min-ani", "101"][..], "percentage"),
+            (&["--catalogue-min-ani", "0"][..], "percentage"),
+            (
+                &["--min-aligned-fraction", "1.5"][..],
+                "--min-aligned-fraction",
+            ),
+            (
+                &["--secondary-alignments", "0"][..],
+                "--secondary-alignments",
+            ),
+            (&["--jobs", "2"][..], "--jobs"),
+            (&["--mapper", "minimap2"][..], "at least 2 threads per job"),
+        ] {
+            let error = parse(extra).map(|_| ()).unwrap_err();
+            assert!(error.contains(message), "{extra:?}: {error}");
+        }
     }
 
     #[test]

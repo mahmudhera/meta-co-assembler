@@ -5,9 +5,11 @@
 //! `assembly` coassembles grouped pools (or original reads) with MEGAHIT, and
 //! `iteration` runs bounded residual-only or recruitment rounds on one or more
 //! coassemblies, all through the `execution` engine. `sketch` groups samples
-//! by k-mer sketch similarity. The `run` command remains reserved.
+//! by k-mer sketch similarity, and `binning` bins contigs and assesses the
+//! bins. The `run` command remains reserved.
 
 pub mod assembly;
+pub mod binning;
 pub mod catalogue;
 pub mod cli;
 pub mod digest;

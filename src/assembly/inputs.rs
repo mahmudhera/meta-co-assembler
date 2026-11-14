@@ -8,7 +8,7 @@ use std::{
 };
 
 use flate2::read::MultiGzDecoder;
-use serde::Serialize;
+use serde::{Deserialize, Serialize};
 
 use crate::{
     digest::HashingReader,
@@ -17,7 +17,7 @@ use crate::{
 };
 
 /// One sample's reads as an assembly input.
-#[derive(Clone, Debug, PartialEq, Eq, Serialize)]
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 pub struct ReadPair {
     pub sample_id: String,
     pub read1: PathBuf,
