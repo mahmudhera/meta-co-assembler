@@ -339,3 +339,76 @@ fn real_strobealign_discovery_keeps_novel_pairs_and_removes_known_ones() {
 fn real_minimap2_discovery_keeps_novel_pairs_and_removes_known_ones() {
     check_discovery(&Synthetic::new("minimap2"), "minimap2");
 }
+
+fn run_assembly(data: &Synthetic, args: &[&str], output: &str) -> Value {
+    let result = Command::new(env!("CARGO_BIN_EXE_meta-co-assembler"))
+        .args(args)
+        .arg("--output-dir")
+        .arg(data.root.join(output))
+        .args(["--threads", "4", "--memory-gib", "4"])
+        .output()
+        .unwrap();
+    assert_eq!(
+        result.status.code(),
+        Some(0),
+        "{output} failed (is megahit on PATH?): {}",
+        String::from_utf8_lossy(&result.stderr)
+    );
+    serde_json::from_slice(&result.stdout).unwrap()
+}
+
+#[test]
+#[ignore = "requires sylph, strobealign, and megahit from meta-co-assembler-env; run with --ignored"]
+fn real_megahit_assembles_the_novel_genome_from_discovery_pools() {
+    let data = Synthetic::new("megahit");
+    data.discover("strobealign");
+    fs::write(
+        data.root.join("metadata.tsv"),
+        "sample_id\tgroup\nS1\tall\nS2\tall\n",
+    )
+    .unwrap();
+    let metadata = data.root.join("metadata.tsv").display().to_string();
+    let discovery = data.root.join("discover-strobealign").display().to_string();
+    let summary = run_assembly(
+        &data,
+        &[
+            "coassemble",
+            "--discovery-dir",
+            &discovery,
+            "--metadata",
+            &metadata,
+            "--group-by",
+            "group",
+        ],
+        "coassembly",
+    );
+    let group = &summary["groups"][0];
+    assert_eq!(group["assembly_status"], "contigs");
+    // The pool is almost only the novel genome (60 kb at ~10x, error-free reads).
+    let contigs = &group["contigs"];
+    let total = contigs["total_bases"].as_u64().unwrap();
+    assert!((40_000..=90_000).contains(&total), "{contigs}");
+    assert!(contigs["n50"].as_u64().unwrap() >= 10_000, "{contigs}");
+    assert!(
+        group["peak_rss_kib"].as_u64().unwrap() > 0,
+        "peak memory is measured on Linux"
+    );
+
+    // The all-read baseline for S2 assembles both of its genomes.
+    let samples = data.root.join("samples.tsv").display().to_string();
+    let baseline = run_assembly(
+        &data,
+        &["assemble-reads", "--samples", &samples, "--per-sample"],
+        "baseline",
+    );
+    let s2 = baseline["groups"]
+        .as_array()
+        .unwrap()
+        .iter()
+        .find(|g| g["value"] == "S2")
+        .unwrap();
+    assert!(
+        s2["contigs"]["total_bases"].as_u64().unwrap() > total,
+        "{s2}"
+    );
+}
