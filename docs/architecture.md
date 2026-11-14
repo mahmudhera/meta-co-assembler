@@ -241,6 +241,14 @@ acceptance rule (length, minimap2 containment), the explained/certain rules,
 and the stop policy: exhausted input, unchanged input, progress below a
 threshold, no accepted contig, or the round budget, each recorded.
 
+M7 ([decision](decisions/0007-research-decision.md)) made two choices:
+
+- **Recommended flow.** Discovery followed by one coassembly of all
+  samples' pools. Metadata grouping with pooled iteration is the fallback
+  when one assembly is too large.
+- **Evaluation.** The evaluator scores an iterate run's contigs as one
+  shared set.
+
 ## Research endpoint and conditional extensions
 
 The pilot ends at contigs, with correctness/recovery and resource measurements

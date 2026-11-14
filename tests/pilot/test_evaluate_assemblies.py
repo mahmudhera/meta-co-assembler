@@ -137,6 +137,23 @@ class IterateArmTests(unittest.TestCase):
         communities = {"S1": "A", "S2": "A", "S3": "B"}
         self.assertEqual(evaluator.pairs_by_community({"S1": 5, "S2": 3, "S3": 7}, communities), {"A": 8, "B": 7})
 
+    def test_iterate_arms_are_shared_unless_attributed_by_origin(self):
+        def sets(*communities):
+            return [{"communities": list(c)} for c in communities]
+
+        arms = {
+            "iterate": {"command": "iterate", "contig_sets": sets("A", "B", "AB")},
+            "origin": {"command": "iterate", "contig_sets": sets("A", "B")},
+            "grouped": {"command": "coassemble", "contig_sets": sets("A", "B")},
+        }
+        evaluator.share_contig_sets(arms, ["origin"])
+        self.assertEqual([c["communities"] for c in arms["iterate"]["contig_sets"]], [["A", "B"]] * 3)
+        self.assertEqual([c["communities"] for c in arms["origin"]["contig_sets"]], [["A"], ["B"]])
+        self.assertEqual([c["communities"] for c in arms["grouped"]["contig_sets"]], [["A"], ["B"]])
+        for bad in (["missing"], ["grouped"]):
+            with self.assertRaises(ValueError):
+                evaluator.share_contig_sets(arms, bad)
+
 
 if __name__ == "__main__":
     unittest.main()

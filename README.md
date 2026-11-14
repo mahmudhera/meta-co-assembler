@@ -35,18 +35,33 @@ to the accepted contigs and reassembles what they do not settle, with the
 residual-only or recruitment strategy
 ([decision](docs/decisions/0006-iterative-assembly.md)). Separate
 coassemblies, for example of sample subsets discovered separately, can be
-combined. `run` stays reserved.
+combined. `run` stays reserved. M7's research decision is to continue.
+On synthetic benchmarks, pooled discovery coassembly matched all-read
+assembly on held-out genomes, assembled 68–83% fewer pairs, and took about a
+third of the wall time. It is therefore the recommended flow
+([decision](docs/decisions/0007-research-decision.md)).
 
 ```sh
 meta-co-assembler discover --samples data/pilot/samples.tsv \
   --catalogue data/pilot/catalogues/species_holdout/catalogue.tsv \
   --output-dir results/discover-species-holdout --threads 16 --jobs 4 --memory-gib 64
 python scripts/evaluate_discovery.py results/discover-species-holdout
+# Recommended (M7): one coassembly of every sample's discovery pool. Groups are
+# still split at --max-group-samples (default 32); raise it to keep one pool.
+meta-co-assembler coassemble --discovery-dir results/discover-species-holdout \
+  --all-samples --output-dir results/coassemble-species-holdout --threads 16 --memory-gib 64
+```
+
+When one pooled assembly is too large, coassemble by metadata and let
+`iterate` pool what the groups leave unassigned. In M7 this recovered most,
+but not all, of what grouping alone missed:
+
+```sh
 meta-co-assembler coassemble --discovery-dir results/discover-species-holdout \
   --metadata data/pilot/metadata.tsv --group-by community \
-  --output-dir results/coassemble-species-holdout --threads 16 --memory-gib 64
+  --output-dir results/coassemble-grouped --threads 16 --memory-gib 64
 # Pool every group's unassigned pairs into one assembly per later round.
-meta-co-assembler iterate --coassembly-dir results/coassemble-species-holdout \
+meta-co-assembler iterate --coassembly-dir results/coassemble-grouped \
   --iteration-strategy residual-only --all-samples --max-rounds 3 \
   --output-dir results/iterate-species-holdout --threads 16 --memory-gib 64
 ```

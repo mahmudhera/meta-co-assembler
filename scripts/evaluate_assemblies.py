@@ -15,6 +15,13 @@ source genomes, with a common 1,000 bp minimum contig length. Genome
 fraction counts each reference base once, so overlapping contigs are not
 double-counted.
 
+An `iterate` arm is evaluated as one shared set: every contig with every
+community its groups span (owner decision, M7). All its pools map to that one
+set, and acceptance drops a round-1 contig contained in another group's
+contig, so attributing contigs to the group that assembled them undercounts
+what each community's reads are explained by. `--origin-arm NAME` restores
+that attribution (the lens of the M6 results) for one iterate arm.
+
 The M1 gate compares each discovery arm with the grouped all-read arm:
 at least 50% fewer assembly-input pairs, and at most 5 percentage points of
 genome-fraction loss for each held-out genome in its source community. With
@@ -194,6 +201,19 @@ def load_arm(spec):
     return {"command": command, "source_kind": source, "assemblies": assemblies, "contig_sets": contig_sets, **extra}
 
 
+def share_contig_sets(arms, origin_arms):
+    """Evaluate every iterate arm's contigs with every community it spans, except `origin_arms`."""
+    for name in origin_arms:
+        if arms.get(name, {}).get("command") != "iterate":
+            raise ValueError(f"--origin-arm {name} is not an iterate --arm")
+    for name, arm in arms.items():
+        if arm["command"] != "iterate" or name in origin_arms:
+            continue
+        spanned = sorted({c for contig_set in arm["contig_sets"] for c in contig_set["communities"]})
+        for contig_set in arm["contig_sets"]:
+            contig_set["communities"] = spanned
+
+
 def pairs_by_community(pairs_by_sample, community_of):
     totals = {}
     for sample, pairs in pairs_by_sample.items():
@@ -243,6 +263,8 @@ def main():
     parser.add_argument("--arm", action="append", required=True, metavar="NAME=RUN_DIR[@ROUND]")
     parser.add_argument("--discovery-arm", action="append", required=True,
                         help="arm name of a discovery assembly to gate (repeatable)")
+    parser.add_argument("--origin-arm", action="append", default=[], metavar="NAME",
+                        help="assign this iterate arm's contigs to the group that assembled them (M6 lens)")
     parser.add_argument("--baseline-arm", required=True, help="arm name of the grouped all-read assembly")
     parser.add_argument("--metadata", type=Path, required=True)
     parser.add_argument("--group-by", required=True)
@@ -266,6 +288,7 @@ def main():
                 assembly["pairs_by_community"] = pairs_by_community(assembly["pairs_by_sample"], community_of)
             for contig_set in arm["contig_sets"]:
                 contig_set["communities"] = sorted({community_of[s] for s in contig_set["samples"]})
+        share_contig_sets(arms, args.origin_arm)
         truth = {}
         for row in read_tsv(args.composition):
             if int(row["pairs"]) > 0:
@@ -326,6 +349,7 @@ def main():
                 "max_scratch_peak_bytes": max((a["scratch_peak_bytes"] or 0) for a in assemblies),
                 "assembly_statuses": sorted({a["status"] for a in assemblies}),
                 "pooled_contig_sets": sum(len(c["communities"]) > 1 for c in arm["contig_sets"]),
+                "shared": arm["command"] == "iterate" and name not in args.origin_arm,
                 **{key: arm[key] for key in ("rounds_evaluated", "check_and_accept_seconds") if key in arm},
             }
         pairs = lambda arm, community: sum(a["pairs_by_community"].get(community, 0) for a in arms[arm]["assemblies"])

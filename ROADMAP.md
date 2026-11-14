@@ -191,6 +191,29 @@ Use all-read/grouped and single-sample baselines where feasible under comparable
 resource budgets. Include controlled catalogue holdouts, rare populations, and
 related strains; establish criteria with the owner before running large jobs.
 
+Experiments for review: [decision](docs/decisions/0007-research-decision.md)
+and [results](experiments/m7/results.json). The datasets are the pilot, the
+M6 split scenario, and a [hard benchmark](experiments/m7-hard/README.md)
+with congeners, thin, rare, and common novel genomes. Arms: all reads or
+discovery pools × per sample, community, or pooled, plus pooled iteration.
+Owner decision (2026-11-14): **continue**, and compare with existing methods
+at a reasonable point (M15). Pooled discovery coassembly passes every
+owner-agreed criterion on every dataset:
+- worst held-out loss of 0.02 points;
+- 68–83% fewer assembled pairs;
+- 0.28–0.34x the wall time and lower peak RAM than grouped all-read
+  assembly, including profiling and mapping.
+
+It also assembles congeners better than all-read assembly. Grouping decides
+thin genomes: pooling recovers 94–99% where communities reach 11–76%.
+Iteration recovers most of that but not more, at higher cost. The M6
+split-scenario shortfall was an evaluation artifact (corrected).
+
+The owner also made `discover` then `coassemble --all-samples` the
+documented default flow, and made the evaluator score iterate runs as
+shared sets. Grouping and iteration remain fallbacks for when one pooled
+assembly is too large.
+
 Acceptance:
 
 - Report contig correctness and held-out sequence recovery, residual-pool
@@ -233,6 +256,40 @@ Acceptance:
 - Record cross-sample coverage evidence and dereplication decisions.
 - Evaluate catalogue matches separately from quality and taxonomic novelty.
 - Retain full provenance and clearly distinguish contigs from assessed MAGs.
+
+## M15 — Comparison with existing methods
+
+Suggested branch: `research/method-comparison`. Required by the owner at the
+M7 decision; depends on it. Schedule it at a reasonable point: at the
+contig level once the recommended flow has been tested at realistic scale,
+or after M9 for a comparison at the level of MAGs, which most published
+approaches report.
+
+Compare the recommended flow (discovery, then pooled coassembly) with
+established approaches on shared data and resource budgets. Choose the
+methods, versions, datasets, and metrics with the owner. Candidate kinds:
+
+- targeted coassembly that picks sample groups by novelty, for example
+  Bin Chicken;
+- sequential or iterative coassembly with read subtraction;
+- the per-sample, grouped, and all-sample coassembly modes of standard
+  metagenomics workflows, for example nf-core/mag, ATLAS, or metaWRAP;
+- input reduction without a catalogue, for example digital normalization.
+
+Acceptance:
+
+- Each method runs at its documented recommended settings under the same
+  thread, memory, and scratch budget, with versions and parameters
+  recorded. External methods run in pinned environments or containers; the
+  `meta-co-assembler` CLI itself gains no network access.
+- Datasets include the M7 synthetic benchmarks and at least one realistic
+  scale dataset selected with the owner, for example CAMI-style simulations
+  or public cohorts with a held-out catalogue.
+- Report recovery and correctness with the same evaluators: contigs, and
+  MAGs once M9 exists. Report end-to-end wall time, CPU, peak RAM (including
+  concurrent jobs), and scratch.
+- State where each method wins and loses; negative results are valid, and no
+  claim goes beyond the tested data.
 
 ## M10 — Optional preprocessing and broader input support
 
