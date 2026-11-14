@@ -330,17 +330,16 @@ fn sketch_all(
     for slot in results {
         match slot.into_inner().unwrap_or_else(PoisonError::into_inner) {
             Some(Ok(sketch)) => sketches.push(sketch),
-            Some(Err(error)) => {
-                // Prefer the error that caused cancellation over the
-                // interruptions it triggered in other workers.
+            // Prefer the error that caused cancellation over the
+            // interruptions it triggered in other workers.
+            Some(Err(error))
                 if first_error
                     .as_ref()
-                    .is_none_or(|e| matches!(e, Error::Interrupted(_)))
-                {
-                    first_error = Some(error);
-                }
+                    .is_none_or(|e| matches!(e, Error::Interrupted(_))) =>
+            {
+                first_error = Some(error);
             }
-            None => {}
+            Some(Err(_)) | None => {}
         }
     }
     match first_error {
