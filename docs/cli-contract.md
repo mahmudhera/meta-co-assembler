@@ -40,6 +40,11 @@ meta-co-assembler profile --samples FILE --catalogue FILE --output-dir DIR
 meta-co-assembler discover <the same options as profile>
     [--mapper strobealign|minimap2] [--min-identity FRACTION]
     [--min-aligned-fraction FRACTION] [--min-mapq N] [--secondary-alignments N]
+meta-co-assembler coassemble --discovery-dir DIR --output-dir DIR --memory-gib N
+    (--metadata FILE --group-by COLUMN | --per-sample) [--max-group-samples N]
+    [--max-group-bases N] [--threads N] [--jobs N] [--scratch-dir DIR]
+    [--scratch-gib N] [--assembler megahit|metaspades] [--force]
+meta-co-assembler assemble-reads --samples FILE <the same options as coassemble>
 meta-co-assembler run <the same options as plan> --output-dir DIR
 ```
 
@@ -134,6 +139,27 @@ counts, and `selected-contigs.tsv`. A sample without selected references keeps
 every pair without running a mapper. Alignment output that is out of input
 order, or mates that do not match, fail that sample's stage. Read names are
 unchanged, so later grouping must keep sample identity.
+
+## Coassemble and assemble-reads
+
+`coassemble` assembles the discovery pools of a succeeded `discover` run;
+`assemble-reads` assembles original reads, for the all-read baselines; see
+[the M5 decision](decisions/0005-grouped-coassembly.md). Both re-read every
+input once to check mate pairing and count pairs and bases; `coassemble` also
+requires each pool's SHA-256 and counts to match its `extraction.json`.
+
+Samples are grouped by exact `--group-by` values (sample IDs sorted) and split
+into consecutive batches at `--max-group-samples` and, if given,
+`--max-group-bases`; `--per-sample` assembles each sample alone. Each group is
+one MEGAHIT run using every thread and 90% of the memory budget, one at a
+time; MEGAHIT's working files live in measured scratch. MetaSPAdes exits 3.
+
+Each `stages/assemble-group-NNNNNN/` holds `contigs.fa` (IDs
+`group-NNNNNN__ASSEMBLER_ID`), `assembly.json` (status `contigs`,
+`no-contigs`, or `empty-input`, contig statistics, input counts, assembler
+identity and parameters), `group.json` (members, digests, source run), and
+`megahit.log`. A failed assembler or malformed contig FASTA fails the stage.
+Exit codes follow `profile`.
 
 ## Flags and defaults
 

@@ -26,14 +26,20 @@ frozen catalogue with Sylph or experimental LoCovE
 `discover` command, which also maps each sample to its selected references
 with Strobealign or Minimap2 and writes a per-sample discovery pool of pairs
 not confidently explained
-([decision](docs/decisions/0004-discovery-read-pools.md)). `run` stays
-reserved until assembly exists.
+([decision](docs/decisions/0004-discovery-read-pools.md)). M5 adds
+`coassemble`, which assembles those pools per metadata group with MEGAHIT, and
+`assemble-reads` for all-read baselines
+([decision](docs/decisions/0005-grouped-coassembly.md)). `run` stays reserved
+until iteration exists.
 
 ```sh
 meta-co-assembler discover --samples data/pilot/samples.tsv \
   --catalogue data/pilot/catalogues/species_holdout/catalogue.tsv \
   --output-dir results/discover-species-holdout --threads 16 --jobs 4 --memory-gib 64
 python scripts/evaluate_discovery.py results/discover-species-holdout
+meta-co-assembler coassemble --discovery-dir results/discover-species-holdout \
+  --metadata data/pilot/metadata.tsv --group-by community \
+  --output-dir results/coassemble-species-holdout --threads 16 --memory-gib 64
 ```
 
 ## Environment and build
@@ -52,8 +58,8 @@ conda env update --name meta-co-assembler-env --file environment.yml --prune
 ```
 
 The [environment definition](environment.yml) pins Rust 1.99.1, including Cargo,
-rustfmt, and Clippy, the native C compiler/linker, Python, and the released
-pilot tools. Conda manages these tools; `Cargo.toml` and `Cargo.lock` manage
+rustfmt, and Clippy, the native C compiler/linker, Python (with setuptools,
+which QUAST needs), and the released pilot tools. Conda manages these tools; `Cargo.toml` and `Cargo.lock` manage
 Rust library dependencies.
 The compiler metapackage's version is pinned; platform-specific transitive
 packages are resolved by Conda, so this file is not an exact platform lockfile.

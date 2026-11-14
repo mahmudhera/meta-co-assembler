@@ -21,6 +21,8 @@ Plans explicitly remain non-executable. FASTQ contents are not read.
 | `catalogue` | Frozen reference catalogue parsing, digest verification, species grouping |
 | `profiling` | `profile` command: Sylph and LoCovE adapters, normalized candidates, species expansion |
 | `discovery` | `discover` command: selected-reference FASTA, Strobealign/Minimap2 mapping, pair decisions, lockstep extraction |
+| `assembly` | `coassemble`/`assemble-reads`: verified inputs, volume-capped metadata groups, MEGAHIT, contig statistics |
+| `digest` | SHA-256 while streams are read or written |
 | `error` | Contextual diagnostics and documented exit categories |
 | Binary entry point | Dispatch and JSON stdout/stderr boundary |
 
@@ -28,8 +30,9 @@ Table data is held in memory proportional to sample/metadata size. Biological
 read volume is never held in memory. `profile` runs Sylph or LoCovE through
 the execution engine to select candidate references per sample, and
 `discover` also maps each sample and streams its discovery pool with memory
-bounded by one read pair. Assembly is not implemented and `run` stays
-reserved.
+bounded by one read pair. `coassemble` and `assemble-reads` run one MEGAHIT
+assembly per group, and the engine samples each task's peak memory on Linux.
+Iteration is not implemented and `run` stays reserved.
 Catalogue FASTA digests are verified on every run; read files are not
 fingerprinted, and resume is unsupported.
 
