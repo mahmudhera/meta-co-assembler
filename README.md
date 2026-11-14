@@ -62,6 +62,11 @@ conda run --no-capture-output --name meta-co-assembler-env cargo build --locked 
 conda run --no-capture-output --name meta-co-assembler-env cargo test --locked --all-targets
 ```
 
+Confirm that `cargo --version` and `rustc --version` report the pinned Rust
+version before recording results. A rustup or system toolchain that appears
+earlier on `PATH`, for example from `~/.cargo/env`, can shadow the environment's
+toolchain even under `conda run`. CI fails if the resolved versions differ.
+
 ## Try the input contracts
 
 Provide already processed paired-end Illumina reads in FASTQ or gzip FASTQ.
