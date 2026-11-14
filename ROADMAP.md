@@ -27,6 +27,8 @@ are not part of M0.
 
 ## M1 — Define the pilot and choose the first toolchain
 
+Status: complete on main.
+
 Suggested branch: `feature/pilot-design`. Depends on M0.
 
 Implementation for review: [decision](docs/decisions/0001-pilot.md),
@@ -59,6 +61,8 @@ Acceptance:
 
 ## M2 — Safe local execution and provenance
 
+Status: complete on main.
+
 Suggested branch: `feature/local-execution`. Depends on M1.
 
 Implement child process management, bounded logs/streams, CPU/memory admission,
@@ -82,6 +86,8 @@ Acceptance:
 
 ## M3 — Profiling and catalogue-backed reference selection
 
+Status: complete on main.
+
 Suggested branch: `feature/reference-profiling`. Depends on M2.
 
 Implement the confirmed profiler and reference selection adapter per sample.
@@ -101,6 +107,8 @@ Acceptance:
 - Database paths are explicit; execution does not silently download references.
 
 ## M4 — Reference mapping and conservative discovery pools
+
+Status: complete on main.
 
 Suggested branch: `feature/discovery-read-pools`. Depends on M3.
 
@@ -127,6 +135,8 @@ Acceptance:
 
 ## M5 — First grouped, single-round coassembly
 
+Status: complete on main.
+
 Suggested branch: `feature/grouped-coassembly`. Depends on M4.
 
 Connect metadata batches to the chosen assembler. Add volume-aware group limits
@@ -151,6 +161,8 @@ Acceptance:
   clearly unpromising, revisit the design before investing in iteration.
 
 ## M6 — Bounded iteration with both strategies
+
+Status: complete on main.
 
 Suggested branch: `feature/iterative-assembly`. Depends on M5.
 
@@ -182,6 +194,8 @@ Acceptance:
   consumed as complete.
 
 ## M7 — Research decision: continue, revise, or stop
+
+Status: complete on main (owner decision: continue).
 
 Suggested branch: `research/contig-pilot-evaluation`. Depends on M5; include
 M6 only if iterative behavior remains worth evaluating.
@@ -229,6 +243,8 @@ to observed limitations; do not automatically implement the full list.
 
 ## M8 — Bounded sketch-based sample grouping
 
+Status: complete on main.
+
 Suggested branch: `feature/sketch-grouping`. Depends on a positive M7 decision.
 
 Choose the sketch/cluster method with the owner, then add it as a grouping
@@ -265,6 +281,23 @@ Suggested branch: `feature/mag-recovery`. Depends on a positive M7 decision.
 
 Choose binning, coverage, quality, dereplication, and catalogue comparison tools
 with the owner. Keep contigs and bins distinct in both artifacts and reports.
+
+Implementation for review: [decision](docs/decisions/0009-mag-recovery.md),
+[results](experiments/m9/results.json), and the `bin` command. By owner decision:
+- MetaBAT 2 (default) or SemiBin2;
+- coverage from strobealign `--aemb` on the reads the run assembled, or
+  minimap2 with the same estimator;
+- CheckM2 quality tiers by completeness and contamination;
+- skani dereplication at 99% ANI, and a catalogue species match at 95% ANI;
+- one Conda environment, repinned to Python 3.12 and samtools 1.24.
+
+On the hard benchmark, pooled discovery coassembly gave 6 (MetaBAT 2) or 7
+(SemiBin2) of 8 held-out genomes as truly high-quality, pure bins; all-read
+assemblies gave 2–3. SemiBin2 recovered fragmented thin and rare genomes
+that MetaBAT 2 dropped, at 2–13 times the run time; the owner kept the faster
+MetaBAT 2 as the default. CheckM2 tiers matched
+truth for 183 of 204 bins, but it missed contamination from close relatives
+in all-read bins. The catalogue comparison was correct for every checked bin.
 
 Acceptance:
 

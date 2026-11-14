@@ -9,9 +9,10 @@ LLM, on a single node, with explicit CPU and memory budgets.
 
 ## Current state
 
-The CLI validates sample and metadata tables and prints deterministic metadata
-grouping plans. Profiling, mapping, read extraction, assembly, and iteration are
-not implemented. M1 defines a controlled synthetic pilot and selectable tools:
+Milestones M0–M8 are complete and M9 is under review (see the [roadmap](ROADMAP.md)). The CLI
+validates sample and metadata tables, prints deterministic grouping plans, and
+runs profiling, discovery, coassembly, iteration, sketch grouping, and
+binning, as the milestones below describe. M1 defines a controlled synthetic pilot and selectable tools:
 Sylph/Kraken2/experimental LoCovE, Strobealign/Minimap2, and
 MEGAHIT/metaSPAdes, with Samtools for alignment I/O. The initial pilot uses
 Sylph, Strobealign, and MEGAHIT. See the [pilot protocol](experiments/pilot/README.md)
@@ -43,7 +44,12 @@ third of the wall time. It is therefore the recommended flow
 grouping, which groups samples by FracMinHash similarity of their discovery
 pools within the caps. It needs no metadata, and `group` previews the groups
 without assembling
-([decision](docs/decisions/0008-sketch-grouping.md)).
+([decision](docs/decisions/0008-sketch-grouping.md)). M9 adds `bin`, which
+bins the contigs of any assembly run with MetaBAT 2 or SemiBin2. It uses
+coverage from every sample, rates each bin with CheckM2, dereplicates bins
+with skani, and compares them with the catalogue
+([decision](docs/decisions/0009-mag-recovery.md)). The CheckM2 database
+(about 3 GB) is passed explicitly and never downloaded by the tool.
 
 ```sh
 meta-co-assembler discover --samples data/pilot/samples.tsv \
@@ -69,6 +75,16 @@ meta-co-assembler coassemble --discovery-dir results/discover-species-holdout \
 meta-co-assembler iterate --coassembly-dir results/coassemble-grouped \
   --iteration-strategy residual-only --all-samples --max-rounds 3 \
   --output-dir results/iterate-species-holdout --threads 16 --memory-gib 64
+```
+
+Bin any assembly run and assess the bins. Download the CheckM2 database
+once with `checkm2 database --download --path data/checkm2`:
+
+```sh
+meta-co-assembler bin --assembly-dir results/coassemble-species-holdout \
+  --checkm2-database data/checkm2/CheckM2_database/uniref100.KO.1.dmnd \
+  --output-dir results/bin-species-holdout --threads 16 --memory-gib 64
+# results/bin-species-holdout/stages/summarize/bins.tsv: one row per bin
 ```
 
 Without trustworthy metadata, group by sequence similarity instead: preview

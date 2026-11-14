@@ -6,6 +6,7 @@ use std::{
 use clap::Parser;
 use meta_co_assembler::{
     assembly::{run_assemble_reads, run_coassemble, run_group},
+    binning::{run_bin, run_contig_abundance},
     cli::{Cli, Command},
     discovery::{run_discover, run_extract_pairs},
     error::Error,
@@ -116,6 +117,18 @@ fn execute(cli: Cli) -> Result<(), Error> {
                 outcome.report.stop_reason,
             )
         }
+        Command::Bin(args) => {
+            let cancel = CancelToken::new();
+            cancel.cancel_on_termination_signals()?;
+            let outcome = run_bin(&args, &cancel)?;
+            finish_run(
+                "binning",
+                &outcome.summary,
+                outcome.report.status,
+                outcome.report.stop_reason,
+            )
+        }
+        Command::ContigAbundance => run_contig_abundance(),
         Command::Group(args) => {
             let cancel = CancelToken::new();
             cancel.cancel_on_termination_signals()?;

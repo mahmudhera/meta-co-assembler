@@ -15,8 +15,9 @@ by removing competing reference windows. Unknown regions remain uncertain.
 - Unmapped/ambiguous reads are not automatically novel, microbial, or useful.
 - Unassigned to selected references is different from absent from the full
   frozen catalogue. Use separate terms and measurements.
-- Recovered contigs are not automatically MAGs. Binning, quality assessment,
-  dereplication, and catalogue comparison are later work.
+- Recovered contigs are not automatically MAGs, and bins are not MAGs until
+  assessed. `bin` reports CheckM2 completeness/contamination, dereplication,
+  and catalogue status separately; none of them is a taxonomic novelty claim.
 - Preserve both mates when either is unassigned. Evaluate any loss of shared
   conserved sequence caused by reference subtraction.
 

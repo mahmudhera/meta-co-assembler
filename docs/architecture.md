@@ -23,6 +23,7 @@ Plans explicitly remain non-executable. FASTQ contents are not read.
 | `discovery` | `discover` command: selected-reference FASTA, Strobealign/Minimap2 mapping, pair decisions, lockstep extraction |
 | `assembly` | `coassemble`/`assemble-reads`/`group`: verified inputs, volume-capped groups, MEGAHIT, contig statistics |
 | `sketch` | Bounded streaming FracMinHash sketches, sparse neighbour graph, merge/threshold/seeded grouping policies |
+| `binning` | `bin`: coverage (strobealign `--aemb` or minimap2 with the same estimator), MetaBAT 2/SemiBin2, CheckM2 quality, skani dereplication and catalogue comparison |
 | `iteration` | `iterate`: combined coassembly inputs, per-round pair classification, contig acceptance with minimap2 containment, stop policy |
 | `digest` | SHA-256 while streams are read or written |
 | `error` | Contextual diagnostics and documented exit categories |
@@ -271,3 +272,13 @@ dereplication, catalogue comparison, broader inputs, or SLURM. MAG reporting
 must distinguish assembly quality, completeness, and contamination, following
 an explicit standard such as [MIMAG](https://www.nature.com/articles/nbt.3893).
 Tool and threshold selections remain owner decisions.
+
+M9 ([decision](decisions/0009-mag-recovery.md)) adds `bin` after any assembly
+run. Coverage comes from every sample of the run against each binning unit,
+so it records cross-sample evidence; the binner (MetaBAT 2 or SemiBin2),
+CheckM2, and skani run as engine stages. Bins remain separate artifacts from
+contigs. Quality tiers use CheckM2 completeness and contamination only, and
+the catalogue comparison is reported apart from quality; neither establishes
+taxonomic novelty. Python tools that put Unix sockets in `TMPDIR` (CheckM2,
+SemiBin2) get a short `/tmp` alias of their scratch directory as `TMPDIR`,
+because socket paths are limited to about 100 bytes.

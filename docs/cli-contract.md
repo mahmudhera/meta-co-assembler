@@ -19,7 +19,8 @@ choices to unresolved adapter implementations; plans remain non-executable.
 - Initial execution targets one node; the Rust CLI targets Linux/macOS/Windows.
 - Metadata grouping came first; M8 adds sketch grouping (FracMinHash
   similarity of the reads to be assembled) as an alternative.
-- The initial research output is contigs. Binning and MAG assessment come later.
+- The initial research output was contigs. M9 adds binning with CheckM2
+  quality, dereplication, and catalogue comparison; bins stay distinct from contigs.
 - Discovery is relative to an explicitly versioned reference catalogue.
 - The project owner chooses the profiler, mapper, extraction tool, assembler,
   catalogue, and biological thresholds when those features are implemented.
@@ -59,6 +60,12 @@ meta-co-assembler iterate --coassembly-dir DIR [--coassembly-dir DIR ...]
     [--min-progress FRACTION] [--min-contig-length N]
     [--mapper strobealign|minimap2] [--min-identity FRACTION]
     [--min-aligned-fraction FRACTION] [--min-mapq N] [--secondary-alignments N]
+meta-co-assembler bin --assembly-dir DIR --output-dir DIR --memory-gib N
+    --checkm2-database FILE [--catalogue FILE] [--binner metabat2|semibin2]
+    [--mapper strobealign|minimap2] [--secondary-alignments N] [--seed N]
+    [--dereplication-min-ani PERCENT] [--catalogue-min-ani PERCENT]
+    [--min-aligned-fraction FRACTION] [--threads N] [--jobs N]
+    [--scratch-dir DIR] [--force]
 meta-co-assembler run <the same options as plan> --output-dir DIR
 ```
 
@@ -254,6 +261,36 @@ Later stages of a stopped group still appear and record the stop. The final
 contigs are `stages/accept-rNN/cumulative.fa` of the last round. Exit codes
 follow `profile`; `minimap2` is required for containment.
 
+## Bin
+
+`bin` bins the contigs of a succeeded `coassemble`, `assemble-reads`, or
+`iterate` run and assesses the bins; see
+[the M9 decision](decisions/0009-mag-recovery.md). Each group's contigs (an
+iterate run's final shared set) are one binning unit. Every sample of the run
+is mapped to every unit for coverage: the discovery pools for `coassemble`
+and `iterate`, the original reads for `assemble-reads`. The reads and contig
+files are re-verified against the run's recorded digests and counts.
+
+| Stage | Work and outputs |
+| --- | --- |
+| `split-UNIT` | SemiBin2 only: `SemiBin2 split_contigs`, the half-contig reference SemiBin2 needs for coverage |
+| `cover-UNIT-SAMPLE` | `SAMPLE.abundance.tsv`: strobealign `--aemb`, or minimap2 piped into the internal `contig-abundance` (each read's length split evenly among its best-scoring contigs, over contig length) |
+| `bin-UNIT` | `coverage.tsv` (contig × sample), MetaBAT 2 (`--cvExt`, contigs ≥ 2,500 bp) or SemiBin2 (`single_easy_bin -a`, at least 5 samples); bins as `bins/UNIT__binNNN.fa` with bare contig IDs, `bins.json`, `contig_bins.tsv`, `bin_coverage.tsv` |
+| `quality` | CheckM2 `predict` on every bin with the database at `--checkm2-database` (never downloaded): `quality.json` with completeness, contamination, model, tier, and score |
+| `dereplicate` | skani `triangle`; greedy clusters at `--dereplication-min-ani` (99) over `--min-aligned-fraction` (0.5) of the smaller bin; the bin with the highest completeness − 5 × contamination represents its cluster: `dereplication.json` |
+| `catalogue` | skani `dist` against the catalogue (`--catalogue`, default the discover run's; required for `assemble-reads`): `catalogue.json` with the best reference, ANI, and aligned fractions |
+| `summarize` | `bins.tsv` (one row per bin), `bin_coverage.tsv`, `summary.json` |
+
+Quality tiers come from CheckM2 completeness and contamination only, after
+the MIMAG thresholds: `high` (≥ 90%, < 5%), `medium` (≥ 50%, < 10%), else
+`low`. rRNA and tRNA genes are not assessed, so `high` is not a MIMAG
+high-quality draft. A bin's catalogue status is `catalogue-species-match`
+(ANI ≥ `--catalogue-min-ani` 95 over at least half of the bin),
+`below-species-threshold`, or `no-catalogue-hit` (skani reports nothing,
+roughly below 80% ANI). Quality, catalogue status, and novelty are separate:
+no status establishes a new species. Binners use `--seed` (1). Exit codes
+follow `profile`.
+
 ## Flags and defaults
 
 | Flag | Default | Contract |
@@ -265,6 +302,12 @@ follow `profile`; `minimap2` is required for containment.
 | `--threads` | 1 | Positive integer total thread budget, across tasks |
 | `--jobs` | 1 | Positive task concurrency, no greater than threads |
 | `--max-group-samples` | 32 (unlimited for iterate) | Positive sample-count cap per assembly group |
+| `--binner` | metabat2 | metabat2 or semibin2 (`bin`) |
+| `--checkm2-database` | required for `bin` | CheckM2 DIAMOND database file; never downloaded |
+| `--dereplication-min-ani` | 99 | Percent ANI at which bins are redundant |
+| `--catalogue-min-ani` | 95 | Percent ANI of a catalogue species match |
+| `--min-aligned-fraction` | 0.5 | Of the smaller bin (dereplication) and of the bin (catalogue) |
+| `--seed` | 1 | Binner seed (MetaBAT 2 `--seed`, SemiBin2 `--random-seed`); nonzero |
 | `--sketch-policy` | merge | merge, threshold, or seeded (with `--sketch`) |
 | `--sketch-min-similarity` | none | Required for, and only for, the threshold policy; 0 < value <= 1 |
 | `--sketch-k` | 31 | Odd k-mer length, 11 to 31 |

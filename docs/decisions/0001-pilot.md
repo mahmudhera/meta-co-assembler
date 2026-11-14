@@ -17,7 +17,7 @@ decisions → MEGAHIT. Keep the alternatives selectable:
 | --- | --- | --- | --- |
 | Candidate-reference screen | Sylph 1.0.0 | Kraken2 2.17.2; experimental LoCovE 0.1.0 | Genome filenames, taxon IDs, and local coverage are different evidence types |
 | Mapping | Strobealign 0.20.0 | Minimap2 2.31 | Strobealign targets short reads; Minimap2 also supports other read types |
-| Alignment/pair I/O | Samtools 1.25 | Future Rust decision layer | Samtools collation/FASTQ conversion alone does not implement the retention policy |
+| Alignment/pair I/O | Samtools 1.24 (1.25 until M9 repinned it for MetaBAT 2) | Future Rust decision layer | Samtools collation/FASTQ conversion alone does not implement the retention policy |
 | Assembly | MEGAHIT 1.2.9 | metaSPAdes via SPAdes 4.3.0 | Benchmark rather than assume a speed/quality winner |
 | Read simulation | ART 2016.06.05 | Revisit for other platforms | Empirical HiSeq 2500 error profile, fixed seeds |
 | Evaluation | QUAST 5.3.0 | Revisit if metrics prove inadequate | Larger dependency stack; evaluation only, with explicit truth references |
