@@ -29,8 +29,13 @@ not confidently explained
 ([decision](docs/decisions/0004-discovery-read-pools.md)). M5 adds
 `coassemble`, which assembles those pools per metadata group with MEGAHIT, and
 `assemble-reads` for all-read baselines
-([decision](docs/decisions/0005-grouped-coassembly.md)). `run` stays reserved
-until iteration exists.
+([decision](docs/decisions/0005-grouped-coassembly.md)). M6 adds `iterate`,
+which continues one or more coassemble runs for bounded rounds: it maps pairs
+to the accepted contigs and reassembles what they do not settle, with the
+residual-only or recruitment strategy
+([decision](docs/decisions/0006-iterative-assembly.md)). Separate
+coassemblies, for example of sample subsets discovered separately, can be
+combined. `run` stays reserved.
 
 ```sh
 meta-co-assembler discover --samples data/pilot/samples.tsv \
@@ -40,6 +45,10 @@ python scripts/evaluate_discovery.py results/discover-species-holdout
 meta-co-assembler coassemble --discovery-dir results/discover-species-holdout \
   --metadata data/pilot/metadata.tsv --group-by community \
   --output-dir results/coassemble-species-holdout --threads 16 --memory-gib 64
+# Pool every group's unassigned pairs into one assembly per later round.
+meta-co-assembler iterate --coassembly-dir results/coassemble-species-holdout \
+  --iteration-strategy residual-only --all-samples --max-rounds 3 \
+  --output-dir results/iterate-species-holdout --threads 16 --memory-gib 64
 ```
 
 ## Environment and build

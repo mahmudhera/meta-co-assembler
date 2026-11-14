@@ -154,6 +154,19 @@ Acceptance:
 
 Suggested branch: `feature/iterative-assembly`. Depends on M5.
 
+Implementation for review: [decision](docs/decisions/0006-iterative-assembly.md)
+and the `iterate` command, which combines one or more coassemble runs. By
+owner decision, recruitment reassembles every pair that the contigs do not
+certainly explain instead of seed-recruited pairs; contigs of at least
+1,000 bp without minimap2 containment are accepted; groups also stop below
+1% progress; discovery targets genomes, not strains (reads explained by a
+catalogued relative count as explained). The intended flow coassembles by
+metadata and pools all leftovers in later rounds (`--all-samples`). On the
+pilot, three rounds add 0.1–0.3 points of held-out species recovery for
+1–2% more input; for a genome spread thinly over all samples, pooling adds
+4–6 points but stays far below a pooled assembly because fragmented round-1
+contigs absorb its reads ([results](experiments/pilot/m6-iteration.json)).
+
 Implement `residual-only` and `recruitment`, selected through the existing
 CLI argument. Remap against cumulative accepted contigs and preserve the original
 discovery pools and per-round outputs.

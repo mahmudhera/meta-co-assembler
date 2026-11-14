@@ -1,10 +1,11 @@
 # CLI contract: exploratory foundation
 
-Status: implemented CLI and planning contract, version 0.1.0. Reference
-profiling (`profile`) executes Sylph or LoCovE; the full pipeline (`run`) is
-unavailable. Before 1.0, documented contract changes are allowed
-with corresponding tests and migration notes. JSON has its own integer
-`schema_version`: validation reports use 1 and research plans use 2.
+Status: implemented CLI and planning contract, version 0.1.0. `profile`,
+`discover`, `coassemble`, `assemble-reads`, and `iterate` execute their tools;
+the full pipeline (`run`) is unavailable. Before 1.0, documented contract
+changes are allowed with corresponding tests and migration notes. JSON has
+its own integer `schema_version`: validation reports use 1 and research plans
+use 2.
 Plan schema 2 adds explicit tool/guidance choices and renames unresolved tool
 choices to unresolved adapter implementations; plans remain non-executable.
 
@@ -41,10 +42,17 @@ meta-co-assembler discover <the same options as profile>
     [--mapper strobealign|minimap2] [--min-identity FRACTION]
     [--min-aligned-fraction FRACTION] [--min-mapq N] [--secondary-alignments N]
 meta-co-assembler coassemble --discovery-dir DIR --output-dir DIR --memory-gib N
-    (--metadata FILE --group-by COLUMN | --per-sample) [--max-group-samples N]
-    [--max-group-bases N] [--threads N] [--jobs N] [--scratch-dir DIR]
-    [--scratch-gib N] [--assembler megahit|metaspades] [--force]
+    (--metadata FILE --group-by COLUMN | --per-sample | --all-samples)
+    [--max-group-samples N] [--max-group-bases N] [--threads N] [--jobs N]
+    [--scratch-dir DIR] [--scratch-gib N] [--assembler megahit|metaspades]
+    [--force]
 meta-co-assembler assemble-reads --samples FILE <the same options as coassemble>
+meta-co-assembler iterate --coassembly-dir DIR [--coassembly-dir DIR ...]
+    <the same options as coassemble, or --keep-groups instead of a grouping>
+    [--iteration-strategy residual-only|recruitment] [--max-rounds N]
+    [--min-progress FRACTION] [--min-contig-length N]
+    [--mapper strobealign|minimap2] [--min-identity FRACTION]
+    [--min-aligned-fraction FRACTION] [--min-mapq N] [--secondary-alignments N]
 meta-co-assembler run <the same options as plan> --output-dir DIR
 ```
 
@@ -149,8 +157,8 @@ input once to check mate pairing and count pairs and bases; `coassemble` also
 requires each pool's SHA-256 and counts to match its `extraction.json`.
 
 Samples are grouped by exact `--group-by` values (sample IDs sorted) and split
-into consecutive batches at `--max-group-samples` and, if given,
-`--max-group-bases`; `--per-sample` assembles each sample alone. Each group is
+into consecutive batches at `--max-group-samples` (default 32) and, if
+given, `--max-group-bases`; `--per-sample` assembles each sample alone. Each group is
 one MEGAHIT run using every thread and 90% of the memory budget, one at a
 time; MEGAHIT's working files live in measured scratch. MetaSPAdes exits 3.
 
@@ -158,8 +166,51 @@ Each `stages/assemble-group-NNNNNN/` holds `contigs.fa` (IDs
 `group-NNNNNN__ASSEMBLER_ID`), `assembly.json` (status `contigs`,
 `no-contigs`, or `empty-input`, contig statistics, input counts, assembler
 identity and parameters), `group.json` (members, digests, source run), and
-`megahit.log`. A failed assembler or malformed contig FASTA fails the stage.
-Exit codes follow `profile`.
+`megahit.log`. `assembly.json` also records the SHA-256 of `contigs.fa`. A
+failed assembler or malformed contig FASTA fails the stage. `--all-samples`
+puts every sample in one group, still split at the caps. Exit codes follow
+`profile`.
+
+## Iterate
+
+`iterate` continues one or more succeeded `coassemble` runs for at most
+`--max-rounds` rounds (2–99, default 3), counting the coassemblies as round 1;
+see [the M6 decision](decisions/0006-iterative-assembly.md). Combined runs
+must have disjoint samples and come from discover runs with the same
+catalogue and assignment policy. Every discover run and pool is re-verified
+against its digests, as are the input contigs.
+
+Groups for later rounds come from `--metadata`/`--group-by`, `--per-sample`,
+or `--all-samples` over all samples of all inputs, or from `--keep-groups`
+(each input run's groups). One grouping applies to every later round. Later
+rounds assemble only leftovers, so `--max-group-samples` is unlimited unless
+given; `--max-group-bases` is checked against the original pool sizes, an
+upper bound on any round's input. `coassemble` by metadata followed by
+`iterate --all-samples` pools every group's unassigned pairs into one
+assembly per round. Contigs are shared: one cumulative accepted set serves
+every group. Pools are mapped against the contigs only; they already exclude
+pairs explained by the selected references.
+
+| Stage | Work and outputs |
+| --- | --- |
+| `accept-r01` | Input contigs of at least `--min-contig-length` (1,000) bp, renamed `r01.runNN.GROUP__ID`, minus contained duplicates: `cumulative.fa`, `contigs.tsv`, `accept.json`, `candidates.json` |
+| `check-rNN-GROUP` | Maps each member's pool to the previous cumulative set and keeps the pairs not settled (`SAMPLE/pool_R1/R2.fastq.gz`, `SAMPLE/decisions.tsv.gz`, `SAMPLE/classification.json`), then decides whether the group stops: `round.json` |
+| `assemble-rNN-GROUP` | MEGAHIT on the kept pools; contigs `rNN.GROUP__ID`; status `contigs`, `no-contigs`, or `skipped` |
+| `accept-rNN` | The round's new contigs, accepted as in round 1; an accepted contig contained in a new one is superseded |
+
+`residual-only` checks the previous round's remaining pairs with the
+`explained` rule (both mates at `--min-identity` 0.98 and
+`--min-aligned-fraction` 0.90 to any accepted contig). `recruitment` checks
+the original discovery pools every round with the `certain` rule (also MAPQ
+of at least `--min-mapq` 20, a proper pair on one contig, and no qualifying
+alignment to another contig). A group stops, in this order of precedence,
+when nothing is left (`exhausted`), when its next input equals its previous
+input (`unchanged-input`), when the contigs settle less than `--min-progress`
+(0.01) of its previous input (`insufficient-progress`), or when the previous
+round accepted no contig (`no-accepted-contigs`); otherwise at `max-rounds`.
+Later stages of a stopped group still appear and record the stop. The final
+contigs are `stages/accept-rNN/cumulative.fa` of the last round. Exit codes
+follow `profile`; `minimap2` is required for containment.
 
 ## Flags and defaults
 
@@ -171,9 +222,9 @@ Exit codes follow `profile`.
 | `--memory-gib` | required for plan/run | Positive integer total budget in binary GiB |
 | `--threads` | 1 | Positive integer total thread budget, across tasks |
 | `--jobs` | 1 | Positive task concurrency, no greater than threads |
-| `--max-group-samples` | 32 | Positive sample-count cap per planned assembly group |
+| `--max-group-samples` | 32 (unlimited for iterate) | Positive sample-count cap per assembly group |
 | `--iteration-strategy` | residual-only | residual-only or recruitment |
-| `--max-rounds` | 1 | Positive upper bound including the initial assembly |
+| `--max-rounds` | 1 (plan), 3 (iterate) | Positive upper bound including the initial assembly; 2–99 for iterate |
 | `--output-dir` | required for run | Reserved execution output location |
 | `--profiler` | sylph | sylph, kraken2, or experimental locove |
 | `--mapper` | strobealign | strobealign or minimap2 |
@@ -247,21 +298,23 @@ affect this pool; catalogue absence is not evidence of a novel species.
 
 - `residual-only`: after each group assembly, map against cumulative accepted
   contigs and assemble only pairs still unassigned to those contigs.
-- `recruitment`: use new contigs to recruit pairs and their mates from the
-  group's preserved original discovery pool for refinement or extension.
-  This pool is the retained input after reference subtraction, not a pool
-  destructively overwritten after every round.
+- `recruitment`: revisit the group's preserved original discovery pool every
+  round and reassemble every pair that the cumulative contigs do not
+  certainly explain, with both mates. This pool is the retained input after
+  reference subtraction, not a pool destructively overwritten after every
+  round. (Owner amendment in M6: this replaces the M1 seed rule of one mate
+  at 95% identity and 80% aligned fraction to a new contig.)
 
 Both strategies preserve original input files, sample identity, and prior
 round outputs. Read IDs can collide across samples: downstream extraction must
-use sample-aware identifiers and preserve mate identity. Thresholds, acceptance
-rules, and convergence criteria remain research decisions.
+use sample-aware identifiers and preserve mate identity. The M6 thresholds,
+acceptance rule, and stop policy are provisional owner choices, not
+benchmarked defaults.
 
-`--max-rounds` always bounds execution once available. Empty pools, no valid
-new contigs, and insufficient measurable progress must also stop iteration
-under an explicit policy. Reassembling identical inputs with identical
-parameters is not automatically useful. No numerical convergence defaults
-are chosen before benchmarking.
+`--max-rounds` always bounds execution. Empty pools, no valid new contigs,
+identical inputs, and insufficient measurable progress also stop iteration
+(see Iterate). The 1% progress default is provisional, chosen by the owner
+before benchmarking.
 
 ## Streams, exits, and future outputs
 

@@ -170,7 +170,7 @@ def rounds_figure(data, path):
     pairs_ax.set_xticks([1, 2, 3])
     pairs_ax.set_xlabel("Round")
     pairs_ax.set_ylabel("Read pairs (log scale)")
-    pairs_ax.set_title("Pairs assembled per round (all pooled)")
+    pairs_ax.set_title("Pairs assembled (pooled)")
     recessive_grid(pairs_ax, "y")
     contigs_ax.set_xticks([1, 2, 3])
     contigs_ax.set_ylim(0, 100)
