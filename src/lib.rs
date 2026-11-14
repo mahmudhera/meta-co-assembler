@@ -1,10 +1,12 @@
 //! Contracts and input validation for an exploratory coassembly pipeline.
 //!
 //! `profiling` selects candidate references with Sylph or LoCovE, and
-//! `discovery` maps reads to them and writes per-sample discovery pools, both
-//! through the `execution` engine. Assembly is not implemented and the `run`
+//! `discovery` maps reads to them and writes per-sample discovery pools, and
+//! `assembly` coassembles grouped pools (or original reads) with MEGAHIT, all
+//! through the `execution` engine. Iteration is not implemented and the `run`
 //! command remains reserved.
 
+pub mod assembly;
 pub mod catalogue;
 pub mod cli;
 pub mod digest;
