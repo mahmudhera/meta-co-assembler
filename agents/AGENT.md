@@ -9,8 +9,10 @@ AI agents assist software development only; no LLM runs inside the pipeline.
 Read the CLI contract, architecture, roadmap, and existing code before editing.
 Report the current capability honestly: validation, research planning,
 per-sample reference profiling, discovery-pool extraction, grouped
-coassembly (by metadata or sketch similarity), and bounded iteration
-(residual-only and recruitment) work; MAG recovery does not.
+coassembly (by metadata or sketch similarity), bounded iteration
+(residual-only and recruitment), and binning with CheckM2 quality, skani
+dereplication, and catalogue comparison work. Bins are MAG candidates by
+completeness and contamination only; taxonomic novelty is not assessed.
 Do not return placeholder scientific results.
 
 The owner is exploring whether this approach works. Prefer the smallest
@@ -28,7 +30,7 @@ the contig pilot justifies further investment.
 - Execute on one node with explicit total CPU/memory budgets.
 - Group using metadata or bounded FracMinHash sketches (M8).
 - Expose both residual-only and recruitment iteration through the CLI.
-- Produce contigs first. MAG recovery is conditional future work.
+- Produce contigs first; M9 bins them (MetaBAT 2 or SemiBin2) and assesses bins with CheckM2.
 - Catalogue absence is the intended discovery target; novel species/strain
   claims require separate evidence.
 - Preprocessing and SLURM support are future features.
