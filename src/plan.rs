@@ -8,6 +8,7 @@ use crate::{
     manifest::{
         Metadata, Sample, ValidationReport, read_metadata, read_samples, validation_report,
     },
+    tools::{MappingMode, Profiler, ToolSelection},
 };
 
 #[derive(Debug, Serialize)]
@@ -20,6 +21,8 @@ pub struct ResearchPlan {
     pub group_by: String,
     pub groups: Vec<Group>,
     pub resources: Resources,
+    pub tools: ToolSelection,
+    pub read_extractor: &'static str,
     pub iteration: Iteration,
     pub read_retention: &'static str,
     pub stages: Vec<&'static str>,
@@ -57,14 +60,37 @@ pub fn make_plan(args: &PlanArgs) -> Result<ResearchPlan, Error> {
         &args.group_by,
         args.max_group_samples.get(),
     )?;
+    let mut unresolved = vec![
+        "reference-catalogue-and-taxonomy-crosswalk",
+        "profiler-adapter",
+        "reference-mapper-adapter",
+        "read-extractor-adapter",
+        "coassembler-adapter",
+        "assignment-and-recruitment-thresholds",
+        "convergence-criteria",
+    ];
+    if args.tools.profiler == Profiler::Locove
+        || args.tools.mapping_mode == MappingMode::LocoveGuided
+    {
+        unresolved.push("locove-evidence-policy-and-source-revision");
+    }
+    if args.tools.mapping_mode == MappingMode::LocoveGuided {
+        unresolved.extend([
+            "region-padding-and-coordinate-liftover",
+            "full-reference-confidence-validation",
+            "guided-mapping-correctness-and-speed-evaluation",
+        ]);
+    }
     Ok(ResearchPlan {
-        schema_version: 1,
+        schema_version: 2,
         executable: false,
         summary: validation_report(&samples, Some(&metadata)),
         samples,
         metadata: metadata.rows,
         group_by: args.group_by.clone(),
         groups,
+        tools: args.tools.clone(),
+        read_extractor: "samtools-with-pair-level-decision",
         resources: Resources {
             threads: args.threads.get(),
             memory_gib: args.memory_gib.get(),
@@ -84,15 +110,7 @@ pub fn make_plan(args: &PlanArgs) -> Result<ResearchPlan, Error> {
             "coassemble-per-group",
             "map-cumulative-contigs-and-evaluate-next-round",
         ],
-        unresolved: vec![
-            "reference-catalogue-and-taxonomy-crosswalk",
-            "profiler",
-            "reference-mapper",
-            "read-extractor",
-            "coassembler",
-            "assignment-and-recruitment-thresholds",
-            "convergence-criteria",
-        ],
+        unresolved,
     })
 }
 

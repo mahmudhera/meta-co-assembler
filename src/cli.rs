@@ -7,6 +7,7 @@ use clap::{Args, Parser, Subcommand, ValueEnum};
 use serde::Serialize;
 
 use crate::error::Error;
+use crate::tools::ToolSelection;
 
 #[derive(Debug, Parser)]
 #[command(
@@ -40,6 +41,8 @@ pub struct ValidateArgs {
 
 #[derive(Debug, Args)]
 pub struct PlanArgs {
+    #[command(flatten)]
+    pub tools: ToolSelection,
     /// TSV with sample_id, read1, read2 columns.
     #[arg(long)]
     pub samples: PathBuf,
@@ -145,6 +148,13 @@ mod tests {
         assert_eq!(args.max_rounds.get(), 1);
         assert_eq!(args.jobs.get(), 1);
         assert_eq!(args.threads.get(), 1);
+        assert_eq!(args.tools.profiler, crate::tools::Profiler::Sylph);
+        assert_eq!(args.tools.mapper, crate::tools::Mapper::Strobealign);
+        assert_eq!(args.tools.assembler, crate::tools::Assembler::Megahit);
+        assert_eq!(
+            args.tools.mapping_mode,
+            crate::tools::MappingMode::FullReference
+        );
         assert!(args.validate().is_ok());
     }
 
@@ -206,5 +216,31 @@ mod tests {
     fn unknown_strategies_and_flags_are_rejected() {
         assert!(Cli::try_parse_from(plan_args(&["--iteration-strategy", "automatic"])).is_err());
         assert!(Cli::try_parse_from(plan_args(&["--use-ai"])).is_err());
+    }
+
+    #[test]
+    fn backend_selection_is_independent_and_rejects_unknown_values() {
+        for profiler in ["sylph", "kraken2", "locove"] {
+            for mapper in ["strobealign", "minimap2"] {
+                for assembler in ["megahit", "metaspades"] {
+                    assert!(
+                        Cli::try_parse_from(plan_args(&[
+                            "--profiler",
+                            profiler,
+                            "--mapper",
+                            mapper,
+                            "--assembler",
+                            assembler,
+                            "--mapping-mode",
+                            "locove-guided",
+                        ]))
+                        .is_ok()
+                    );
+                }
+            }
+        }
+        for flag in ["--profiler", "--mapper", "--assembler", "--mapping-mode"] {
+            assert!(Cli::try_parse_from(plan_args(&[flag, "unknown"])).is_err());
+        }
     }
 }
