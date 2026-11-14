@@ -50,6 +50,8 @@ pub type StepsHook = Box<dyn Fn(&Path) -> Result<Vec<Step>, String> + Send + Syn
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub enum OutputKind {
     NonEmptyFile,
+    /// A regular file that may be empty, such as an assembly without contigs.
+    File,
     Directory,
 }
 
@@ -65,6 +67,14 @@ impl OutputSpec {
         Self {
             path: path.into(),
             kind: OutputKind::NonEmptyFile,
+        }
+    }
+
+    /// A regular file that may legitimately be empty.
+    pub fn maybe_empty(path: impl Into<PathBuf>) -> Self {
+        Self {
+            path: path.into(),
+            kind: OutputKind::File,
         }
     }
 
@@ -111,6 +121,8 @@ pub struct ExecOptions {
     pub log_cap_bytes: u64,
     pub log_tail_bytes: usize,
     pub scratch_sample_interval: Duration,
+    /// How often a running process group's memory is sampled (Linux).
+    pub memory_sample_interval: Duration,
 }
 
 impl Default for ExecOptions {
@@ -121,6 +133,7 @@ impl Default for ExecOptions {
             log_cap_bytes: 16 * MIB,
             log_tail_bytes: 64 * 1024,
             scratch_sample_interval: Duration::from_secs(5),
+            memory_sample_interval: Duration::from_secs(1),
         }
     }
 }
@@ -175,6 +188,9 @@ pub struct StageReport {
     pub scratch_peak_bytes: Option<u64>,
     pub scratch_over_reservation: bool,
     pub output_bytes: Option<u64>,
+    /// Largest sampled resident memory of any step's process group, in KiB
+    /// (Linux; absent elsewhere). Admission uses reservations, not this.
+    pub peak_rss_kib: Option<u64>,
 }
 
 /// The run manifest, written to `run.json` after every state change.
@@ -380,6 +396,7 @@ fn check_outputs(task: &TaskSpec, dir: &Path) -> Result<(), String> {
             .map_err(|error| format!("missing output {}: {error}", output.path.display()))?;
         let ok = match output.kind {
             OutputKind::NonEmptyFile => metadata.is_file() && metadata.len() > 0,
+            OutputKind::File => metadata.is_file(),
             OutputKind::Directory => metadata.is_dir(),
         };
         if !ok {
@@ -388,6 +405,7 @@ fn check_outputs(task: &TaskSpec, dir: &Path) -> Result<(), String> {
                 output.path.display(),
                 match output.kind {
                     OutputKind::NonEmptyFile => "nonempty regular file",
+                    OutputKind::File => "regular file",
                     OutputKind::Directory => "directory",
                 }
             ));
@@ -441,6 +459,7 @@ fn run_task(
         poll: options.poll_interval,
         log_cap: options.log_cap_bytes,
         log_tail: options.log_tail_bytes,
+        memory_interval: options.memory_sample_interval,
     };
     let mut peak = 0u64;
     let mut last_sample: Option<Instant> = None;
@@ -597,6 +616,7 @@ pub fn execute(
                 scratch_peak_bytes: None,
                 scratch_over_reservation: false,
                 output_bytes: None,
+                peak_rss_kib: None,
             })
             .collect(),
     };
@@ -709,6 +729,11 @@ pub fn execute(
             stage.scratch_over_reservation =
                 outcome.scratch_peak_bytes > stage.reservation.scratch_mib.saturating_mul(MIB);
             stage.output_bytes = outcome.output_bytes;
+            stage.peak_rss_kib = stage
+                .steps
+                .iter()
+                .filter_map(|step| step.memory.map(|memory| memory.peak_group_rss_kib))
+                .max();
             if outcome.status == StageStatus::Failed && stop.is_none() {
                 stop = Some(format!("task {} failed", stage.id));
             }

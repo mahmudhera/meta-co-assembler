@@ -84,6 +84,7 @@ pub fn fast_options() -> ExecOptions {
         log_cap_bytes: 4096,
         log_tail_bytes: 256,
         scratch_sample_interval: Duration::from_millis(10),
+        memory_sample_interval: Duration::from_millis(10),
     }
 }
 
