@@ -1,8 +1,9 @@
 //! Contracts and input validation for an exploratory coassembly pipeline.
 //!
-//! The `profiling` module runs Sylph or LoCovE through the `execution` engine
-//! to select candidate references; mapping and assembly are not implemented
-//! and the `run` command remains reserved.
+//! `profiling` selects candidate references with Sylph or LoCovE, and
+//! `discovery` maps reads to them and writes per-sample discovery pools, both
+//! through the `execution` engine. Assembly is not implemented and the `run`
+//! command remains reserved.
 
 pub mod catalogue;
 pub mod cli;
