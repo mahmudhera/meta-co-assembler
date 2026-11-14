@@ -17,10 +17,19 @@ MEGAHIT/metaSPAdes, with Samtools for alignment I/O. The initial pilot uses
 Sylph, Strobealign, and MEGAHIT. See the [pilot protocol](experiments/pilot/README.md)
 and [LoCovE investigation](docs/research/locove.md).
 
-M2 adds a local execution engine as a library: budget admission, process-group
-termination, capped logs, and atomic stage completion, tested with fake tools.
-`run` stays reserved until a real stage exists, and resume is not supported;
-see [the M2 decision](docs/decisions/0002-local-execution.md).
+M2 adds a local execution engine: budget admission, process-group
+termination, capped logs, and atomic stage completion; resume is not
+supported ([decision](docs/decisions/0002-local-execution.md)). M3 adds the
+`profile` command, which selects candidate references per sample from a
+frozen catalogue with Sylph or experimental LoCovE
+([decision](docs/decisions/0003-reference-profiling.md)). `run` stays
+reserved until mapping and assembly exist.
+
+```sh
+meta-co-assembler profile --samples data/pilot/samples.tsv \
+  --catalogue data/pilot/catalogues/species_holdout/catalogue.tsv \
+  --output-dir results/profile-species-holdout --threads 16 --jobs 4 --memory-gib 32
+```
 
 ## Environment and build
 
@@ -121,6 +130,8 @@ cargo fmt --all --check
 cargo clippy --locked --all-targets -- -D warnings
 cargo test --locked --all-targets
 python -m unittest discover -s tests/pilot -v
+# Opt-in, not in CI: real Sylph and LoCovE on tiny synthetic data.
+cargo test --locked --test profiling_tools -- --ignored
 ```
 
 The tests use tiny, temporary fixtures and require no reference database,

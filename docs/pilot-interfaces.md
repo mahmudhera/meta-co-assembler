@@ -46,11 +46,12 @@ identity. Every index must be bound to this catalogue's content digest.
   crosswalk to the catalogue's assembly IDs. Include appropriate descendants
   for higher-rank direct calls. Do not expand clade totals as if they were
   independent direct detections. Freeze the minimal taxonomy snapshot when
-  building the custom database in M3.
+  building the custom database (deferred to roadmap M14).
 - LoCovE: map `genomes[rec_genome[seg_record]]` and `records[seg_record]`
   through the exact build registry. Genome names are derived from FASTA
   basenames; require unique names. Its evidence is pooled local coverage,
-  not a taxon call, ANI value, or read assignment.
+  not a taxon call, ANI value, or read assignment. M3 selects from the
+  per-genome `stats.tsv` (`--stats-out`), keyed by the same genome names.
 
 Unknown, duplicated, or ambiguous registry names fail normalization.
 Holdouts are physically absent from each index input set; a normalizer cannot
@@ -58,10 +59,12 @@ silently add a held-out truth reference.
 
 ## Normalized evidence
 
-`candidates.tsv` records sample_id, reference_id, selection_reason,
-source_backend, source_record, and backend-specific evidence. Preserve raw
-outputs. Keep ANI, taxonomic/sequence abundance, classification counts, anchor
-breadth, and depth in distinct nullable fields with explicit units.
+`candidates.tsv` (implemented in M3) records `sample_id, reference_id,
+selection` (`direct` or `species-expansion`), `expanded_from, backend,
+backend_record, taxid, species_taxid`, and backend-specific evidence in
+distinct nullable columns with explicit units; see
+[the M3 decision](decisions/0003-reference-profiling.md). Raw outputs are
+preserved. Kraken2 classification counts will add their own columns in M14.
 
 Optional `regions.tsv` records sample_id, reference_id, record_id,
 start, end, anchor_count, anchor_breadth, depth_variant, depth, and evidence_state.

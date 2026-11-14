@@ -17,15 +17,18 @@ Plans explicitly remain non-executable. FASTQ contents are not read.
 | `manifest` | Streaming TSV parsing, read-path checks, metadata summary |
 | `plan` | Deterministic grouping and non-executable JSON research plans |
 | `tools` | Selectable backends and guidance options, recorded only |
-| `execution` | Library engine: budget admission, process groups, capped logs, atomic stage publication, run manifest; not yet used by `run` |
+| `execution` | Engine: budget admission, process groups, capped logs, before/after hooks, atomic stage publication, run manifest |
+| `catalogue` | Frozen reference catalogue parsing, digest verification, species grouping |
+| `profiling` | `profile` command: Sylph and LoCovE adapters, normalized candidates, species expansion |
 | `error` | Contextual diagnostics and documented exit categories |
 | Binary entry point | Dispatch and JSON stdout/stderr boundary |
 
 Table data is held in memory proportional to sample/metadata size. Biological
-read volume is never held in memory. The CLI does not yet schedule tasks or run
-tools. The `execution` module can, and is tested with fake executables; no
-biological adapter uses it before M3. Nothing caches results or fingerprints
-inputs, and resume is unsupported.
+read volume is never held in memory. `profile` runs Sylph or LoCovE through
+the execution engine to select candidate references per sample; mapping,
+extraction, and assembly are not implemented and `run` stays reserved.
+Catalogue FASTA digests are verified on every run; read files are not
+fingerprinted, and resume is unsupported.
 
 ## Dependency environment
 

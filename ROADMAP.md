@@ -88,6 +88,11 @@ Implement the confirmed profiler and reference selection adapter per sample.
 Capture the full tool report, resolved accessions, catalogue provenance,
 selection criteria, and resource observations.
 
+Implementation for review: [decision](docs/decisions/0003-reference-profiling.md)
+and the `profile` command, with Sylph (`query`, adjusted ANI >= 95%) and
+experimental LoCovE (k-mer breadth >= 0.10) plus same-species expansion.
+Kraken2 is deferred to M14. Per-task peak RSS remains M5 work.
+
 Acceptance:
 
 - Tiny pinned integration inputs yield normalized, versioned per-sample outputs.
@@ -248,6 +253,25 @@ Acceptance:
 - Reproducible installation and a small tutorial dataset work end to end.
 - Platform support distinguishes the portable Rust CLI from external tool support.
 - Release publishing is configured only when requested by the owner.
+
+## M14 — Kraken2 profiling adapter
+
+Suggested branch: `feature/kraken2-profiling`. Depends on M3. Deferred from
+M3 by owner decision.
+
+Build a custom Kraken2 database from a catalogue with a frozen, minimal NCBI
+taxonomy snapshot, and normalize classifications through a taxid-to-assembly
+crosswalk as specified in `docs/pilot-interfaces.md`.
+
+Acceptance:
+
+- Database construction is explicit, reproducible, and bound to the catalogue
+  and taxonomy snapshot digests; execution never downloads taxonomy.
+- Higher-rank calls resolve to descendant catalogue references without
+  treating clade totals as independent direct detections.
+- Outputs use the M3 `candidates.tsv` and `profile.json` contracts, with
+  classification counts in their own nullable evidence columns.
+- Selection thresholds are confirmed with the owner before use.
 
 ## M13 — Safe resume
 
