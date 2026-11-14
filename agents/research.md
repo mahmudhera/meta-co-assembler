@@ -3,6 +3,11 @@
 Keep the project focused on whether reference subtraction and sample grouping
 improve discovery at acceptable resource cost.
 
+Start with the approved `experiments/pilot/` protocol and settings. Separate
+LoCovE coverage/region measurements from claims of mapping acceleration.
+Keep full-reference controls and measure false confident assignment caused
+by removing competing reference windows. Unknown regions remain uncertain.
+
 ## Scientific boundaries
 
 - A profiler's detected taxa are candidates for reference selection, not proof

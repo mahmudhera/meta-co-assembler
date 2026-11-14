@@ -1,0 +1,58 @@
+{
+  "schema_version": 1,
+  "milestone": "M1",
+  "status": "implemented_for_review",
+  "scope": "Pilot preparation, backend selection contracts, and LoCovE feasibility investigation; pipeline execution and the scientific success gate are not evaluated.",
+  "dataset": {
+    "directory": "data/pilot",
+    "manifest_sha256": "94363cceec93e5a70df1e4010bc2f0ecc0d651aa0e4c7c6265f60758817f623a",
+    "config_sha256": "312af0ad682956a06fd3097cd286feb724ad69e7524387e3c10bab92191c7b87",
+    "preparation_script_sha256": "93a6b0de1463b065ca311f14f86a1baeadc98dcf9d185d02541930bec1d36db2",
+    "samples": 8,
+    "groups": 2,
+    "read_pairs": 8000000,
+    "individual_reads": 16000000,
+    "read_length": 150,
+    "sequenced_bases": 2400000000,
+    "compressed_fastq_bytes": 1734958477,
+    "references": 9,
+    "catalogue_reference_counts": {
+      "all_known": 9,
+      "species_holdout": 7,
+      "strain_holdout": 8,
+      "combined_holdout": 6
+    },
+    "verified": [
+      "all read-file SHA256 digests",
+      "all reference FASTA SHA256 digests",
+      "all pair names and mate synchronization",
+      "all read lengths",
+      "exact per-source and per-sample pair counts",
+      "catalogue membership and FASTA digests",
+      "configuration and composition fingerprints"
+    ]
+  },
+  "checks": {
+    "rust_tests_passed": 31,
+    "python_preparation_tests_passed": 9,
+    "rustfmt": "passed",
+    "clippy_warnings_denied": "passed",
+    "release_build": "passed",
+    "workflow_actionlint": "passed",
+    "local_markdown_links": "passed",
+    "actual_dataset_plan_smoke_tests": [
+      "sylph/full-reference",
+      "kraken2/full-reference",
+      "locove/locove-guided"
+    ],
+    "reserved_execution": "exit 3; no output directory created",
+    "conda_pins_verified": 12
+  },
+  "locove": {
+    "source_revision": "436f7cf4e3574dd77fdff2d0c099bffa5b67bdd1",
+    "upstream_tests_passed": 11,
+    "benchmark": "locove-demo-benchmark.json",
+    "region_analysis": "locove-demo-windows.json",
+    "mapping_speedup": "not measured or established"
+  }
+}
