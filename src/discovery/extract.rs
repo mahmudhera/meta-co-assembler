@@ -255,9 +255,9 @@ pub struct Request<'a> {
     pub output_dir: &'a Path,
 }
 
-type Output = GzEncoder<HashingWriter<io::BufWriter<File>>>;
+pub(crate) type Output = GzEncoder<HashingWriter<io::BufWriter<File>>>;
 
-fn create(path: &Path) -> Result<Output, Error> {
+pub(crate) fn create(path: &Path) -> Result<Output, Error> {
     let file = File::create_new(path).map_err(|source| Error::Io {
         context: format!("cannot create {}", path.display()),
         source,
@@ -269,7 +269,7 @@ fn create(path: &Path) -> Result<Output, Error> {
 }
 
 /// Completes the gzip stream and returns the SHA-256 of the file's bytes.
-fn finish(encoder: Output, path: &Path) -> Result<String, Error> {
+pub(crate) fn finish(encoder: Output, path: &Path) -> Result<String, Error> {
     let io_error = |source| Error::Io {
         context: format!("cannot finish {}", path.display()),
         source,

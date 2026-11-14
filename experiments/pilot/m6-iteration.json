@@ -1,0 +1,2667 @@
+{
+  "budget": {
+    "memory_gib": 64,
+    "threads": 16
+  },
+  "design": "The owner's pooled flow: each community is discovered (Sylph, Strobealign) and coassembled (MEGAHIT) on its own; iterate then shares both coassemblies' contigs, maps every discovery pool to them, and pools all unassigned pairs into one assembly per round (--all-samples), for at most 3 rounds. Arms: round1 = the coassemblies after acceptance (>= 1,000 bp, containment removed); residual-only and recruitment = pooled final contigs; *-by-community = later rounds kept per community; all-reads = grouped all-read assembly (all-reads-pooled: all samples in one). Inputs count every round's assemblies. Held-out genomes are species absent from the catalogue; genomes with a catalogued relative of the same species count as explained.",
+  "milestone": "M6",
+  "pilot": {
+    "combined_holdout": {
+      "evaluation": {
+        "arms": {
+          "all-reads": {
+            "assemblies": 2,
+            "assembly_seconds": 298.0,
+            "assembly_statuses": [
+              "contigs"
+            ],
+            "command": "assemble-reads",
+            "input_bases": 2400000000,
+            "input_pairs": 8000000,
+            "max_peak_rss_kib": 970860,
+            "max_scratch_peak_bytes": 631576440,
+            "pooled_contig_sets": 0,
+            "source_kind": "all-reads"
+          },
+          "recruitment": {
+            "assemblies": 4,
+            "assembly_seconds": 94.3,
+            "assembly_statuses": [
+              "contigs"
+            ],
+            "check_and_accept_seconds": 32.4,
+            "command": "iterate",
+            "input_bases": 406932000,
+            "input_pairs": 1356440,
+            "max_peak_rss_kib": 211700,
+            "max_scratch_peak_bytes": 121805517,
+            "pooled_contig_sets": 1,
+            "rounds_evaluated": 3,
+            "source_kind": "discovery-pools"
+          },
+          "recruitment-by-community": {
+            "assemblies": 6,
+            "assembly_seconds": 99.7,
+            "assembly_statuses": [
+              "contigs"
+            ],
+            "check_and_accept_seconds": 33.7,
+            "command": "iterate",
+            "input_bases": 406932000,
+            "input_pairs": 1356440,
+            "max_peak_rss_kib": 211700,
+            "max_scratch_peak_bytes": 121805517,
+            "pooled_contig_sets": 0,
+            "rounds_evaluated": 3,
+            "source_kind": "discovery-pools"
+          },
+          "residual-only": {
+            "assemblies": 4,
+            "assembly_seconds": 93.7,
+            "assembly_statuses": [
+              "contigs"
+            ],
+            "check_and_accept_seconds": 19.8,
+            "command": "iterate",
+            "input_bases": 403892400,
+            "input_pairs": 1346308,
+            "max_peak_rss_kib": 211700,
+            "max_scratch_peak_bytes": 121805517,
+            "pooled_contig_sets": 1,
+            "rounds_evaluated": 3,
+            "source_kind": "discovery-pools"
+          },
+          "residual-only-by-community": {
+            "assemblies": 6,
+            "assembly_seconds": 95.9,
+            "assembly_statuses": [
+              "contigs"
+            ],
+            "check_and_accept_seconds": 18.5,
+            "command": "iterate",
+            "input_bases": 403892400,
+            "input_pairs": 1346308,
+            "max_peak_rss_kib": 211700,
+            "max_scratch_peak_bytes": 121805517,
+            "pooled_contig_sets": 0,
+            "rounds_evaluated": 3,
+            "source_kind": "discovery-pools"
+          },
+          "round1": {
+            "assemblies": 2,
+            "assembly_seconds": 83.9,
+            "assembly_statuses": [
+              "contigs"
+            ],
+            "check_and_accept_seconds": 1.1,
+            "command": "iterate",
+            "input_bases": 398716200,
+            "input_pairs": 1329054,
+            "max_peak_rss_kib": 211700,
+            "max_scratch_peak_bytes": 121805517,
+            "pooled_contig_sets": 0,
+            "rounds_evaluated": 1,
+            "source_kind": "discovery-pools"
+          }
+        },
+        "communities": {
+          "community_A": {
+            "heldout": [
+              "GCF_000009045.1"
+            ],
+            "heldout_genome_fraction_percent": {
+              "all-reads": {
+                "GCF_000009045.1": 98.809
+              },
+              "recruitment": {
+                "GCF_000009045.1": 99.021
+              },
+              "recruitment-by-community": {
+                "GCF_000009045.1": 99.048
+              },
+              "residual-only": {
+                "GCF_000009045.1": 98.979
+              },
+              "residual-only-by-community": {
+                "GCF_000009045.1": 98.979
+              },
+              "round1": {
+                "GCF_000009045.1": 98.78
+              }
+            },
+            "report": {
+              "all-reads": {
+                "bases_at_least_1000": 19521407,
+                "combined_genome_fraction_percent": 93.04,
+                "contigs_at_least_1000": 452,
+                "indels_per_100kbp": 0.91,
+                "largest_contig": 925379,
+                "local_misassemblies": 3,
+                "misassemblies": 7,
+                "mismatches_per_100kbp": 5.1,
+                "n50": 203182,
+                "unaligned_length": 0
+              },
+              "recruitment": {
+                "bases_at_least_1000": 4195510,
+                "combined_genome_fraction_percent": 17.321,
+                "contigs_at_least_1000": 38,
+                "indels_per_100kbp": 1.7,
+                "largest_contig": 925379,
+                "local_misassemblies": 2,
+                "misassemblies": 3,
+                "mismatches_per_100kbp": 7.98,
+                "n50": 541708,
+                "unaligned_length": 7606
+              },
+              "recruitment-by-community": {
+                "bases_at_least_1000": 4189183,
+                "combined_genome_fraction_percent": 17.338,
+                "contigs_at_least_1000": 35,
+                "indels_per_100kbp": 2.29,
+                "largest_contig": 925379,
+                "local_misassemblies": 2,
+                "misassemblies": 3,
+                "mismatches_per_100kbp": 9.31,
+                "n50": 541708,
+                "unaligned_length": 0
+              },
+              "residual-only": {
+                "bases_at_least_1000": 4190436,
+                "combined_genome_fraction_percent": 17.283,
+                "contigs_at_least_1000": 38,
+                "indels_per_100kbp": 1.39,
+                "largest_contig": 925379,
+                "local_misassemblies": 1,
+                "misassemblies": 1,
+                "mismatches_per_100kbp": 9.82,
+                "n50": 541708,
+                "unaligned_length": 13320
+              },
+              "residual-only-by-community": {
+                "bases_at_least_1000": 4176334,
+                "combined_genome_fraction_percent": 17.275,
+                "contigs_at_least_1000": 29,
+                "indels_per_100kbp": 0.89,
+                "largest_contig": 925379,
+                "local_misassemblies": 1,
+                "misassemblies": 1,
+                "mismatches_per_100kbp": 4.45,
+                "n50": 541708,
+                "unaligned_length": 0
+              },
+              "round1": {
+                "bases_at_least_1000": 4166011,
+                "combined_genome_fraction_percent": 17.202,
+                "contigs_at_least_1000": 22,
+                "indels_per_100kbp": 0.14,
+                "largest_contig": 925379,
+                "local_misassemblies": 1,
+                "misassemblies": 0,
+                "mismatches_per_100kbp": 2.14,
+                "n50": 541708,
+                "unaligned_length": 0
+              }
+            },
+            "represented_by_relative": [
+              "GCF_000010245.2"
+            ],
+            "represented_by_relative_genome_fraction_percent": {
+              "all-reads": {
+                "GCF_000010245.2": 67.413
+              },
+              "recruitment": {
+                "GCF_000010245.2": 0.026
+              },
+              "recruitment-by-community": {
+                "GCF_000010245.2": 0.026
+              },
+              "residual-only": {
+                "GCF_000010245.2": 0.026
+              },
+              "residual-only-by-community": {
+                "GCF_000010245.2": 0.026
+              },
+              "round1": {
+                "GCF_000010245.2": 0.026
+              }
+            }
+          },
+          "community_B": {
+            "heldout": [
+              "GCF_000011065.1"
+            ],
+            "heldout_genome_fraction_percent": {
+              "all-reads": {
+                "GCF_000011065.1": 98.859
+              },
+              "recruitment": {
+                "GCF_000011065.1": 98.904
+              },
+              "recruitment-by-community": {
+                "GCF_000011065.1": 98.903
+              },
+              "residual-only": {
+                "GCF_000011065.1": 98.951
+              },
+              "residual-only-by-community": {
+                "GCF_000011065.1": 98.951
+              },
+              "round1": {
+                "GCF_000011065.1": 98.86
+              }
+            },
+            "report": {
+              "all-reads": {
+                "bases_at_least_1000": 21577149,
+                "combined_genome_fraction_percent": 94.506,
+                "contigs_at_least_1000": 535,
+                "indels_per_100kbp": 0.75,
+                "largest_contig": 550303,
+                "local_misassemblies": 3,
+                "misassemblies": 7,
+                "mismatches_per_100kbp": 5.29,
+                "n50": 179925,
+                "unaligned_length": 0
+              },
+              "recruitment": {
+                "bases_at_least_1000": 6251759,
+                "combined_genome_fraction_percent": 23.656,
+                "contigs_at_least_1000": 85,
+                "indels_per_100kbp": 2.79,
+                "largest_contig": 468171,
+                "local_misassemblies": 0,
+                "misassemblies": 1,
+                "mismatches_per_100kbp": 18.42,
+                "n50": 192135,
+                "unaligned_length": 16940
+              },
+              "recruitment-by-community": {
+                "bases_at_least_1000": 6229817,
+                "combined_genome_fraction_percent": 23.611,
+                "contigs_at_least_1000": 73,
+                "indels_per_100kbp": 0.27,
+                "largest_contig": 468171,
+                "local_misassemblies": 0,
+                "misassemblies": 1,
+                "mismatches_per_100kbp": 2.39,
+                "n50": 192135,
+                "unaligned_length": 0
+              },
+              "residual-only": {
+                "bases_at_least_1000": 6245603,
+                "combined_genome_fraction_percent": 23.663,
+                "contigs_at_least_1000": 84,
+                "indels_per_100kbp": 1.73,
+                "largest_contig": 468171,
+                "local_misassemblies": 0,
+                "misassemblies": 2,
+                "mismatches_per_100kbp": 13.69,
+                "n50": 192135,
+                "unaligned_length": 6588
+              },
+              "residual-only-by-community": {
+                "bases_at_least_1000": 6235280,
+                "combined_genome_fraction_percent": 23.623,
+                "contigs_at_least_1000": 77,
+                "indels_per_100kbp": 0.34,
+                "largest_contig": 468171,
+                "local_misassemblies": 0,
+                "misassemblies": 1,
+                "mismatches_per_100kbp": 3.72,
+                "n50": 192135,
+                "unaligned_length": 0
+              },
+              "round1": {
+                "bases_at_least_1000": 6224247,
+                "combined_genome_fraction_percent": 23.603,
+                "contigs_at_least_1000": 70,
+                "indels_per_100kbp": 0.14,
+                "largest_contig": 468171,
+                "local_misassemblies": 0,
+                "misassemblies": 1,
+                "mismatches_per_100kbp": 1.67,
+                "n50": 194526,
+                "unaligned_length": 0
+              }
+            },
+            "represented_by_relative": [
+              "GCF_000010245.2"
+            ],
+            "represented_by_relative_genome_fraction_percent": {
+              "all-reads": {
+                "GCF_000010245.2": 72.556
+              },
+              "recruitment": {
+                "GCF_000010245.2": null
+              },
+              "recruitment-by-community": {
+                "GCF_000010245.2": null
+              },
+              "residual-only": {
+                "GCF_000010245.2": null
+              },
+              "residual-only-by-community": {
+                "GCF_000010245.2": null
+              },
+              "round1": {
+                "GCF_000010245.2": null
+              }
+            }
+          }
+        },
+        "evaluator": "QUAST v5.3.0 (MetaQUAST mode)",
+        "gate": {
+          "recruitment": {
+            "community_A": {
+              "heldout_recovery_loss_pp": {
+                "GCF_000009045.1": -0.212
+              },
+              "input_pair_reduction": 0.8304,
+              "passes_recovery": true,
+              "passes_reduction": true
+            },
+            "community_B": {
+              "heldout_recovery_loss_pp": {
+                "GCF_000011065.1": -0.045
+              },
+              "input_pair_reduction": 0.8305,
+              "passes_recovery": true,
+              "passes_reduction": true
+            },
+            "overall": {
+              "input_pair_reduction": 0.8304,
+              "passes": true
+            }
+          },
+          "recruitment-by-community": {
+            "community_A": {
+              "heldout_recovery_loss_pp": {
+                "GCF_000009045.1": -0.239
+              },
+              "input_pair_reduction": 0.8304,
+              "passes_recovery": true,
+              "passes_reduction": true
+            },
+            "community_B": {
+              "heldout_recovery_loss_pp": {
+                "GCF_000011065.1": -0.044
+              },
+              "input_pair_reduction": 0.8305,
+              "passes_recovery": true,
+              "passes_reduction": true
+            },
+            "overall": {
+              "input_pair_reduction": 0.8304,
+              "passes": true
+            }
+          },
+          "residual-only": {
+            "community_A": {
+              "heldout_recovery_loss_pp": {
+                "GCF_000009045.1": -0.17
+              },
+              "input_pair_reduction": 0.8317,
+              "passes_recovery": true,
+              "passes_reduction": true
+            },
+            "community_B": {
+              "heldout_recovery_loss_pp": {
+                "GCF_000011065.1": -0.092
+              },
+              "input_pair_reduction": 0.8317,
+              "passes_recovery": true,
+              "passes_reduction": true
+            },
+            "overall": {
+              "input_pair_reduction": 0.8317,
+              "passes": true
+            }
+          },
+          "residual-only-by-community": {
+            "community_A": {
+              "heldout_recovery_loss_pp": {
+                "GCF_000009045.1": -0.17
+              },
+              "input_pair_reduction": 0.8317,
+              "passes_recovery": true,
+              "passes_reduction": true
+            },
+            "community_B": {
+              "heldout_recovery_loss_pp": {
+                "GCF_000011065.1": -0.092
+              },
+              "input_pair_reduction": 0.8317,
+              "passes_recovery": true,
+              "passes_reduction": true
+            },
+            "overall": {
+              "input_pair_reduction": 0.8317,
+              "passes": true
+            }
+          },
+          "round1": {
+            "community_A": {
+              "heldout_recovery_loss_pp": {
+                "GCF_000009045.1": 0.029
+              },
+              "input_pair_reduction": 0.8339,
+              "passes_recovery": true,
+              "passes_reduction": true
+            },
+            "community_B": {
+              "heldout_recovery_loss_pp": {
+                "GCF_000011065.1": -0.001
+              },
+              "input_pair_reduction": 0.8338,
+              "passes_recovery": true,
+              "passes_reduction": true
+            },
+            "overall": {
+              "input_pair_reduction": 0.8339,
+              "passes": true
+            }
+          }
+        },
+        "heldout_level": "species",
+        "min_contig_length": 1000
+      },
+      "iterate": {
+        "recruitment": {
+          "final_contigs": {
+            "bases_in_contigs_at_least_1000": 10417770,
+            "contigs": 107,
+            "contigs_at_least_1000": 107,
+            "gc_percent": 43.09,
+            "l50": 11,
+            "max_length": 925379,
+            "n50": 231434,
+            "total_bases": 10417770
+          },
+          "groups": [
+            {
+              "original_pairs": 1329054,
+              "rounds": [
+                {
+                  "assembly_status": "contigs",
+                  "contigs": 208,
+                  "input_pairs": 1329054,
+                  "progress": 0.9904939904623892,
+                  "reason": null,
+                  "retained_pairs": 12634,
+                  "round": 2,
+                  "status": "continue"
+                },
+                {
+                  "assembly_status": "contigs",
+                  "contigs": 217,
+                  "input_pairs": 1329054,
+                  "progress": 0.11120785182839955,
+                  "reason": null,
+                  "retained_pairs": 14752,
+                  "round": 3,
+                  "status": "continue"
+                }
+              ],
+              "samples": [
+                "A01",
+                "A02",
+                "A03",
+                "A04",
+                "B01",
+                "B02",
+                "B03",
+                "B04"
+              ],
+              "stop": {
+                "reason": "max-rounds",
+                "round": 3
+              },
+              "value": "all"
+            }
+          ],
+          "rounds": [
+            {
+              "accepted": 92,
+              "candidates": 93,
+              "cumulative": 92,
+              "offered": 210,
+              "previous": 0,
+              "redundant": 1,
+              "round": 1,
+              "short": 117,
+              "superseded": 0
+            },
+            {
+              "accepted": 11,
+              "candidates": 15,
+              "cumulative": 102,
+              "offered": 208,
+              "previous": 92,
+              "redundant": 4,
+              "round": 2,
+              "short": 193,
+              "superseded": 1
+            },
+            {
+              "accepted": 9,
+              "candidates": 13,
+              "cumulative": 107,
+              "offered": 217,
+              "previous": 102,
+              "redundant": 4,
+              "round": 3,
+              "short": 204,
+              "superseded": 4
+            }
+          ],
+          "status": "succeeded"
+        },
+        "recruitment-by-community": {
+          "final_contigs": {
+            "bases_in_contigs_at_least_1000": 10419000,
+            "contigs": 108,
+            "contigs_at_least_1000": 108,
+            "gc_percent": 43.1,
+            "l50": 11,
+            "max_length": 925379,
+            "n50": 231434,
+            "total_bases": 10419000
+          },
+          "groups": [
+            {
+              "original_pairs": 664407,
+              "rounds": [
+                {
+                  "assembly_status": "contigs",
+                  "contigs": 78,
+                  "input_pairs": 664407,
+                  "progress": 0.9908504877281544,
+                  "reason": null,
+                  "retained_pairs": 6079,
+                  "round": 2,
+                  "status": "continue"
+                },
+                {
+                  "assembly_status": "contigs",
+                  "contigs": 85,
+                  "input_pairs": 664407,
+                  "progress": 0.14344464550090474,
+                  "reason": null,
+                  "retained_pairs": 8073,
+                  "round": 3,
+                  "status": "continue"
+                }
+              ],
+              "samples": [
+                "A01",
+                "A02",
+                "A03",
+                "A04"
+              ],
+              "stop": {
+                "reason": "max-rounds",
+                "round": 3
+              },
+              "value": "community_A"
+            },
+            {
+              "original_pairs": 664647,
+              "rounds": [
+                {
+                  "assembly_status": "contigs",
+                  "contigs": 150,
+                  "input_pairs": 664647,
+                  "progress": 0.9901376219256236,
+                  "reason": null,
+                  "retained_pairs": 6555,
+                  "round": 2,
+                  "status": "continue"
+                },
+                {
+                  "assembly_status": "contigs",
+                  "contigs": 155,
+                  "input_pairs": 664647,
+                  "progress": 0.08131197559115179,
+                  "reason": null,
+                  "retained_pairs": 6679,
+                  "round": 3,
+                  "status": "continue"
+                }
+              ],
+              "samples": [
+                "B01",
+                "B02",
+                "B03",
+                "B04"
+              ],
+              "stop": {
+                "reason": "max-rounds",
+                "round": 3
+              },
+              "value": "community_B"
+            }
+          ],
+          "rounds": [
+            {
+              "accepted": 92,
+              "candidates": 93,
+              "cumulative": 92,
+              "offered": 210,
+              "previous": 0,
+              "redundant": 1,
+              "round": 1,
+              "short": 117,
+              "superseded": 0
+            },
+            {
+              "accepted": 11,
+              "candidates": 14,
+              "cumulative": 102,
+              "offered": 228,
+              "previous": 92,
+              "redundant": 3,
+              "round": 2,
+              "short": 214,
+              "superseded": 1
+            },
+            {
+              "accepted": 9,
+              "candidates": 12,
+              "cumulative": 108,
+              "offered": 240,
+              "previous": 102,
+              "redundant": 3,
+              "round": 3,
+              "short": 228,
+              "superseded": 3
+            }
+          ],
+          "status": "succeeded"
+        },
+        "residual-only": {
+          "final_contigs": {
+            "bases_in_contigs_at_least_1000": 10411614,
+            "contigs": 106,
+            "contigs_at_least_1000": 106,
+            "gc_percent": 43.08,
+            "l50": 11,
+            "max_length": 925379,
+            "n50": 231434,
+            "total_bases": 10411614
+          },
+          "groups": [
+            {
+              "original_pairs": 1329054,
+              "rounds": [
+                {
+                  "assembly_status": "contigs",
+                  "contigs": 116,
+                  "input_pairs": 1329054,
+                  "progress": 0.9926489066659444,
+                  "reason": null,
+                  "retained_pairs": 9770,
+                  "round": 2,
+                  "status": "continue"
+                },
+                {
+                  "assembly_status": "contigs",
+                  "contigs": 101,
+                  "input_pairs": 9770,
+                  "progress": 0.23398157625383828,
+                  "reason": null,
+                  "retained_pairs": 7484,
+                  "round": 3,
+                  "status": "continue"
+                }
+              ],
+              "samples": [
+                "A01",
+                "A02",
+                "A03",
+                "A04",
+                "B01",
+                "B02",
+                "B03",
+                "B04"
+              ],
+              "stop": {
+                "reason": "max-rounds",
+                "round": 3
+              },
+              "value": "all"
+            }
+          ],
+          "rounds": [
+            {
+              "accepted": 92,
+              "candidates": 93,
+              "cumulative": 92,
+              "offered": 210,
+              "previous": 0,
+              "redundant": 1,
+              "round": 1,
+              "short": 117,
+              "superseded": 0
+            },
+            {
+              "accepted": 13,
+              "candidates": 16,
+              "cumulative": 103,
+              "offered": 116,
+              "previous": 92,
+              "redundant": 3,
+              "round": 2,
+              "short": 100,
+              "superseded": 2
+            },
+            {
+              "accepted": 3,
+              "candidates": 7,
+              "cumulative": 106,
+              "offered": 101,
+              "previous": 103,
+              "redundant": 4,
+              "round": 3,
+              "short": 94,
+              "superseded": 0
+            }
+          ],
+          "status": "succeeded"
+        },
+        "residual-only-by-community": {
+          "final_contigs": {
+            "bases_in_contigs_at_least_1000": 10411614,
+            "contigs": 106,
+            "contigs_at_least_1000": 106,
+            "gc_percent": 43.08,
+            "l50": 11,
+            "max_length": 925379,
+            "n50": 231434,
+            "total_bases": 10411614
+          },
+          "groups": [
+            {
+              "original_pairs": 664407,
+              "rounds": [
+                {
+                  "assembly_status": "contigs",
+                  "contigs": 64,
+                  "input_pairs": 664407,
+                  "progress": 0.9924684718854556,
+                  "reason": null,
+                  "retained_pairs": 5004,
+                  "round": 2,
+                  "status": "continue"
+                },
+                {
+                  "assembly_status": "contigs",
+                  "contigs": 56,
+                  "input_pairs": 5004,
+                  "progress": 0.2492006394884093,
+                  "reason": null,
+                  "retained_pairs": 3757,
+                  "round": 3,
+                  "status": "continue"
+                }
+              ],
+              "samples": [
+                "A01",
+                "A02",
+                "A03",
+                "A04"
+              ],
+              "stop": {
+                "reason": "max-rounds",
+                "round": 3
+              },
+              "value": "community_A"
+            },
+            {
+              "original_pairs": 664647,
+              "rounds": [
+                {
+                  "assembly_status": "contigs",
+                  "contigs": 72,
+                  "input_pairs": 664647,
+                  "progress": 0.9928292762925284,
+                  "reason": null,
+                  "retained_pairs": 4766,
+                  "round": 2,
+                  "status": "continue"
+                },
+                {
+                  "assembly_status": "contigs",
+                  "contigs": 66,
+                  "input_pairs": 4766,
+                  "progress": 0.21800251783466215,
+                  "reason": null,
+                  "retained_pairs": 3727,
+                  "round": 3,
+                  "status": "continue"
+                }
+              ],
+              "samples": [
+                "B01",
+                "B02",
+                "B03",
+                "B04"
+              ],
+              "stop": {
+                "reason": "max-rounds",
+                "round": 3
+              },
+              "value": "community_B"
+            }
+          ],
+          "rounds": [
+            {
+              "accepted": 92,
+              "candidates": 93,
+              "cumulative": 92,
+              "offered": 210,
+              "previous": 0,
+              "redundant": 1,
+              "round": 1,
+              "short": 117,
+              "superseded": 0
+            },
+            {
+              "accepted": 13,
+              "candidates": 15,
+              "cumulative": 103,
+              "offered": 136,
+              "previous": 92,
+              "redundant": 2,
+              "round": 2,
+              "short": 121,
+              "superseded": 2
+            },
+            {
+              "accepted": 3,
+              "candidates": 6,
+              "cumulative": 106,
+              "offered": 122,
+              "previous": 103,
+              "redundant": 3,
+              "round": 3,
+              "short": 116,
+              "superseded": 0
+            }
+          ],
+          "status": "succeeded"
+        }
+      }
+    },
+    "species_holdout": {
+      "evaluation": {
+        "arms": {
+          "all-reads": {
+            "assemblies": 2,
+            "assembly_seconds": 298.0,
+            "assembly_statuses": [
+              "contigs"
+            ],
+            "command": "assemble-reads",
+            "input_bases": 2400000000,
+            "input_pairs": 8000000,
+            "max_peak_rss_kib": 970860,
+            "max_scratch_peak_bytes": 631576440,
+            "pooled_contig_sets": 0,
+            "source_kind": "all-reads"
+          },
+          "recruitment": {
+            "assemblies": 4,
+            "assembly_seconds": 89.8,
+            "assembly_statuses": [
+              "contigs"
+            ],
+            "check_and_accept_seconds": 32.8,
+            "command": "iterate",
+            "input_bases": 406356600,
+            "input_pairs": 1354522,
+            "max_peak_rss_kib": 205900,
+            "max_scratch_peak_bytes": 141756133,
+            "pooled_contig_sets": 1,
+            "rounds_evaluated": 3,
+            "source_kind": "discovery-pools"
+          },
+          "recruitment-by-community": {
+            "assemblies": 6,
+            "assembly_seconds": 95.6,
+            "assembly_statuses": [
+              "contigs"
+            ],
+            "check_and_accept_seconds": 35.6,
+            "command": "iterate",
+            "input_bases": 406356600,
+            "input_pairs": 1354522,
+            "max_peak_rss_kib": 205900,
+            "max_scratch_peak_bytes": 141756133,
+            "pooled_contig_sets": 0,
+            "rounds_evaluated": 3,
+            "source_kind": "discovery-pools"
+          },
+          "residual-only": {
+            "assemblies": 4,
+            "assembly_seconds": 86.8,
+            "assembly_statuses": [
+              "contigs"
+            ],
+            "check_and_accept_seconds": 19.8,
+            "command": "iterate",
+            "input_bases": 403310700,
+            "input_pairs": 1344369,
+            "max_peak_rss_kib": 205900,
+            "max_scratch_peak_bytes": 141756133,
+            "pooled_contig_sets": 1,
+            "rounds_evaluated": 3,
+            "source_kind": "discovery-pools"
+          },
+          "residual-only-by-community": {
+            "assemblies": 6,
+            "assembly_seconds": 90.4,
+            "assembly_statuses": [
+              "contigs"
+            ],
+            "check_and_accept_seconds": 18.3,
+            "command": "iterate",
+            "input_bases": 403310700,
+            "input_pairs": 1344369,
+            "max_peak_rss_kib": 205900,
+            "max_scratch_peak_bytes": 141756133,
+            "pooled_contig_sets": 0,
+            "rounds_evaluated": 3,
+            "source_kind": "discovery-pools"
+          },
+          "round1": {
+            "assemblies": 2,
+            "assembly_seconds": 80.0,
+            "assembly_statuses": [
+              "contigs"
+            ],
+            "check_and_accept_seconds": 1.1,
+            "command": "iterate",
+            "input_bases": 398583900,
+            "input_pairs": 1328613,
+            "max_peak_rss_kib": 205900,
+            "max_scratch_peak_bytes": 141756133,
+            "pooled_contig_sets": 0,
+            "rounds_evaluated": 1,
+            "source_kind": "discovery-pools"
+          }
+        },
+        "communities": {
+          "community_A": {
+            "heldout": [
+              "GCF_000009045.1"
+            ],
+            "heldout_genome_fraction_percent": {
+              "all-reads": {
+                "GCF_000009045.1": 98.809
+              },
+              "recruitment": {
+                "GCF_000009045.1": 99.052
+              },
+              "recruitment-by-community": {
+                "GCF_000009045.1": 99.079
+              },
+              "residual-only": {
+                "GCF_000009045.1": 98.973
+              },
+              "residual-only-by-community": {
+                "GCF_000009045.1": 98.973
+              },
+              "round1": {
+                "GCF_000009045.1": 98.773
+              }
+            },
+            "report": {
+              "all-reads": {
+                "bases_at_least_1000": 19521407,
+                "combined_genome_fraction_percent": 93.04,
+                "contigs_at_least_1000": 452,
+                "indels_per_100kbp": 0.91,
+                "largest_contig": 925379,
+                "local_misassemblies": 3,
+                "misassemblies": 7,
+                "mismatches_per_100kbp": 5.1,
+                "n50": 203182,
+                "unaligned_length": 0
+              },
+              "recruitment": {
+                "bases_at_least_1000": 4196337,
+                "combined_genome_fraction_percent": 17.186,
+                "contigs_at_least_1000": 38,
+                "indels_per_100kbp": 1.7,
+                "largest_contig": 925379,
+                "local_misassemblies": 2,
+                "misassemblies": 3,
+                "mismatches_per_100kbp": 7.76,
+                "n50": 541708,
+                "unaligned_length": 7606
+              },
+              "recruitment-by-community": {
+                "bases_at_least_1000": 4190010,
+                "combined_genome_fraction_percent": 17.203,
+                "contigs_at_least_1000": 35,
+                "indels_per_100kbp": 2.29,
+                "largest_contig": 925379,
+                "local_misassemblies": 2,
+                "misassemblies": 3,
+                "mismatches_per_100kbp": 9.09,
+                "n50": 541708,
+                "unaligned_length": 0
+              },
+              "residual-only": {
+                "bases_at_least_1000": 4190989,
+                "combined_genome_fraction_percent": 17.148,
+                "contigs_at_least_1000": 38,
+                "indels_per_100kbp": 1.39,
+                "largest_contig": 925379,
+                "local_misassemblies": 1,
+                "misassemblies": 1,
+                "mismatches_per_100kbp": 9.58,
+                "n50": 541708,
+                "unaligned_length": 13320
+              },
+              "residual-only-by-community": {
+                "bases_at_least_1000": 4176887,
+                "combined_genome_fraction_percent": 17.14,
+                "contigs_at_least_1000": 29,
+                "indels_per_100kbp": 0.89,
+                "largest_contig": 925379,
+                "local_misassemblies": 1,
+                "misassemblies": 1,
+                "mismatches_per_100kbp": 4.21,
+                "n50": 541708,
+                "unaligned_length": 0
+              },
+              "round1": {
+                "bases_at_least_1000": 4166564,
+                "combined_genome_fraction_percent": 17.068,
+                "contigs_at_least_1000": 22,
+                "indels_per_100kbp": 0.14,
+                "largest_contig": 925379,
+                "local_misassemblies": 1,
+                "misassemblies": 0,
+                "mismatches_per_100kbp": 1.9,
+                "n50": 541708,
+                "unaligned_length": 0
+              }
+            },
+            "represented_by_relative": [],
+            "represented_by_relative_genome_fraction_percent": {
+              "all-reads": {},
+              "recruitment": {},
+              "recruitment-by-community": {},
+              "residual-only": {},
+              "residual-only-by-community": {},
+              "round1": {}
+            }
+          },
+          "community_B": {
+            "heldout": [
+              "GCF_000011065.1"
+            ],
+            "heldout_genome_fraction_percent": {
+              "all-reads": {
+                "GCF_000011065.1": 98.859
+              },
+              "recruitment": {
+                "GCF_000011065.1": 98.876
+              },
+              "recruitment-by-community": {
+                "GCF_000011065.1": 98.876
+              },
+              "residual-only": {
+                "GCF_000011065.1": 98.955
+              },
+              "residual-only-by-community": {
+                "GCF_000011065.1": 98.972
+              },
+              "round1": {
+                "GCF_000011065.1": 98.858
+              }
+            },
+            "report": {
+              "all-reads": {
+                "bases_at_least_1000": 21577149,
+                "combined_genome_fraction_percent": 94.506,
+                "contigs_at_least_1000": 535,
+                "indels_per_100kbp": 0.75,
+                "largest_contig": 550303,
+                "local_misassemblies": 3,
+                "misassemblies": 7,
+                "mismatches_per_100kbp": 5.29,
+                "n50": 179925,
+                "unaligned_length": 0
+              },
+              "recruitment": {
+                "bases_at_least_1000": 6252033,
+                "combined_genome_fraction_percent": 23.656,
+                "contigs_at_least_1000": 85,
+                "indels_per_100kbp": 2.79,
+                "largest_contig": 468171,
+                "local_misassemblies": 0,
+                "misassemblies": 1,
+                "mismatches_per_100kbp": 18.42,
+                "n50": 192135,
+                "unaligned_length": 17214
+              },
+              "recruitment-by-community": {
+                "bases_at_least_1000": 6229817,
+                "combined_genome_fraction_percent": 23.611,
+                "contigs_at_least_1000": 73,
+                "indels_per_100kbp": 0.27,
+                "largest_contig": 468171,
+                "local_misassemblies": 0,
+                "misassemblies": 1,
+                "mismatches_per_100kbp": 2.39,
+                "n50": 192135,
+                "unaligned_length": 0
+              },
+              "residual-only": {
+                "bases_at_least_1000": 6245603,
+                "combined_genome_fraction_percent": 23.663,
+                "contigs_at_least_1000": 84,
+                "indels_per_100kbp": 1.73,
+                "largest_contig": 468171,
+                "local_misassemblies": 0,
+                "misassemblies": 2,
+                "mismatches_per_100kbp": 13.69,
+                "n50": 192135,
+                "unaligned_length": 6588
+              },
+              "residual-only-by-community": {
+                "bases_at_least_1000": 6235280,
+                "combined_genome_fraction_percent": 23.623,
+                "contigs_at_least_1000": 77,
+                "indels_per_100kbp": 0.34,
+                "largest_contig": 468171,
+                "local_misassemblies": 0,
+                "misassemblies": 1,
+                "mismatches_per_100kbp": 3.72,
+                "n50": 192135,
+                "unaligned_length": 0
+              },
+              "round1": {
+                "bases_at_least_1000": 6224247,
+                "combined_genome_fraction_percent": 23.603,
+                "contigs_at_least_1000": 70,
+                "indels_per_100kbp": 0.14,
+                "largest_contig": 468171,
+                "local_misassemblies": 0,
+                "misassemblies": 1,
+                "mismatches_per_100kbp": 1.67,
+                "n50": 194526,
+                "unaligned_length": 0
+              }
+            },
+            "represented_by_relative": [],
+            "represented_by_relative_genome_fraction_percent": {
+              "all-reads": {},
+              "recruitment": {},
+              "recruitment-by-community": {},
+              "residual-only": {},
+              "residual-only-by-community": {},
+              "round1": {}
+            }
+          }
+        },
+        "evaluator": "QUAST v5.3.0 (MetaQUAST mode)",
+        "gate": {
+          "recruitment": {
+            "community_A": {
+              "heldout_recovery_loss_pp": {
+                "GCF_000009045.1": -0.243
+              },
+              "input_pair_reduction": 0.8306,
+              "passes_recovery": true,
+              "passes_reduction": true
+            },
+            "community_B": {
+              "heldout_recovery_loss_pp": {
+                "GCF_000011065.1": -0.017
+              },
+              "input_pair_reduction": 0.8308,
+              "passes_recovery": true,
+              "passes_reduction": true
+            },
+            "overall": {
+              "input_pair_reduction": 0.8307,
+              "passes": true
+            }
+          },
+          "recruitment-by-community": {
+            "community_A": {
+              "heldout_recovery_loss_pp": {
+                "GCF_000009045.1": -0.27
+              },
+              "input_pair_reduction": 0.8306,
+              "passes_recovery": true,
+              "passes_reduction": true
+            },
+            "community_B": {
+              "heldout_recovery_loss_pp": {
+                "GCF_000011065.1": -0.017
+              },
+              "input_pair_reduction": 0.8308,
+              "passes_recovery": true,
+              "passes_reduction": true
+            },
+            "overall": {
+              "input_pair_reduction": 0.8307,
+              "passes": true
+            }
+          },
+          "residual-only": {
+            "community_A": {
+              "heldout_recovery_loss_pp": {
+                "GCF_000009045.1": -0.164
+              },
+              "input_pair_reduction": 0.8319,
+              "passes_recovery": true,
+              "passes_reduction": true
+            },
+            "community_B": {
+              "heldout_recovery_loss_pp": {
+                "GCF_000011065.1": -0.096
+              },
+              "input_pair_reduction": 0.832,
+              "passes_recovery": true,
+              "passes_reduction": true
+            },
+            "overall": {
+              "input_pair_reduction": 0.832,
+              "passes": true
+            }
+          },
+          "residual-only-by-community": {
+            "community_A": {
+              "heldout_recovery_loss_pp": {
+                "GCF_000009045.1": -0.164
+              },
+              "input_pair_reduction": 0.8319,
+              "passes_recovery": true,
+              "passes_reduction": true
+            },
+            "community_B": {
+              "heldout_recovery_loss_pp": {
+                "GCF_000011065.1": -0.113
+              },
+              "input_pair_reduction": 0.832,
+              "passes_recovery": true,
+              "passes_reduction": true
+            },
+            "overall": {
+              "input_pair_reduction": 0.832,
+              "passes": true
+            }
+          },
+          "round1": {
+            "community_A": {
+              "heldout_recovery_loss_pp": {
+                "GCF_000009045.1": 0.036
+              },
+              "input_pair_reduction": 0.834,
+              "passes_recovery": true,
+              "passes_reduction": true
+            },
+            "community_B": {
+              "heldout_recovery_loss_pp": {
+                "GCF_000011065.1": 0.001
+              },
+              "input_pair_reduction": 0.8339,
+              "passes_recovery": true,
+              "passes_reduction": true
+            },
+            "overall": {
+              "input_pair_reduction": 0.8339,
+              "passes": true
+            }
+          }
+        },
+        "heldout_level": "species",
+        "min_contig_length": 1000
+      },
+      "iterate": {
+        "recruitment": {
+          "final_contigs": {
+            "bases_in_contigs_at_least_1000": 10418597,
+            "contigs": 107,
+            "contigs_at_least_1000": 107,
+            "gc_percent": 43.09,
+            "l50": 11,
+            "max_length": 925379,
+            "n50": 231434,
+            "total_bases": 10418597
+          },
+          "groups": [
+            {
+              "original_pairs": 1328613,
+              "rounds": [
+                {
+                  "assembly_status": "contigs",
+                  "contigs": 176,
+                  "input_pairs": 1328613,
+                  "progress": 0.9910545809803156,
+                  "reason": null,
+                  "retained_pairs": 11885,
+                  "round": 2,
+                  "status": "continue"
+                },
+                {
+                  "assembly_status": "contigs",
+                  "contigs": 185,
+                  "input_pairs": 1328613,
+                  "progress": 0.11863693731594446,
+                  "reason": null,
+                  "retained_pairs": 14024,
+                  "round": 3,
+                  "status": "continue"
+                }
+              ],
+              "samples": [
+                "A01",
+                "A02",
+                "A03",
+                "A04",
+                "B01",
+                "B02",
+                "B03",
+                "B04"
+              ],
+              "stop": {
+                "reason": "max-rounds",
+                "round": 3
+              },
+              "value": "all"
+            }
+          ],
+          "rounds": [
+            {
+              "accepted": 92,
+              "candidates": 93,
+              "cumulative": 92,
+              "offered": 157,
+              "previous": 0,
+              "redundant": 1,
+              "round": 1,
+              "short": 64,
+              "superseded": 0
+            },
+            {
+              "accepted": 11,
+              "candidates": 14,
+              "cumulative": 102,
+              "offered": 176,
+              "previous": 92,
+              "redundant": 3,
+              "round": 2,
+              "short": 162,
+              "superseded": 1
+            },
+            {
+              "accepted": 9,
+              "candidates": 12,
+              "cumulative": 107,
+              "offered": 185,
+              "previous": 102,
+              "redundant": 3,
+              "round": 3,
+              "short": 173,
+              "superseded": 4
+            }
+          ],
+          "status": "succeeded"
+        },
+        "recruitment-by-community": {
+          "final_contigs": {
+            "bases_in_contigs_at_least_1000": 10419827,
+            "contigs": 108,
+            "contigs_at_least_1000": 108,
+            "gc_percent": 43.1,
+            "l50": 11,
+            "max_length": 925379,
+            "n50": 231434,
+            "total_bases": 10419827
+          },
+          "groups": [
+            {
+              "original_pairs": 664198,
+              "rounds": [
+                {
+                  "assembly_status": "contigs",
+                  "contigs": 49,
+                  "input_pairs": 664198,
+                  "progress": 0.9913278871661764,
+                  "reason": null,
+                  "retained_pairs": 5760,
+                  "round": 2,
+                  "status": "continue"
+                },
+                {
+                  "assembly_status": "contigs",
+                  "contigs": 56,
+                  "input_pairs": 664198,
+                  "progress": 0.15121527777777777,
+                  "reason": null,
+                  "retained_pairs": 7777,
+                  "round": 3,
+                  "status": "continue"
+                }
+              ],
+              "samples": [
+                "A01",
+                "A02",
+                "A03",
+                "A04"
+              ],
+              "stop": {
+                "reason": "max-rounds",
+                "round": 3
+              },
+              "value": "community_A"
+            },
+            {
+              "original_pairs": 664415,
+              "rounds": [
+                {
+                  "assembly_status": "contigs",
+                  "contigs": 123,
+                  "input_pairs": 664415,
+                  "progress": 0.9907813640571028,
+                  "reason": null,
+                  "retained_pairs": 6125,
+                  "round": 2,
+                  "status": "continue"
+                },
+                {
+                  "assembly_status": "contigs",
+                  "contigs": 128,
+                  "input_pairs": 664415,
+                  "progress": 0.088,
+                  "reason": null,
+                  "retained_pairs": 6247,
+                  "round": 3,
+                  "status": "continue"
+                }
+              ],
+              "samples": [
+                "B01",
+                "B02",
+                "B03",
+                "B04"
+              ],
+              "stop": {
+                "reason": "max-rounds",
+                "round": 3
+              },
+              "value": "community_B"
+            }
+          ],
+          "rounds": [
+            {
+              "accepted": 92,
+              "candidates": 93,
+              "cumulative": 92,
+              "offered": 157,
+              "previous": 0,
+              "redundant": 1,
+              "round": 1,
+              "short": 64,
+              "superseded": 0
+            },
+            {
+              "accepted": 11,
+              "candidates": 14,
+              "cumulative": 102,
+              "offered": 172,
+              "previous": 92,
+              "redundant": 3,
+              "round": 2,
+              "short": 158,
+              "superseded": 1
+            },
+            {
+              "accepted": 9,
+              "candidates": 12,
+              "cumulative": 108,
+              "offered": 184,
+              "previous": 102,
+              "redundant": 3,
+              "round": 3,
+              "short": 172,
+              "superseded": 3
+            }
+          ],
+          "status": "succeeded"
+        },
+        "residual-only": {
+          "final_contigs": {
+            "bases_in_contigs_at_least_1000": 10412167,
+            "contigs": 106,
+            "contigs_at_least_1000": 106,
+            "gc_percent": 43.08,
+            "l50": 11,
+            "max_length": 925379,
+            "n50": 231434,
+            "total_bases": 10412167
+          },
+          "groups": [
+            {
+              "original_pairs": 1328613,
+              "rounds": [
+                {
+                  "assembly_status": "contigs",
+                  "contigs": 85,
+                  "input_pairs": 1328613,
+                  "progress": 0.9932102124546426,
+                  "reason": null,
+                  "retained_pairs": 9021,
+                  "round": 2,
+                  "status": "continue"
+                },
+                {
+                  "assembly_status": "contigs",
+                  "contigs": 71,
+                  "input_pairs": 9021,
+                  "progress": 0.253408713002993,
+                  "reason": null,
+                  "retained_pairs": 6735,
+                  "round": 3,
+                  "status": "continue"
+                }
+              ],
+              "samples": [
+                "A01",
+                "A02",
+                "A03",
+                "A04",
+                "B01",
+                "B02",
+                "B03",
+                "B04"
+              ],
+              "stop": {
+                "reason": "max-rounds",
+                "round": 3
+              },
+              "value": "all"
+            }
+          ],
+          "rounds": [
+            {
+              "accepted": 92,
+              "candidates": 93,
+              "cumulative": 92,
+              "offered": 157,
+              "previous": 0,
+              "redundant": 1,
+              "round": 1,
+              "short": 64,
+              "superseded": 0
+            },
+            {
+              "accepted": 13,
+              "candidates": 15,
+              "cumulative": 103,
+              "offered": 85,
+              "previous": 92,
+              "redundant": 2,
+              "round": 2,
+              "short": 70,
+              "superseded": 2
+            },
+            {
+              "accepted": 3,
+              "candidates": 6,
+              "cumulative": 106,
+              "offered": 71,
+              "previous": 103,
+              "redundant": 3,
+              "round": 3,
+              "short": 65,
+              "superseded": 0
+            }
+          ],
+          "status": "succeeded"
+        },
+        "residual-only-by-community": {
+          "final_contigs": {
+            "bases_in_contigs_at_least_1000": 10412167,
+            "contigs": 106,
+            "contigs_at_least_1000": 106,
+            "gc_percent": 43.08,
+            "l50": 11,
+            "max_length": 925379,
+            "n50": 231434,
+            "total_bases": 10412167
+          },
+          "groups": [
+            {
+              "original_pairs": 664198,
+              "rounds": [
+                {
+                  "assembly_status": "contigs",
+                  "contigs": 35,
+                  "input_pairs": 664198,
+                  "progress": 0.9929448748716496,
+                  "reason": null,
+                  "retained_pairs": 4686,
+                  "round": 2,
+                  "status": "continue"
+                },
+                {
+                  "assembly_status": "contigs",
+                  "contigs": 26,
+                  "input_pairs": 4686,
+                  "progress": 0.2661118224498506,
+                  "reason": null,
+                  "retained_pairs": 3439,
+                  "round": 3,
+                  "status": "continue"
+                }
+              ],
+              "samples": [
+                "A01",
+                "A02",
+                "A03",
+                "A04"
+              ],
+              "stop": {
+                "reason": "max-rounds",
+                "round": 3
+              },
+              "value": "community_A"
+            },
+            {
+              "original_pairs": 664415,
+              "rounds": [
+                {
+                  "assembly_status": "contigs",
+                  "contigs": 46,
+                  "input_pairs": 664415,
+                  "progress": 0.9934754633775577,
+                  "reason": null,
+                  "retained_pairs": 4335,
+                  "round": 2,
+                  "status": "continue"
+                },
+                {
+                  "assembly_status": "contigs",
+                  "contigs": 40,
+                  "input_pairs": 4335,
+                  "progress": 0.23967704728950404,
+                  "reason": null,
+                  "retained_pairs": 3296,
+                  "round": 3,
+                  "status": "continue"
+                }
+              ],
+              "samples": [
+                "B01",
+                "B02",
+                "B03",
+                "B04"
+              ],
+              "stop": {
+                "reason": "max-rounds",
+                "round": 3
+              },
+              "value": "community_B"
+            }
+          ],
+          "rounds": [
+            {
+              "accepted": 92,
+              "candidates": 93,
+              "cumulative": 92,
+              "offered": 157,
+              "previous": 0,
+              "redundant": 1,
+              "round": 1,
+              "short": 64,
+              "superseded": 0
+            },
+            {
+              "accepted": 13,
+              "candidates": 15,
+              "cumulative": 103,
+              "offered": 81,
+              "previous": 92,
+              "redundant": 2,
+              "round": 2,
+              "short": 66,
+              "superseded": 2
+            },
+            {
+              "accepted": 3,
+              "candidates": 6,
+              "cumulative": 106,
+              "offered": 66,
+              "previous": 103,
+              "redundant": 3,
+              "round": 3,
+              "short": 60,
+              "superseded": 0
+            }
+          ],
+          "status": "succeeded"
+        }
+      }
+    }
+  },
+  "schema_version": 2,
+  "settings": {
+    "acceptance": {
+      "containment": {
+        "min_coverage_of_contained": 0.95,
+        "min_identity": 0.95,
+        "preset": "asm5",
+        "tool": "minimap2"
+      },
+      "min_contig_length": 1000
+    },
+    "max_rounds": 3,
+    "min_progress": 0.01,
+    "pooled_grouping": {
+      "max_group_samples": null,
+      "mode": "all-samples"
+    },
+    "thresholds": {
+      "min_aligned_fraction": 0.9,
+      "min_identity": 0.98,
+      "min_mapq": 20,
+      "min_mapq_applies_to": "certain (recruitment) only",
+      "secondary_alignments": 50
+    },
+    "tools": {
+      "assembler": "MEGAHIT v1.2.9",
+      "containment": "2.31-r1302",
+      "mapper": "strobealign 0.20.0"
+    }
+  },
+  "split_scenario": {
+    "data": {
+      "base_catalogue": "species_holdout",
+      "coverage_per_sample": 1.028,
+      "genome": "GCF_000008645.1",
+      "organism": "Methanothermobacter thermautotrophicus Delta H",
+      "pairs_per_sample": 6000,
+      "purpose": "a novel genome too thin per group but assemblable when all samples are pooled",
+      "seed": 20261113,
+      "species_taxid": "145262"
+    },
+    "evaluation": {
+      "arms": {
+        "all-reads": {
+          "assemblies": 2,
+          "assembly_seconds": 304.0,
+          "assembly_statuses": [
+            "contigs"
+          ],
+          "command": "assemble-reads",
+          "input_bases": 2414400000,
+          "input_pairs": 8048000,
+          "max_peak_rss_kib": 976452,
+          "max_scratch_peak_bytes": 655858308,
+          "pooled_contig_sets": 0,
+          "source_kind": "all-reads"
+        },
+        "all-reads-pooled": {
+          "assemblies": 1,
+          "assembly_seconds": 268.9,
+          "assembly_statuses": [
+            "contigs"
+          ],
+          "command": "assemble-reads",
+          "input_bases": 2414400000,
+          "input_pairs": 8048000,
+          "max_peak_rss_kib": 1886700,
+          "max_scratch_peak_bytes": 1061691274,
+          "pooled_contig_sets": 1,
+          "source_kind": "all-reads"
+        },
+        "recruitment": {
+          "assemblies": 4,
+          "assembly_seconds": 106.0,
+          "assembly_statuses": [
+            "contigs"
+          ],
+          "check_and_accept_seconds": 33.8,
+          "command": "iterate",
+          "input_bases": 431834400,
+          "input_pairs": 1439448,
+          "max_peak_rss_kib": 222064,
+          "max_scratch_peak_bytes": 175057946,
+          "pooled_contig_sets": 1,
+          "rounds_evaluated": 3,
+          "source_kind": "discovery-pools"
+        },
+        "residual-only": {
+          "assemblies": 4,
+          "assembly_seconds": 97.2,
+          "assembly_statuses": [
+            "contigs"
+          ],
+          "check_and_accept_seconds": 21.7,
+          "command": "iterate",
+          "input_bases": 419408100,
+          "input_pairs": 1398027,
+          "max_peak_rss_kib": 222064,
+          "max_scratch_peak_bytes": 175057946,
+          "pooled_contig_sets": 1,
+          "rounds_evaluated": 3,
+          "source_kind": "discovery-pools"
+        },
+        "residual-only-by-community": {
+          "assemblies": 6,
+          "assembly_seconds": 102.3,
+          "assembly_statuses": [
+            "contigs"
+          ],
+          "check_and_accept_seconds": 22.6,
+          "command": "iterate",
+          "input_bases": 419856300,
+          "input_pairs": 1399521,
+          "max_peak_rss_kib": 222064,
+          "max_scratch_peak_bytes": 175057946,
+          "pooled_contig_sets": 0,
+          "rounds_evaluated": 3,
+          "source_kind": "discovery-pools"
+        },
+        "round1": {
+          "assemblies": 2,
+          "assembly_seconds": 89.2,
+          "assembly_statuses": [
+            "contigs"
+          ],
+          "check_and_accept_seconds": 1.0,
+          "command": "iterate",
+          "input_bases": 412983900,
+          "input_pairs": 1376613,
+          "max_peak_rss_kib": 222064,
+          "max_scratch_peak_bytes": 175057946,
+          "pooled_contig_sets": 0,
+          "rounds_evaluated": 1,
+          "source_kind": "discovery-pools"
+        }
+      },
+      "communities": {
+        "community_A": {
+          "heldout": [
+            "GCF_000008645.1",
+            "GCF_000009045.1"
+          ],
+          "heldout_genome_fraction_percent": {
+            "all-reads": {
+              "GCF_000008645.1": 76.205,
+              "GCF_000009045.1": 98.809
+            },
+            "all-reads-pooled": {
+              "GCF_000008645.1": 98.48,
+              "GCF_000009045.1": 98.827
+            },
+            "recruitment": {
+              "GCF_000008645.1": 71.041,
+              "GCF_000009045.1": 99.052
+            },
+            "residual-only": {
+              "GCF_000008645.1": 68.689,
+              "GCF_000009045.1": 98.973
+            },
+            "residual-only-by-community": {
+              "GCF_000008645.1": 64.908,
+              "GCF_000009045.1": 98.973
+            },
+            "round1": {
+              "GCF_000008645.1": 64.848,
+              "GCF_000009045.1": 98.773
+            }
+          },
+          "report": {
+            "all-reads": {
+              "bases_at_least_1000": 20855665,
+              "combined_genome_fraction_percent": 91.911,
+              "contigs_at_least_1000": 1023,
+              "indels_per_100kbp": 1.08,
+              "largest_contig": 925379,
+              "local_misassemblies": 7,
+              "misassemblies": 8,
+              "mismatches_per_100kbp": 7.49,
+              "n50": 182347,
+              "unaligned_length": 0
+            },
+            "all-reads-pooled": {
+              "bases_at_least_1000": 27516617,
+              "combined_genome_fraction_percent": 93.959,
+              "contigs_at_least_1000": 404,
+              "indels_per_100kbp": 0.83,
+              "largest_contig": 925379,
+              "local_misassemblies": 8,
+              "misassemblies": 12,
+              "mismatches_per_100kbp": 4.1,
+              "n50": 192135,
+              "unaligned_length": 6224016
+            },
+            "recruitment": {
+              "bases_at_least_1000": 5588235,
+              "combined_genome_fraction_percent": 20.788,
+              "contigs_at_least_1000": 585,
+              "indels_per_100kbp": 3.08,
+              "largest_contig": 925379,
+              "local_misassemblies": 8,
+              "misassemblies": 7,
+              "mismatches_per_100kbp": 15.45,
+              "n50": 488338,
+              "unaligned_length": 7606
+            },
+            "residual-only": {
+              "bases_at_least_1000": 5403099,
+              "combined_genome_fraction_percent": 20.595,
+              "contigs_at_least_1000": 536,
+              "indels_per_100kbp": 2.5,
+              "largest_contig": 925379,
+              "local_misassemblies": 6,
+              "misassemblies": 2,
+              "mismatches_per_100kbp": 17.57,
+              "n50": 488338,
+              "unaligned_length": 13320
+            },
+            "residual-only-by-community": {
+              "bases_at_least_1000": 5313585,
+              "combined_genome_fraction_percent": 20.334,
+              "contigs_at_least_1000": 477,
+              "indels_per_100kbp": 1.56,
+              "largest_contig": 925379,
+              "local_misassemblies": 5,
+              "misassemblies": 2,
+              "mismatches_per_100kbp": 12.16,
+              "n50": 488338,
+              "unaligned_length": 0
+            },
+            "round1": {
+              "bases_at_least_1000": 5302223,
+              "combined_genome_fraction_percent": 20.262,
+              "contigs_at_least_1000": 469,
+              "indels_per_100kbp": 0.98,
+              "largest_contig": 925379,
+              "local_misassemblies": 5,
+              "misassemblies": 1,
+              "mismatches_per_100kbp": 10.35,
+              "n50": 488338,
+              "unaligned_length": 0
+            }
+          },
+          "represented_by_relative": [],
+          "represented_by_relative_genome_fraction_percent": {
+            "all-reads": {},
+            "all-reads-pooled": {},
+            "recruitment": {},
+            "residual-only": {},
+            "residual-only-by-community": {},
+            "round1": {}
+          }
+        },
+        "community_B": {
+          "heldout": [
+            "GCF_000008645.1",
+            "GCF_000011065.1"
+          ],
+          "heldout_genome_fraction_percent": {
+            "all-reads": {
+              "GCF_000008645.1": 74.696,
+              "GCF_000011065.1": 98.861
+            },
+            "all-reads-pooled": {
+              "GCF_000008645.1": 98.48,
+              "GCF_000011065.1": 98.858
+            },
+            "recruitment": {
+              "GCF_000008645.1": 66.613,
+              "GCF_000011065.1": 98.876
+            },
+            "residual-only": {
+              "GCF_000008645.1": 64.264,
+              "GCF_000011065.1": 98.955
+            },
+            "residual-only-by-community": {
+              "GCF_000008645.1": 60.541,
+              "GCF_000011065.1": 98.955
+            },
+            "round1": {
+              "GCF_000008645.1": 60.473,
+              "GCF_000011065.1": 98.858
+            }
+          },
+          "report": {
+            "all-reads": {
+              "bases_at_least_1000": 22886567,
+              "combined_genome_fraction_percent": 93.305,
+              "contigs_at_least_1000": 1116,
+              "indels_per_100kbp": 0.82,
+              "largest_contig": 550303,
+              "local_misassemblies": 6,
+              "misassemblies": 11,
+              "mismatches_per_100kbp": 7.65,
+              "n50": 174256,
+              "unaligned_length": 0
+            },
+            "all-reads-pooled": {
+              "bases_at_least_1000": 27516617,
+              "combined_genome_fraction_percent": 94.381,
+              "contigs_at_least_1000": 404,
+              "indels_per_100kbp": 1.67,
+              "largest_contig": 925379,
+              "local_misassemblies": 7,
+              "misassemblies": 11,
+              "mismatches_per_100kbp": 12.19,
+              "n50": 192135,
+              "unaligned_length": 4160607
+            },
+            "recruitment": {
+              "bases_at_least_1000": 7579957,
+              "combined_genome_fraction_percent": 26.317,
+              "contigs_at_least_1000": 632,
+              "indels_per_100kbp": 3.34,
+              "largest_contig": 468171,
+              "local_misassemblies": 3,
+              "misassemblies": 8,
+              "mismatches_per_100kbp": 23.32,
+              "n50": 150128,
+              "unaligned_length": 14216
+            },
+            "residual-only": {
+              "bases_at_least_1000": 7382173,
+              "combined_genome_fraction_percent": 26.18,
+              "contigs_at_least_1000": 566,
+              "indels_per_100kbp": 2.21,
+              "largest_contig": 468171,
+              "local_misassemblies": 3,
+              "misassemblies": 6,
+              "mismatches_per_100kbp": 19.25,
+              "n50": 150128,
+              "unaligned_length": 6588
+            },
+            "residual-only-by-community": {
+              "bases_at_least_1000": 7296578,
+              "combined_genome_fraction_percent": 25.911,
+              "contigs_at_least_1000": 509,
+              "indels_per_100kbp": 0.62,
+              "largest_contig": 468171,
+              "local_misassemblies": 2,
+              "misassemblies": 5,
+              "mismatches_per_100kbp": 9.88,
+              "n50": 179925,
+              "unaligned_length": 0
+            },
+            "round1": {
+              "bases_at_least_1000": 7284366,
+              "combined_genome_fraction_percent": 25.888,
+              "contigs_at_least_1000": 501,
+              "indels_per_100kbp": 0.45,
+              "largest_contig": 468171,
+              "local_misassemblies": 2,
+              "misassemblies": 5,
+              "mismatches_per_100kbp": 8.13,
+              "n50": 179925,
+              "unaligned_length": 0
+            }
+          },
+          "represented_by_relative": [],
+          "represented_by_relative_genome_fraction_percent": {
+            "all-reads": {},
+            "all-reads-pooled": {},
+            "recruitment": {},
+            "residual-only": {},
+            "residual-only-by-community": {},
+            "round1": {}
+          }
+        }
+      },
+      "evaluator": "QUAST v5.3.0 (MetaQUAST mode)",
+      "gate": {
+        "recruitment": {
+          "community_A": {
+            "heldout_recovery_loss_pp": {
+              "GCF_000008645.1": 5.164,
+              "GCF_000009045.1": -0.243
+            },
+            "input_pair_reduction": 0.8211,
+            "passes_recovery": false,
+            "passes_reduction": true
+          },
+          "community_B": {
+            "heldout_recovery_loss_pp": {
+              "GCF_000008645.1": 8.083,
+              "GCF_000011065.1": -0.015
+            },
+            "input_pair_reduction": 0.8212,
+            "passes_recovery": false,
+            "passes_reduction": true
+          },
+          "overall": {
+            "input_pair_reduction": 0.8211,
+            "passes": false
+          }
+        },
+        "residual-only": {
+          "community_A": {
+            "heldout_recovery_loss_pp": {
+              "GCF_000008645.1": 7.516,
+              "GCF_000009045.1": -0.164
+            },
+            "input_pair_reduction": 0.8263,
+            "passes_recovery": false,
+            "passes_reduction": true
+          },
+          "community_B": {
+            "heldout_recovery_loss_pp": {
+              "GCF_000008645.1": 10.432,
+              "GCF_000011065.1": -0.094
+            },
+            "input_pair_reduction": 0.8263,
+            "passes_recovery": false,
+            "passes_reduction": true
+          },
+          "overall": {
+            "input_pair_reduction": 0.8263,
+            "passes": false
+          }
+        },
+        "residual-only-by-community": {
+          "community_A": {
+            "heldout_recovery_loss_pp": {
+              "GCF_000008645.1": 11.297,
+              "GCF_000009045.1": -0.164
+            },
+            "input_pair_reduction": 0.8261,
+            "passes_recovery": false,
+            "passes_reduction": true
+          },
+          "community_B": {
+            "heldout_recovery_loss_pp": {
+              "GCF_000008645.1": 14.155,
+              "GCF_000011065.1": -0.094
+            },
+            "input_pair_reduction": 0.8261,
+            "passes_recovery": false,
+            "passes_reduction": true
+          },
+          "overall": {
+            "input_pair_reduction": 0.8261,
+            "passes": false
+          }
+        },
+        "round1": {
+          "community_A": {
+            "heldout_recovery_loss_pp": {
+              "GCF_000008645.1": 11.357,
+              "GCF_000009045.1": 0.036
+            },
+            "input_pair_reduction": 0.829,
+            "passes_recovery": false,
+            "passes_reduction": true
+          },
+          "community_B": {
+            "heldout_recovery_loss_pp": {
+              "GCF_000008645.1": 14.223,
+              "GCF_000011065.1": 0.003
+            },
+            "input_pair_reduction": 0.8289,
+            "passes_recovery": false,
+            "passes_reduction": true
+          },
+          "overall": {
+            "input_pair_reduction": 0.8289,
+            "passes": false
+          }
+        }
+      },
+      "heldout_level": "species",
+      "min_contig_length": 1000
+    },
+    "iterate": {
+      "recruitment": {
+        "final_contigs": {
+          "bases_in_contigs_at_least_1000": 12714993,
+          "contigs": 1009,
+          "contigs_at_least_1000": 1009,
+          "gc_percent": 44.27,
+          "l50": 17,
+          "max_length": 925379,
+          "n50": 194526,
+          "total_bases": 12714993
+        },
+        "groups": [
+          {
+            "original_pairs": 1376613,
+            "rounds": [
+              {
+                "assembly_status": "contigs",
+                "contigs": 838,
+                "input_pairs": 1376613,
+                "progress": 0.9772768381527706,
+                "reason": null,
+                "retained_pairs": 31281,
+                "round": 2,
+                "status": "continue"
+              },
+              {
+                "assembly_status": "contigs",
+                "contigs": 825,
+                "input_pairs": 1376613,
+                "progress": 0.14583932738723188,
+                "reason": null,
+                "retained_pairs": 31554,
+                "round": 3,
+                "status": "continue"
+              }
+            ],
+            "samples": [
+              "A01",
+              "A02",
+              "A03",
+              "A04",
+              "B01",
+              "B02",
+              "B03",
+              "B04"
+            ],
+            "stop": {
+              "reason": "max-rounds",
+              "round": 3
+            },
+            "value": "all"
+          }
+        ],
+        "rounds": [
+          {
+            "accepted": 970,
+            "candidates": 1238,
+            "cumulative": 970,
+            "offered": 2065,
+            "previous": 0,
+            "redundant": 268,
+            "round": 1,
+            "short": 827,
+            "superseded": 0
+          },
+          {
+            "accepted": 159,
+            "candidates": 322,
+            "cumulative": 1011,
+            "offered": 838,
+            "previous": 970,
+            "redundant": 163,
+            "round": 2,
+            "short": 516,
+            "superseded": 118
+          },
+          {
+            "accepted": 78,
+            "candidates": 264,
+            "cumulative": 1009,
+            "offered": 825,
+            "previous": 1011,
+            "redundant": 186,
+            "round": 3,
+            "short": 561,
+            "superseded": 80
+          }
+        ],
+        "status": "succeeded"
+      },
+      "residual-only": {
+        "final_contigs": {
+          "bases_in_contigs_at_least_1000": 12684396,
+          "contigs": 1035,
+          "contigs_at_least_1000": 1035,
+          "gc_percent": 44.25,
+          "l50": 17,
+          "max_length": 925379,
+          "n50": 194526,
+          "total_bases": 12684396
+        },
+        "groups": [
+          {
+            "original_pairs": 1376613,
+            "rounds": [
+              {
+                "assembly_status": "contigs",
+                "contigs": 318,
+                "input_pairs": 1376613,
+                "progress": 0.9908369309312058,
+                "reason": null,
+                "retained_pairs": 12614,
+                "round": 2,
+                "status": "continue"
+              },
+              {
+                "assembly_status": "contigs",
+                "contigs": 253,
+                "input_pairs": 12614,
+                "progress": 0.30236245441572857,
+                "reason": null,
+                "retained_pairs": 8800,
+                "round": 3,
+                "status": "continue"
+              }
+            ],
+            "samples": [
+              "A01",
+              "A02",
+              "A03",
+              "A04",
+              "B01",
+              "B02",
+              "B03",
+              "B04"
+            ],
+            "stop": {
+              "reason": "max-rounds",
+              "round": 3
+            },
+            "value": "all"
+          }
+        ],
+        "rounds": [
+          {
+            "accepted": 970,
+            "candidates": 1238,
+            "cumulative": 970,
+            "offered": 2065,
+            "previous": 0,
+            "redundant": 268,
+            "round": 1,
+            "short": 827,
+            "superseded": 0
+          },
+          {
+            "accepted": 64,
+            "candidates": 66,
+            "cumulative": 1032,
+            "offered": 318,
+            "previous": 970,
+            "redundant": 2,
+            "round": 2,
+            "short": 252,
+            "superseded": 2
+          },
+          {
+            "accepted": 3,
+            "candidates": 6,
+            "cumulative": 1035,
+            "offered": 253,
+            "previous": 1032,
+            "redundant": 3,
+            "round": 3,
+            "short": 247,
+            "superseded": 0
+          }
+        ],
+        "status": "succeeded"
+      },
+      "residual-only-by-community": {
+        "final_contigs": {
+          "bases_in_contigs_at_least_1000": 12610163,
+          "contigs": 986,
+          "contigs_at_least_1000": 986,
+          "gc_percent": 44.23,
+          "l50": 16,
+          "max_length": 925379,
+          "n50": 197068,
+          "total_bases": 12610163
+        },
+        "groups": [
+          {
+            "original_pairs": 688198,
+            "rounds": [
+              {
+                "assembly_status": "contigs",
+                "contigs": 175,
+                "input_pairs": 688198,
+                "progress": 0.99063932182308,
+                "reason": null,
+                "retained_pairs": 6442,
+                "round": 2,
+                "status": "continue"
+              },
+              {
+                "assembly_status": "contigs",
+                "contigs": 164,
+                "input_pairs": 6442,
+                "progress": 0.19605712511642348,
+                "reason": null,
+                "retained_pairs": 5179,
+                "round": 3,
+                "status": "continue"
+              }
+            ],
+            "samples": [
+              "A01",
+              "A02",
+              "A03",
+              "A04"
+            ],
+            "stop": {
+              "reason": "max-rounds",
+              "round": 3
+            },
+            "value": "community_A"
+          },
+          {
+            "original_pairs": 688415,
+            "rounds": [
+              {
+                "assembly_status": "contigs",
+                "contigs": 201,
+                "input_pairs": 688415,
+                "progress": 0.9910344777496132,
+                "reason": null,
+                "retained_pairs": 6172,
+                "round": 2,
+                "status": "continue"
+              },
+              {
+                "assembly_status": "contigs",
+                "contigs": 194,
+                "input_pairs": 6172,
+                "progress": 0.17125729099157486,
+                "reason": null,
+                "retained_pairs": 5115,
+                "round": 3,
+                "status": "continue"
+              }
+            ],
+            "samples": [
+              "B01",
+              "B02",
+              "B03",
+              "B04"
+            ],
+            "stop": {
+              "reason": "max-rounds",
+              "round": 3
+            },
+            "value": "community_B"
+          }
+        ],
+        "rounds": [
+          {
+            "accepted": 970,
+            "candidates": 1238,
+            "cumulative": 970,
+            "offered": 2065,
+            "previous": 0,
+            "redundant": 268,
+            "round": 1,
+            "short": 827,
+            "superseded": 0
+          },
+          {
+            "accepted": 15,
+            "candidates": 17,
+            "cumulative": 983,
+            "offered": 376,
+            "previous": 970,
+            "redundant": 2,
+            "round": 2,
+            "short": 359,
+            "superseded": 2
+          },
+          {
+            "accepted": 3,
+            "candidates": 6,
+            "cumulative": 986,
+            "offered": 358,
+            "previous": 983,
+            "redundant": 3,
+            "round": 3,
+            "short": 352,
+            "superseded": 0
+          }
+        ],
+        "status": "succeeded"
+      }
+    },
+    "read_sha256": {
+      "A01": [
+        "f01e97077b9a163d5d1c1c83dbe500109e016ee5a1b587cd3f3c2d9b7730f9ee",
+        "bfadac09be5d79f4b640bdc6777c28d0edeb8b069e2b66d5f7ec89d56afe8fef"
+      ],
+      "A02": [
+        "a12d070810374e9fd5a1814ca8102d302ee48ddfe503b685ab4f947aee945987",
+        "7e19db3a11b73f590446fc5b62eaf13e38d93b3b657b1519fc0342789c50f78f"
+      ],
+      "A03": [
+        "d0ee54804ca23b1eb65d58bc2d3bfbb21c686ee7a3a77dea7df28235b8174911",
+        "d300dbe181733f80fb1c571e119e118a93515d9c7fcc53aeff7c34968cde4a1d"
+      ],
+      "A04": [
+        "09e509db038a76a6379226f83e7ad4d644fa957973c4b918fa7e7559fd86726d",
+        "35a5656f9a038b052b6608c882129d8ac07dcd6d40547b6ae0a3b37f638c1a0c"
+      ],
+      "B01": [
+        "757baf2a4f39c94c502f33d2ba490ed8183704f4948df640555d7c39a9fcd1a8",
+        "a417d6a84095b1f54380ec8a434264c2f22ac1ef5b54ecd29e02b247f14a7555"
+      ],
+      "B02": [
+        "360b0fd488a837156f716013896d0065d53d7350d45425ed820a748d0ed35427",
+        "21655aa64e1a0b9317f85838511ac15702c5ef4bfc322b13ab2f54b646b7656b"
+      ],
+      "B03": [
+        "b52f18471f0c403374c0a05926c9cd99fec49f9fae7f96ecbd65850d8fca36f0",
+        "ec35f744450a203c257809830ad9ff6e9965e1bc2939b5239edfa0ad522a607d"
+      ],
+      "B04": [
+        "afadfe9f1e41aef93100f65ed9dcc048e7cf207a8c1f75d7816f76b529341e64",
+        "e7210c6413f167351aaf02c90edb66282fd257e31233ed0d62c0cf50dee547d2"
+      ]
+    }
+  },
+  "step_seconds": {
+    "combined_holdout/coassemble-A": {
+      "exit": 0,
+      "seconds": 41
+    },
+    "combined_holdout/coassemble-B": {
+      "exit": 0,
+      "seconds": 45
+    },
+    "combined_holdout/discover-A": {
+      "exit": 0,
+      "seconds": 15
+    },
+    "combined_holdout/discover-B": {
+      "exit": 0,
+      "seconds": 13
+    },
+    "combined_holdout/iterate-pooled-recruitment": {
+      "exit": 0,
+      "seconds": 46
+    },
+    "combined_holdout/iterate-pooled-residual-only": {
+      "exit": 0,
+      "seconds": 32
+    },
+    "combined_holdout/iterate-recruitment": {
+      "exit": 0,
+      "seconds": 52
+    },
+    "combined_holdout/iterate-residual-only": {
+      "exit": 0,
+      "seconds": 33
+    },
+    "species_holdout/coassemble-A": {
+      "exit": 0,
+      "seconds": 39
+    },
+    "species_holdout/coassemble-B": {
+      "exit": 0,
+      "seconds": 43
+    },
+    "species_holdout/discover-A": {
+      "exit": 0,
+      "seconds": 14
+    },
+    "species_holdout/discover-B": {
+      "exit": 0,
+      "seconds": 14
+    },
+    "species_holdout/iterate-pooled-recruitment": {
+      "exit": 0,
+      "seconds": 45
+    },
+    "species_holdout/iterate-pooled-residual-only": {
+      "exit": 0,
+      "seconds": 29
+    },
+    "species_holdout/iterate-recruitment": {
+      "exit": 0,
+      "seconds": 54
+    },
+    "species_holdout/iterate-residual-only": {
+      "exit": 0,
+      "seconds": 31
+    },
+    "split/allreads-grouped": {
+      "exit": 0,
+      "seconds": 307
+    },
+    "split/allreads-pooled": {
+      "exit": 0,
+      "seconds": 272
+    },
+    "split/coassemble-A": {
+      "exit": 0,
+      "seconds": 45
+    },
+    "split/coassemble-B": {
+      "exit": 0,
+      "seconds": 48
+    },
+    "split/discover-A": {
+      "exit": 0,
+      "seconds": 14
+    },
+    "split/discover-B": {
+      "exit": 0,
+      "seconds": 13
+    },
+    "split/iterate-community-residual-only": {
+      "exit": 0,
+      "seconds": 39
+    },
+    "split/iterate-pooled-recruitment": {
+      "exit": 0,
+      "seconds": 53
+    },
+    "split/iterate-pooled-residual-only": {
+      "exit": 0,
+      "seconds": 32
+    }
+  }
+}

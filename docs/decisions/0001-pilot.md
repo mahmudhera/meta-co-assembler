@@ -64,13 +64,17 @@ not validated biological defaults:
   (Amended in [the M4 decision](0004-discovery-read-pools.md): multi-mapping
   within one species counts as explained.)
 - Later recruitment uses at least one seed-mapped mate with identity 95% and
-  aligned fraction 80%, with a three-round maximum.
+  aligned fraction 80%, with a three-round maximum. (Amended in
+  [the M6 decision](0006-iterative-assembly.md): recruitment reassembles
+  every pair of the original pools that the contigs do not certainly explain.)
 - Target at least 50% fewer assembly input pairs and no more than five
   percentage points loss of held-out-species recovery relative to grouped
   all-read assembly. Review correctness, runtime, RAM, and strain loss separately.
 
 The related-strain stress test is reported independently from the primary
-species-holdout test. Catalogue absence is not a taxonomic novelty claim.
+species-holdout test. (Retired in [the M6 decision](0006-iterative-assembly.md):
+discovery targets genomes, not strains, so reads explained by a catalogued
+relative count as explained.) Catalogue absence is not a taxonomic novelty claim.
 LoCovE evidence thresholds and guidance policies remain research questions,
 and cannot inherit Sylph's ANI threshold.
 

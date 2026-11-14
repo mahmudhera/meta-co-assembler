@@ -23,7 +23,7 @@ pub struct ContigStats {
     pub gc_percent: Option<f64>,
 }
 
-fn stats(mut lengths: Vec<u64>, gc: u64, acgt: u64) -> ContigStats {
+pub(crate) fn stats(mut lengths: Vec<u64>, gc: u64, acgt: u64) -> ContigStats {
     lengths.sort_unstable_by(|a, b| b.cmp(a));
     let total: u64 = lengths.iter().sum();
     let (mut running, mut n50, mut l50) = (0u64, 0u64, 0u64);
@@ -126,6 +126,122 @@ pub fn rewrite(input: &Path, output: &Path, prefix: &str) -> Result<ContigStats,
     }
     finish(&mut current, &mut lengths)?;
     writer.flush().map_err(write_error)?;
+    Ok(stats(lengths, gc, acgt))
+}
+
+/// One FASTA record: its ID, any header text after the ID, and the sequence.
+#[derive(Clone, Debug, PartialEq, Eq)]
+pub struct FastaRecord {
+    pub id: String,
+    pub rest: Option<String>,
+    pub sequence: Vec<u8>,
+}
+
+impl FastaRecord {
+    pub fn length(&self) -> u64 {
+        self.sequence.len() as u64
+    }
+
+    /// Writes the record with `id` in place of its own ID, keeping header text.
+    pub fn write_as(&self, out: &mut impl Write, id: &str) -> std::io::Result<()> {
+        match &self.rest {
+            Some(rest) => writeln!(out, ">{id} {rest}")?,
+            None => writeln!(out, ">{id}")?,
+        }
+        out.write_all(&self.sequence)?;
+        out.write_all(b"\n")
+    }
+}
+
+/// Streams FASTA records one at a time (memory proportional to one contig).
+/// Sequence before the first header and records without sequence are errors.
+pub struct FastaReader {
+    input: Box<dyn BufRead>,
+    name: String,
+    header: Option<(String, Option<String>)>,
+    line: String,
+    number: usize,
+}
+
+impl FastaReader {
+    pub fn open(path: &Path) -> Result<Self, String> {
+        let file =
+            File::open(path).map_err(|error| format!("cannot read {}: {error}", path.display()))?;
+        Ok(Self {
+            input: Box::new(BufReader::with_capacity(1 << 20, file)),
+            name: path.display().to_string(),
+            header: None,
+            line: String::new(),
+            number: 0,
+        })
+    }
+
+    fn parse_header(&self, header: &str) -> Result<(String, Option<String>), String> {
+        let mut parts = header.splitn(2, char::is_whitespace);
+        let id = parts.next().unwrap_or_default();
+        if id.is_empty() {
+            return Err(format!(
+                "{}: line {} has an empty contig name",
+                self.name, self.number
+            ));
+        }
+        let rest = parts.next().map(str::trim).filter(|rest| !rest.is_empty());
+        Ok((id.to_owned(), rest.map(str::to_owned)))
+    }
+
+    pub fn next_record(&mut self) -> Result<Option<FastaRecord>, String> {
+        let mut sequence = Vec::new();
+        loop {
+            self.line.clear();
+            let read = self
+                .input
+                .read_line(&mut self.line)
+                .map_err(|error| format!("cannot read {}: {error}", self.name))?;
+            self.number += 1;
+            let line = self.line.trim_end();
+            if read == 0 || line.starts_with('>') {
+                let next = if read == 0 {
+                    None
+                } else {
+                    Some(self.parse_header(&line[1..])?)
+                };
+                match std::mem::replace(&mut self.header, next) {
+                    Some((id, _)) if sequence.is_empty() => {
+                        return Err(format!("{}: contig {id:?} has no sequence", self.name));
+                    }
+                    Some((id, rest)) => return Ok(Some(FastaRecord { id, rest, sequence })),
+                    None if read == 0 => return Ok(None),
+                    None => continue,
+                }
+            }
+            if line.is_empty() {
+                continue;
+            }
+            if self.header.is_none() {
+                return Err(format!("{}: sequence before the first header", self.name));
+            }
+            sequence.extend_from_slice(line.as_bytes());
+        }
+    }
+}
+
+/// Statistics of a FASTA file.
+pub fn file_stats(path: &Path) -> Result<ContigStats, String> {
+    let mut reader = FastaReader::open(path)?;
+    let (mut lengths, mut gc, mut acgt) = (Vec::new(), 0u64, 0u64);
+    while let Some(record) = reader.next_record()? {
+        lengths.push(record.length());
+        for byte in &record.sequence {
+            match byte.to_ascii_uppercase() {
+                b'G' | b'C' => {
+                    gc += 1;
+                    acgt += 1;
+                }
+                b'A' | b'T' => acgt += 1,
+                _ => {}
+            }
+        }
+    }
     Ok(stats(lengths, gc, acgt))
 }
 

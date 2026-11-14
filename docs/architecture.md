@@ -22,6 +22,7 @@ Plans explicitly remain non-executable. FASTQ contents are not read.
 | `profiling` | `profile` command: Sylph and LoCovE adapters, normalized candidates, species expansion |
 | `discovery` | `discover` command: selected-reference FASTA, Strobealign/Minimap2 mapping, pair decisions, lockstep extraction |
 | `assembly` | `coassemble`/`assemble-reads`: verified inputs, volume-capped metadata groups, MEGAHIT, contig statistics |
+| `iteration` | `iterate`: combined coassembly inputs, per-round pair classification, contig acceptance with minimap2 containment, stop policy |
 | `digest` | SHA-256 while streams are read or written |
 | `error` | Contextual diagnostics and documented exit categories |
 | Binary entry point | Dispatch and JSON stdout/stderr boundary |
@@ -32,9 +33,11 @@ the execution engine to select candidate references per sample, and
 `discover` also maps each sample and streams its discovery pool with memory
 bounded by one read pair. `coassemble` and `assemble-reads` run one MEGAHIT
 assembly per group, and the engine samples each task's peak memory on Linux.
-Iteration is not implemented and `run` stays reserved.
-Catalogue FASTA digests are verified on every run; read files are not
-fingerprinted, and resume is unsupported.
+`iterate` adds bounded rounds over one or more coassemblies; its task graph
+is static, so a stopped group's later stages run no tools and record the
+stop. `run` stays reserved. Catalogue FASTA digests are verified on every
+run; discovery pools and input contigs are verified against recorded digests
+when consumed, and resume is unsupported.
 
 ## Dependency environment
 
@@ -224,18 +227,19 @@ a resume manifest.
 Both strategies are selected by `--iteration-strategy` and bounded by
 `--max-rounds`, including the initial assembly.
 
-- Residual-only maps discovery reads against cumulative accepted contigs and
-  assembles the unexplained remainder.
-- Recruitment revisits preserved original discovery pools with new contigs
-  as seeds and selects supporting pairs for refinement/extension. Previous
-  recruitment must not duplicate evidence or destructively consume the pool.
+- Residual-only maps the previous round's remaining pairs against the
+  cumulative accepted contigs and assembles those not explained.
+- Recruitment revisits the preserved original discovery pools every round
+  and reassembles every pair that the contigs do not certainly explain, so
+  pairs at contig ends, in overlaps, or in ambiguous placements return with
+  the support of new contigs. Each pair appears at most once per round, and
+  the pools are never consumed.
 
-Keep per-round outputs and cumulative contigs distinct. Acceptance rules,
-mapping confidence, recruitment thresholds, redundant-contig handling, and
-measurable convergence are decided with the owner during implementation.
-Stop on exhausted input, no accepted new contigs, insufficient progress, or
-the round budget, recording the reason. A repeated identical residual input
-must not cause an automatic infinite loop.
+Per-round outputs and cumulative contigs are distinct stages. The owner's
+M6 choices ([decision](decisions/0006-iterative-assembly.md)) fix the
+acceptance rule (length, minimap2 containment), the explained/certain rules,
+and the stop policy: exhausted input, unchanged input, progress below a
+threshold, no accepted contig, or the round budget, each recorded.
 
 ## Research endpoint and conditional extensions
 
