@@ -1,0 +1,18 @@
+genome_id	assembly_name	organism	taxid	species_taxid	domain	role	bases	records	source_md5
+GCF_000005845.2	ASM584v2	Escherichia coli K-12 MG1655	511145	562	Bacteria	relative	4641652	1	c13d459b5caa702ff7e1f26fe44b8ad7
+GCF_000013425.1	ASM1342v1	Staphylococcus aureus NCTC 8325	93061	1280	Bacteria	relative	2821361	1	b086eb1020e7df022afa545dc6d93297
+GCF_000006765.1	ASM676v1	Pseudomonas aeruginosa PAO1	208964	287	Bacteria	known	6264404	1	c859ec5a25506367506bce972788aca8
+GCF_000016525.1	ASM1652v1	Methanobrevibacter smithii ATCC 35061	420247	2173	Archaea	known_rare	1853160	1	a02c2d50841358c72ec6db7c306ef48a
+GCF_000240185.1	ASM24018v2	Klebsiella pneumoniae subsp. pneumoniae HS11286	1125630	573	Bacteria	relative	5682322	7	d5ca66f37a3e464d1fa922748cfb87ff
+GCF_000196035.1	ASM19603v1	Listeria monocytogenes EGD-e	169963	1639	Bacteria	relative	2944528	1	79cf8e93793c9022e5648f8ff39cc75c
+GCF_000007785.1	ASM778v1	Enterococcus faecalis V583	226185	1351	Bacteria	known	3359974	4	6176c3dee4e5c6b268902ed47b6ba5d5
+GCF_000006945.2	ASM694v2	Salmonella enterica subsp. enterica serovar Typhimurium str. LT2	99287	28901	Bacteria	known	4951383	2	3d4db127af17ce499dfec8cad09d4323
+GCF_000006745.1	ASM674v1	Vibrio cholerae O1 biovar El Tor str. N16961	243277	666	Bacteria	distractor	4033464	2	3840789c1bb2f7c16872d8dca0461cb0
+GCF_000025465.1	ASM2546v1	Klebsiella variicola At-22	640131	244366	Bacteria	novel_congener	5458505	1	0f018fc99094986686487ba66723720f
+GCF_000026225.1	ASM2622v1	Escherichia fergusonii ATCC 35469	585054	564	Bacteria	novel_congener	4643861	2	27b0e7e00081f41d6a0e57eb1c1d69fa
+GCF_000195795.1	ASM19579v1	Listeria innocua Clip11262	272626	1642	Bacteria	novel_congener	3093113	2	1f40ddf9f12860e2c2c87ef91263a680
+GCF_000007645.1	ASM764v1	Staphylococcus epidermidis ATCC 12228	176280	1282	Bacteria	novel_congener	2564615	7	2396731447b45863e8b6e05aa5a76aad
+GCF_000025985.1	ASM2598v1	Bacteroides fragilis NCTC 9343	272559	817	Bacteria	novel_common	5241700	2	63628786b8e7e4de066e3a0e0c6cd73f
+GCF_000009205.2	ASM920v2	Clostridioides difficile 630	272563	1496	Bacteria	novel_thin	4298133	2	d8e93eecccfaff3f42e66d3ef490c0e6
+GCF_000020225.1	ASM2022v1	Akkermansia muciniphila ATCC BAA-835	349741	239935	Bacteria	novel_thin	2664102	1	5b0d77b0151b546be1bca9a68da5a231
+GCF_000007525.1	ASM752v1	Bifidobacterium longum NCC2705	206672	216816	Bacteria	novel_rare	2260266	2	5d8b17f2f49cec1ed86473425758f92a
