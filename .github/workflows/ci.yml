@@ -106,7 +106,7 @@ jobs:
           environment-file: environment.yml
           activate-environment: meta-co-assembler-env
           auto-activate: false
-          channels: conda-forge
+          channels: conda-forge,bioconda
           channel-priority: strict
       - name: Check formatting
         run: conda run --no-capture-output --name meta-co-assembler-env cargo fmt --all --check

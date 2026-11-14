@@ -1,0 +1,59 @@
+{
+  "schema_version": 1,
+  "platform": "linux-64",
+  "tools": {
+    "rust": {
+      "version": "1.99.1",
+      "build": "h6344a40_1"
+    },
+    "c-compiler": {
+      "version": "2.0.0",
+      "build": "ha29393d_1"
+    },
+    "python": {
+      "version": "3.13.18",
+      "build": "hf47f18c_100_cp313"
+    },
+    "sylph": {
+      "version": "1.0.0",
+      "build": "hb42e459_0"
+    },
+    "kraken2": {
+      "version": "2.17.2",
+      "build": "pl5321h3be2455_0"
+    },
+    "strobealign": {
+      "version": "0.20.0",
+      "build": "hab7d0fd_0"
+    },
+    "minimap2": {
+      "version": "2.31",
+      "build": "h118bc1c_0"
+    },
+    "samtools": {
+      "version": "1.25",
+      "build": "h9dcdb79_0"
+    },
+    "megahit": {
+      "version": "1.2.9",
+      "build": "haf24da9_8"
+    },
+    "spades": {
+      "version": "4.3.0",
+      "build": "hde4eca7_2"
+    },
+    "art": {
+      "version": "2016.06.05",
+      "build": "h0704011_13"
+    },
+    "quast": {
+      "version": "5.3.0",
+      "build": "py313pl5321h5ca1c30_2"
+    },
+    "locove": {
+      "version": "0.1.0",
+      "source_revision": "436f7cf4e3574dd77fdff2d0c099bffa5b67bdd1",
+      "binary_sha256": "5b52a9e9b8f15776f567d4fa8a89f39ceb09fd3e6d8376461767071431506029"
+    }
+  }
+}
