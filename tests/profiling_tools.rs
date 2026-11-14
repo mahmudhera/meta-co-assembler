@@ -412,3 +412,56 @@ fn real_megahit_assembles_the_novel_genome_from_discovery_pools() {
         "{s2}"
     );
 }
+
+#[test]
+#[ignore = "requires sylph, strobealign, megahit, and minimap2 from meta-co-assembler-env; run with --ignored"]
+fn real_iteration_runs_both_strategies_on_per_sample_coassemblies() {
+    let data = Synthetic::new("iterate");
+    data.discover("strobealign");
+    let discovery = data.root.join("discover-strobealign").display().to_string();
+    run_assembly(
+        &data,
+        &["coassemble", "--discovery-dir", &discovery, "--per-sample"],
+        "coassembly",
+    );
+    let coassembly = data.root.join("coassembly").display().to_string();
+    for (strategy, grouping, output) in [
+        ("residual-only", "--all-samples", "iterate-residual"),
+        ("recruitment", "--keep-groups", "iterate-recruitment"),
+    ] {
+        let summary = run_assembly(
+            &data,
+            &[
+                "iterate",
+                "--coassembly-dir",
+                &coassembly,
+                "--iteration-strategy",
+                strategy,
+                grouping,
+                "--max-rounds",
+                "3",
+            ],
+            output,
+        );
+        assert_eq!(summary["status"], "succeeded", "{summary}");
+        let accepted = &summary["rounds"][0]["accept"];
+        assert!(accepted["accepted"].as_u64().unwrap() >= 1, "{accepted}");
+        for group in summary["groups"].as_array().unwrap() {
+            assert!(group["stop"]["reason"].is_string(), "{group}");
+            if group["original_pairs"] == 0 {
+                // S1 holds only catalogued genomes: nothing to iterate on.
+                assert_eq!(group["stop"]["reason"], "exhausted", "{group}");
+                continue;
+            }
+            let progress = group["rounds"][0]["progress"].as_f64().unwrap();
+            assert!(
+                progress > 0.5,
+                "most pool pairs come from the novel genome: {group}"
+            );
+        }
+        let total = summary["final_contig_stats"]["total_bases"]
+            .as_u64()
+            .unwrap();
+        assert!((40_000..=150_000).contains(&total), "{summary}");
+    }
+}
