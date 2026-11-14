@@ -7,6 +7,7 @@ pub enum Error {
     Csv { context: String, source: csv::Error },
     Json(serde_json::Error),
     Unavailable(&'static str),
+    Execution(String),
 }
 
 impl Error {
@@ -25,6 +26,7 @@ impl fmt::Display for Error {
         match self {
             Self::InvalidInput(message) => f.write_str(message),
             Self::Unavailable(message) => f.write_str(message),
+            Self::Execution(message) => f.write_str(message),
             Self::Io { context, source } => write!(f, "{context}: {source}"),
             Self::Csv { context, source } => write!(f, "{context}: {source}"),
             Self::Json(source) => write!(f, "cannot write JSON: {source}"),
