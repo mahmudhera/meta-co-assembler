@@ -63,14 +63,20 @@ Suggested branch: `feature/local-execution`. Depends on M1.
 
 Implement child process management, bounded logs/streams, CPU/memory admission,
 scratch accounting, failure/cancellation, stage completion, and a versioned run
-manifest. Implement safe resume before expensive biological runs.
+manifest. By owner decision, resume is deferred to M13: an existing output
+directory is refused, and `--force` deletes the previous run and reruns
+everything.
+
+Implementation for review: [decision](docs/decisions/0002-local-execution.md)
+and the `execution` module. `run` stays reserved until M3 adds a real stage.
 
 Acceptance:
 
 - Small fake executables demonstrate success, failure, cancellation, and
   interrupted writes without leaving success markers.
 - Concurrent reservations cannot exceed total budgets; tool helpers are included.
-- Changed inputs, parameters, versions, or group membership invalidate resume.
+- Existing outputs are refused; `--force` deletes only a previous run's own
+  directories, never inputs or unrelated data.
 - Outputs are never silently overwritten; unfinished work remains distinguishable.
 - The reserved `run` behavior changes only when real stages can execute safely.
 
@@ -120,7 +126,8 @@ Acceptance:
 - Commands, inputs, grouping, versions, counts, and basic contig statistics
   are captured; malformed/empty assembler outputs have explicit outcomes.
 - Pooling and subprocess I/O stay bounded, with measured scratch/peak-memory use.
-- Resume skips only valid matching stages.
+- Failed or interrupted stages are never consumed downstream; a forced rerun
+  repeats all stages until M13 adds resume.
 - Run the first small comparison against the M1 baselines now. If results are
   clearly unpromising, revisit the design before investing in iteration.
 
@@ -139,7 +146,8 @@ Acceptance:
 - Every run stops at the round limit or an explicit exhausted/no-progress policy.
 - Identical inputs cannot cause an unbounded reassembly loop.
 - Per-round reports explain input changes, accepted contigs, mapping progress,
-  and stop reasons. Interrupted rounds resume safely.
+  and stop reasons. Interrupted rounds remain distinguishable and are never
+  consumed as complete.
 
 ## M7 — Research decision: continue, revise, or stop
 
@@ -220,7 +228,8 @@ with the owner.
 
 Acceptance:
 
-- Local and SLURM executors share artifact, resume, and provenance contracts.
+- Local and SLURM executors share artifact, completion, and provenance contracts,
+  and resume once M13 exists.
 - Requests reflect per-task resource reservations and tool helper requirements.
 - Submission, polling, cancellation, retries, and failed jobs have explicit behavior.
 - Single-node use has no SLURM dependency.
@@ -239,3 +248,22 @@ Acceptance:
 - Reproducible installation and a small tutorial dataset work end to end.
 - Platform support distinguishes the portable Rust CLI from external tool support.
 - Release publishing is configured only when requested by the owner.
+
+## M13 — Safe resume
+
+Suggested branch: `feature/safe-resume`. Depends on M2. Deferred from M2 by
+owner decision; the owner schedules it when repeated expensive runs make full
+forced reruns too costly.
+
+Bind each completed stage to the content identities of its inputs, catalogue,
+parameters, tool versions, and group membership. Choose with the owner how
+read-file digests are computed and cached, and what happens to superseded
+outputs.
+
+Acceptance:
+
+- Changed inputs, parameters, versions, or group membership invalidate the
+  affected stages and their dependents.
+- Resume skips only valid matching stages; interrupted rounds resume safely.
+- Superseded outputs are handled under an explicit, recorded policy.
+- Without an explicit resume request, existing outputs are still refused.

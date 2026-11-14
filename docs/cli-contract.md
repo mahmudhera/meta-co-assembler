@@ -62,6 +62,14 @@ Reference and adapter configuration flags will be designed with the owner
 when execution is implemented. No mock assemblies or success-shaped outputs
 are produced by this command.
 
+The M2 execution engine exists as a library and is not yet reachable from the
+CLI. When M3 connects `run` to a real stage, it is planned to add `--force`
+and `--scratch-dir DIR` with an explicit scratch budget, following
+[the M2 decision](decisions/0002-local-execution.md): a non-empty output
+directory is refused; `--force` deletes a previous meta-co-assembler run there
+and reruns everything; there is no resume. Exit codes for failed and
+interrupted runs will be specified then.
+
 ## Flags and defaults
 
 | Flag | Default | Contract |
@@ -179,6 +187,7 @@ arguments on the same host; absolute paths differ across machines.
 
 Future execution will produce versioned provenance, per-sample profiling and
 read-state counts, group membership, per-round contig FASTA, mapping summaries,
-and stop reasons. Output layout, safe resume, atomic stage completion, and tool
-configuration are separate milestones before the first real run. Existing
-outputs must never be silently overwritten.
+and stop reasons. The M2 engine defines the output layout (`run.json`,
+`stages/ID`, `partial/ID`) and atomic stage completion; tool configuration
+arrives with the first adapters, and resume is roadmap M13. Existing outputs
+are never silently overwritten.
