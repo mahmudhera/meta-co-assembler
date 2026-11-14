@@ -7,6 +7,7 @@
 
 pub mod catalogue;
 pub mod cli;
+pub mod digest;
 pub mod discovery;
 pub mod error;
 pub mod execution;
