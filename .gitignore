@@ -12,3 +12,5 @@
 *.bai
 *.cram
 *.crai
+__pycache__/
+*.py[cod]

@@ -116,3 +116,5 @@ jobs:
         run: conda run --no-capture-output --name meta-co-assembler-env cargo test --locked --all-targets
       - name: Build release executable
         run: conda run --no-capture-output --name meta-co-assembler-env cargo build --locked --release
+      - name: Check pilot preparation contracts without downloads or tools
+        run: conda run --no-capture-output --name meta-co-assembler-env python -m unittest discover -s tests/pilot -v
