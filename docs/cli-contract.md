@@ -37,6 +37,9 @@ meta-co-assembler plan --samples FILE --metadata FILE --group-by COLUMN
 meta-co-assembler profile --samples FILE --catalogue FILE --output-dir DIR
     --memory-gib N [--threads N] [--jobs N] [--profiler sylph|locove]
     [--min-ani PERCENT] [--min-breadth FRACTION] [--force]
+meta-co-assembler discover <the same options as profile>
+    [--mapper strobealign|minimap2] [--min-identity FRACTION]
+    [--min-aligned-fraction FRACTION] [--min-mapq N] [--secondary-alignments N]
 meta-co-assembler run <the same options as plan> --output-dir DIR
 ```
 
@@ -103,6 +106,34 @@ Each sample's `stages/profile-ID/` holds the raw tool report,
 complete stage with status `no-candidates`. A genome name that is not in the
 catalogue registry fails that sample's stage. On completion `profile` prints
 a JSON summary with the run status, manifest path, and per-sample counts.
+
+## Discover
+
+`discover` runs the profiling stages above, then one `map-ID` stage per
+sample that maps its reads to that sample's selected references and writes a
+discovery pool of pairs that are not confidently explained; see
+[the M4 decision](decisions/0004-discovery-read-pools.md). It needs
+`--threads` of at least 2 because the mapper and the pair extractor run
+together.
+
+| Flag | Default | Contract |
+| --- | --- | --- |
+| `--mapper` | strobealign | strobealign or minimap2 |
+| `--min-identity` | 0.98 | Each mate's `1 - NM/(M+=+X+I+D)`, greater than 0 and at most 1 |
+| `--min-aligned-fraction` | 0.90 | Each mate's aligned share of its query, soft clips included |
+| `--min-mapq` | 20 | Below it, a mate whose secondaries reached the cap is ambiguous; below 255 |
+| `--secondary-alignments` | 50 | Secondaries requested per read to detect alternatives, 1 to 1000; Strobealign also gets `-M` of at least N + 1 |
+
+A pair is removed only when both mates pass, are properly paired, lie on
+references of one species, have no supplementary records, and every
+qualifying secondary alignment is in that species. Otherwise both mates are
+kept. Each `stages/map-ID/` holds `discovery_R1.fastq.gz`,
+`discovery_R2.fastq.gz` with the original FASTQ records, `decisions.tsv.gz`
+with every pair's outcome and reason, `extraction.json` with pair and read
+counts, and `selected-contigs.tsv`. A sample without selected references keeps
+every pair without running a mapper. Alignment output that is out of input
+order, or mates that do not match, fail that sample's stage. Read names are
+unchanged, so later grouping must keep sample identity.
 
 ## Flags and defaults
 

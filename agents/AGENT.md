@@ -7,8 +7,9 @@ coassembling reference-unassigned read pairs across related metagenomes.
 AI agents assist software development only; no LLM runs inside the pipeline.
 
 Read the CLI contract, architecture, roadmap, and existing code before editing.
-Report the current capability honestly: validation, research planning, and
-per-sample reference profiling work; mapping, extraction, and assembly do not.
+Report the current capability honestly: validation, research planning,
+per-sample reference profiling, and discovery-pool extraction work; assembly
+and iteration do not.
 Do not return placeholder scientific results.
 
 The owner is exploring whether this approach works. Prefer the smallest

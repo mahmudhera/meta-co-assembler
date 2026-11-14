@@ -44,6 +44,9 @@ pub type Validator = Hook;
 /// In-process work on a stage directory; return a reason on failure.
 pub type Hook = Box<dyn Fn(&Path) -> Result<(), String> + Send + Sync>;
 
+/// Chooses a task's steps from what `prepare` found in the stage directory.
+pub type StepsHook = Box<dyn Fn(&Path) -> Result<Vec<Step>, String> + Send + Sync>;
+
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub enum OutputKind {
     NonEmptyFile,
@@ -89,6 +92,10 @@ pub struct TaskSpec {
     /// Runs after every step succeeded and before outputs are validated, for
     /// example to normalize a tool's report.
     pub finalize: Option<Hook>,
+    /// Replaces `steps` after `prepare`, when the steps depend on upstream
+    /// results (for example, no mapper runs without selected references).
+    /// The returned steps are validated like static ones.
+    pub steps_from: Option<StepsHook>,
     pub validator: Option<Validator>,
     /// Wall-clock limit for all steps together.
     pub timeout: Option<Duration>,
@@ -230,6 +237,29 @@ fn valid_id(id: &str) -> bool {
         && bytes.all(|b| b.is_ascii_alphanumeric() || b"._-".contains(&b))
 }
 
+/// Step names must be valid and unique, pipelines nonempty, and stdout files
+/// inside the stage directory.
+fn check_steps(steps: &[Step]) -> Result<(), String> {
+    let mut names = std::collections::HashSet::new();
+    for step in steps {
+        if !valid_id(&step.name) || !names.insert(step.name.as_str()) {
+            return Err(format!("invalid or duplicate step name {:?}", step.name));
+        }
+        if step.pipeline.is_empty() {
+            return Err(format!("step {} has no processes", step.name));
+        }
+        if let super::process::StdoutTarget::File(path) = &step.stdout {
+            if !is_contained_relative(path) {
+                return Err(format!(
+                    "stdout path {} must stay inside the stage directory",
+                    path.display()
+                ));
+            }
+        }
+    }
+    Ok(())
+}
+
 /// Validates every task and returns a deterministic dependency order.
 fn validate(tasks: &[TaskSpec], budget: &Budget) -> Result<Vec<usize>, Error> {
     budget.validate()?;
@@ -246,29 +276,11 @@ fn validate(tasks: &[TaskSpec], budget: &Budget) -> Result<Vec<usize>, Error> {
     for task in tasks {
         let id = &task.id;
         budget.check(id, &task.reservation)?;
-        if task.steps.is_empty() {
+        if task.steps.is_empty() && task.steps_from.is_none() {
             return invalid(format!("task {id} has no steps"));
         }
-        let mut names = std::collections::HashSet::new();
-        for step in &task.steps {
-            if !valid_id(&step.name) || !names.insert(step.name.as_str()) {
-                return invalid(format!(
-                    "task {id}: invalid or duplicate step name {:?}",
-                    step.name
-                ));
-            }
-            if step.pipeline.is_empty() {
-                return invalid(format!("task {id}: step {} has no processes", step.name));
-            }
-            if let super::process::StdoutTarget::File(path) = &step.stdout {
-                if !is_contained_relative(path) {
-                    return invalid(format!(
-                        "task {id}: stdout path {} must stay inside the stage directory",
-                        path.display()
-                    ));
-                }
-            }
-        }
+        check_steps(&task.steps)
+            .map_err(|reason| Error::InvalidInput(format!("task {id}: {reason}")))?;
         for output in &task.outputs {
             let reserved = output.path.components().next().is_some_and(|first| {
                 first.as_os_str() == "logs" || first.as_os_str() == STAGE_FILE
@@ -443,8 +455,27 @@ fn run_task(
             .map_err(|reason| (StageStatus::Failed, format!("preparation failed: {reason}"))),
         None => Ok(()),
     };
-    // Steps run only after a successful preparation.
-    let steps = if result.is_ok() { &task.steps[..] } else { &[] };
+    // Steps run only after a successful preparation, and may be chosen by it.
+    let dynamic = match (&result, &task.steps_from) {
+        (Ok(()), Some(choose)) => {
+            match choose(&partial).and_then(|steps| check_steps(&steps).map(|()| steps)) {
+                Ok(steps) => Some(steps),
+                Err(reason) => {
+                    result = Err((
+                        StageStatus::Failed,
+                        format!("cannot choose steps: {reason}"),
+                    ));
+                    None
+                }
+            }
+        }
+        _ => None,
+    };
+    let steps: &[Step] = match (&result, &dynamic) {
+        (Err(_), _) => &[],
+        (Ok(()), Some(steps)) => steps,
+        (Ok(()), None) => &task.steps,
+    };
     for step in steps {
         let record = run_step(step, &context, || sample(false));
         let end = record.end.clone();

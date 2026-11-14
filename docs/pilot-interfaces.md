@@ -79,10 +79,16 @@ extension and validation; do not invent read IDs from aggregate coverage.
 
 ## Mapping and paired-read decisions
 
+Implemented in M4 with an owner amendment; see
+[the M4 decision](decisions/0004-discovery-read-pools.md). Multi-mapping
+within one species now counts as explained, and MAPQ matters only when the
+secondary-alignment cap was reached. The original text follows for context.
+
 Preserve original read sequences/qualities and sample-aware identities.
 Collate all relevant alignments by name with bounded memory/disk before
-deciding a pair. A command that keeps only reads with both-unmapped flags
-does not implement the accepted retention policy.
+deciding a pair. (M4 relies on mappers emitting pairs in input order and
+verifies it per pair instead of collating.) A command that keeps only reads
+with both-unmapped flags does not implement the accepted retention policy.
 
 For each primary mate alignment:
 

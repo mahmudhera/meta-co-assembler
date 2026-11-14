@@ -1,0 +1,1076 @@
+{
+  "runs": [
+    {
+      "by_genome": {
+        "GCF_000005845.2": {
+          "assigned": 1583965,
+          "in_catalogue": true,
+          "pairs": 1600000,
+          "retained": 16035,
+          "retained_fraction": 0.010022,
+          "role": "known"
+        },
+        "GCF_000006765.1": {
+          "assigned": 2398653,
+          "in_catalogue": true,
+          "pairs": 2400000,
+          "retained": 1347,
+          "retained_fraction": 0.000561,
+          "role": "known"
+        },
+        "GCF_000009045.1": {
+          "assigned": 655468,
+          "in_catalogue": true,
+          "pairs": 660000,
+          "retained": 4532,
+          "retained_fraction": 0.006867,
+          "role": "species_holdout_A"
+        },
+        "GCF_000010245.2": {
+          "assigned": 197562,
+          "in_catalogue": true,
+          "pairs": 200000,
+          "retained": 2438,
+          "retained_fraction": 0.01219,
+          "role": "strain_holdout"
+        },
+        "GCF_000011065.1": {
+          "assigned": 659670,
+          "in_catalogue": true,
+          "pairs": 660000,
+          "retained": 330,
+          "retained_fraction": 0.0005,
+          "role": "species_holdout_B"
+        },
+        "GCF_000013425.1": {
+          "assigned": 2397649,
+          "in_catalogue": true,
+          "pairs": 2400000,
+          "retained": 2351,
+          "retained_fraction": 0.00098,
+          "role": "known"
+        },
+        "GCF_000016525.1": {
+          "assigned": 79504,
+          "in_catalogue": true,
+          "pairs": 80000,
+          "retained": 496,
+          "retained_fraction": 0.0062,
+          "role": "known_rare"
+        }
+      },
+      "catalogue": "all_known",
+      "catalogue_sha256": "5e799f4eeae4a18100f7e163b95fd4c8be307329c71e888ba52b7b40c7667899",
+      "false_removal": {},
+      "mapper": "strobealign",
+      "policy": {
+        "min_aligned_fraction": 0.9,
+        "min_identity": 0.98,
+        "min_mapq": 20,
+        "retain_both_mates_if_either_is_not_confident": true,
+        "same_species_multimapping_is_assigned": true,
+        "secondary_alignments": 10
+      },
+      "profiler": "sylph",
+      "reasons": {
+        "alternatives-truncated": 21372,
+        "cross-species-alternative": 1857,
+        "low-aligned-fraction": 2,
+        "low-identity": 4298,
+        "same-species-alternatives": 1852100,
+        "unique": 6120371
+      },
+      "residual_contamination": {
+        "GCF_000005845.2": 0.010022,
+        "GCF_000006765.1": 0.000561,
+        "GCF_000009045.1": 0.006867,
+        "GCF_000010245.2": 0.01219,
+        "GCF_000011065.1": 0.0005,
+        "GCF_000013425.1": 0.00098,
+        "GCF_000016525.1": 0.0062
+      },
+      "run": "strobealign-N10-all",
+      "stage_seconds": {
+        "index": 0.1,
+        "map": 78.4,
+        "profile": 12.3
+      },
+      "tool_versions": {
+        "mapper": "strobealign 0.20.0",
+        "profiler": "sylph 1.0.0"
+      },
+      "totals": {
+        "input_pair_reduction": 0.996559,
+        "pairs": 8000000,
+        "pool_heldout_fraction": 0.0,
+        "retained": 27529
+      }
+    },
+    {
+      "by_genome": {
+        "GCF_000005845.2": {
+          "assigned": 1595861,
+          "in_catalogue": true,
+          "pairs": 1600000,
+          "retained": 4139,
+          "retained_fraction": 0.002587,
+          "role": "known"
+        },
+        "GCF_000006765.1": {
+          "assigned": 2398653,
+          "in_catalogue": true,
+          "pairs": 2400000,
+          "retained": 1347,
+          "retained_fraction": 0.000561,
+          "role": "known"
+        },
+        "GCF_000009045.1": {
+          "assigned": 659646,
+          "in_catalogue": true,
+          "pairs": 660000,
+          "retained": 354,
+          "retained_fraction": 0.000536,
+          "role": "species_holdout_A"
+        },
+        "GCF_000010245.2": {
+          "assigned": 199237,
+          "in_catalogue": true,
+          "pairs": 200000,
+          "retained": 763,
+          "retained_fraction": 0.003815,
+          "role": "strain_holdout"
+        },
+        "GCF_000011065.1": {
+          "assigned": 659673,
+          "in_catalogue": true,
+          "pairs": 660000,
+          "retained": 327,
+          "retained_fraction": 0.000495,
+          "role": "species_holdout_B"
+        },
+        "GCF_000013425.1": {
+          "assigned": 2397678,
+          "in_catalogue": true,
+          "pairs": 2400000,
+          "retained": 2322,
+          "retained_fraction": 0.000968,
+          "role": "known"
+        },
+        "GCF_000016525.1": {
+          "assigned": 79951,
+          "in_catalogue": true,
+          "pairs": 80000,
+          "retained": 49,
+          "retained_fraction": 0.000612,
+          "role": "known_rare"
+        }
+      },
+      "catalogue": "all_known",
+      "catalogue_sha256": "5e799f4eeae4a18100f7e163b95fd4c8be307329c71e888ba52b7b40c7667899",
+      "false_removal": {},
+      "mapper": "strobealign",
+      "policy": {
+        "min_aligned_fraction": 0.9,
+        "min_identity": 0.98,
+        "min_mapq": 20,
+        "retain_both_mates_if_either_is_not_confident": true,
+        "same_species_multimapping_is_assigned": true,
+        "secondary_alignments": 20
+      },
+      "profiler": "sylph",
+      "reasons": {
+        "alternatives-truncated": 2118,
+        "cross-species-alternative": 2883,
+        "low-aligned-fraction": 2,
+        "low-identity": 4298,
+        "same-species-alternatives": 1870326,
+        "unique": 6120373
+      },
+      "residual_contamination": {
+        "GCF_000005845.2": 0.002587,
+        "GCF_000006765.1": 0.000561,
+        "GCF_000009045.1": 0.000536,
+        "GCF_000010245.2": 0.003815,
+        "GCF_000011065.1": 0.000495,
+        "GCF_000013425.1": 0.000968,
+        "GCF_000016525.1": 0.000612
+      },
+      "run": "strobealign-N20-all",
+      "stage_seconds": {
+        "index": 0.1,
+        "map": 77.1,
+        "profile": 10.6
+      },
+      "tool_versions": {
+        "mapper": "strobealign 0.20.0",
+        "profiler": "sylph 1.0.0"
+      },
+      "totals": {
+        "input_pair_reduction": 0.998837,
+        "pairs": 8000000,
+        "pool_heldout_fraction": 0.0,
+        "retained": 9301
+      }
+    },
+    {
+      "by_genome": {
+        "GCF_000005845.2": {
+          "assigned": 1595859,
+          "in_catalogue": true,
+          "pairs": 1600000,
+          "retained": 4141,
+          "retained_fraction": 0.002588,
+          "role": "known"
+        },
+        "GCF_000006765.1": {
+          "assigned": 2398653,
+          "in_catalogue": true,
+          "pairs": 2400000,
+          "retained": 1347,
+          "retained_fraction": 0.000561,
+          "role": "known"
+        },
+        "GCF_000009045.1": {
+          "assigned": 659646,
+          "in_catalogue": true,
+          "pairs": 660000,
+          "retained": 354,
+          "retained_fraction": 0.000536,
+          "role": "species_holdout_A"
+        },
+        "GCF_000010245.2": {
+          "assigned": 199237,
+          "in_catalogue": true,
+          "pairs": 200000,
+          "retained": 763,
+          "retained_fraction": 0.003815,
+          "role": "strain_holdout"
+        },
+        "GCF_000011065.1": {
+          "assigned": 659673,
+          "in_catalogue": true,
+          "pairs": 660000,
+          "retained": 327,
+          "retained_fraction": 0.000495,
+          "role": "species_holdout_B"
+        },
+        "GCF_000013425.1": {
+          "assigned": 2397678,
+          "in_catalogue": true,
+          "pairs": 2400000,
+          "retained": 2322,
+          "retained_fraction": 0.000968,
+          "role": "known"
+        },
+        "GCF_000016525.1": {
+          "assigned": 79951,
+          "in_catalogue": true,
+          "pairs": 80000,
+          "retained": 49,
+          "retained_fraction": 0.000612,
+          "role": "known_rare"
+        }
+      },
+      "catalogue": "all_known",
+      "catalogue_sha256": "5e799f4eeae4a18100f7e163b95fd4c8be307329c71e888ba52b7b40c7667899",
+      "false_removal": {},
+      "mapper": "strobealign",
+      "policy": {
+        "min_aligned_fraction": 0.9,
+        "min_identity": 0.98,
+        "min_mapq": 20,
+        "retain_both_mates_if_either_is_not_confident": true,
+        "same_species_multimapping_is_assigned": true,
+        "secondary_alignments": 50
+      },
+      "profiler": "sylph",
+      "reasons": {
+        "cross-species-alternative": 5003,
+        "low-aligned-fraction": 2,
+        "low-identity": 4298,
+        "same-species-alternatives": 1870323,
+        "unique": 6120374
+      },
+      "residual_contamination": {
+        "GCF_000005845.2": 0.002588,
+        "GCF_000006765.1": 0.000561,
+        "GCF_000009045.1": 0.000536,
+        "GCF_000010245.2": 0.003815,
+        "GCF_000011065.1": 0.000495,
+        "GCF_000013425.1": 0.000968,
+        "GCF_000016525.1": 0.000612
+      },
+      "run": "strobealign-N50-all",
+      "stage_seconds": {
+        "index": 0.1,
+        "map": 75.2,
+        "profile": 11.7
+      },
+      "tool_versions": {
+        "mapper": "strobealign 0.20.0",
+        "profiler": "sylph 1.0.0"
+      },
+      "totals": {
+        "input_pair_reduction": 0.998837,
+        "pairs": 8000000,
+        "pool_heldout_fraction": 0.0,
+        "retained": 9303
+      }
+    },
+    {
+      "by_genome": {
+        "GCF_000005845.2": {
+          "assigned": 1579248,
+          "in_catalogue": true,
+          "pairs": 1600000,
+          "retained": 20752,
+          "retained_fraction": 0.01297,
+          "role": "known"
+        },
+        "GCF_000006765.1": {
+          "assigned": 2397927,
+          "in_catalogue": true,
+          "pairs": 2400000,
+          "retained": 2073,
+          "retained_fraction": 0.000864,
+          "role": "known"
+        },
+        "GCF_000009045.1": {
+          "assigned": 658072,
+          "in_catalogue": true,
+          "pairs": 660000,
+          "retained": 1928,
+          "retained_fraction": 0.002921,
+          "role": "species_holdout_A"
+        },
+        "GCF_000010245.2": {
+          "assigned": 197023,
+          "in_catalogue": true,
+          "pairs": 200000,
+          "retained": 2977,
+          "retained_fraction": 0.014885,
+          "role": "strain_holdout"
+        },
+        "GCF_000011065.1": {
+          "assigned": 659673,
+          "in_catalogue": true,
+          "pairs": 660000,
+          "retained": 327,
+          "retained_fraction": 0.000495,
+          "role": "species_holdout_B"
+        },
+        "GCF_000013425.1": {
+          "assigned": 2396459,
+          "in_catalogue": true,
+          "pairs": 2400000,
+          "retained": 3541,
+          "retained_fraction": 0.001475,
+          "role": "known"
+        },
+        "GCF_000016525.1": {
+          "assigned": 79841,
+          "in_catalogue": true,
+          "pairs": 80000,
+          "retained": 159,
+          "retained_fraction": 0.001988,
+          "role": "known_rare"
+        }
+      },
+      "catalogue": "all_known",
+      "catalogue_sha256": "5e799f4eeae4a18100f7e163b95fd4c8be307329c71e888ba52b7b40c7667899",
+      "false_removal": {},
+      "mapper": "minimap2",
+      "policy": {
+        "min_aligned_fraction": 0.9,
+        "min_identity": 0.98,
+        "min_mapq": 20,
+        "retain_both_mates_if_either_is_not_confident": true,
+        "same_species_multimapping_is_assigned": true,
+        "secondary_alignments": 10
+      },
+      "profiler": "sylph",
+      "reasons": {
+        "alternatives-truncated": 23914,
+        "cross-species-alternative": 3592,
+        "low-aligned-fraction": 2,
+        "low-identity": 4242,
+        "low-mapq-no-reported-alternative": 8,
+        "mate-unmapped": 7,
+        "same-species-alternatives": 1870810,
+        "unique": 6097425
+      },
+      "residual_contamination": {
+        "GCF_000005845.2": 0.01297,
+        "GCF_000006765.1": 0.000864,
+        "GCF_000009045.1": 0.002921,
+        "GCF_000010245.2": 0.014885,
+        "GCF_000011065.1": 0.000495,
+        "GCF_000013425.1": 0.001475,
+        "GCF_000016525.1": 0.001988
+      },
+      "run": "minimap2-N10-all",
+      "stage_seconds": {
+        "index": 0.1,
+        "map": 99.4,
+        "profile": 11.3
+      },
+      "tool_versions": {
+        "mapper": "2.31-r1302",
+        "profiler": "sylph 1.0.0"
+      },
+      "totals": {
+        "input_pair_reduction": 0.99603,
+        "pairs": 8000000,
+        "pool_heldout_fraction": 0.0,
+        "retained": 31757
+      }
+    },
+    {
+      "by_genome": {
+        "GCF_000005845.2": {
+          "assigned": 1594337,
+          "in_catalogue": true,
+          "pairs": 1600000,
+          "retained": 5663,
+          "retained_fraction": 0.003539,
+          "role": "known"
+        },
+        "GCF_000006765.1": {
+          "assigned": 2398271,
+          "in_catalogue": true,
+          "pairs": 2400000,
+          "retained": 1729,
+          "retained_fraction": 0.00072,
+          "role": "known"
+        },
+        "GCF_000009045.1": {
+          "assigned": 659093,
+          "in_catalogue": true,
+          "pairs": 660000,
+          "retained": 907,
+          "retained_fraction": 0.001374,
+          "role": "species_holdout_A"
+        },
+        "GCF_000010245.2": {
+          "assigned": 199002,
+          "in_catalogue": true,
+          "pairs": 200000,
+          "retained": 998,
+          "retained_fraction": 0.00499,
+          "role": "strain_holdout"
+        },
+        "GCF_000011065.1": {
+          "assigned": 659673,
+          "in_catalogue": true,
+          "pairs": 660000,
+          "retained": 327,
+          "retained_fraction": 0.000495,
+          "role": "species_holdout_B"
+        },
+        "GCF_000013425.1": {
+          "assigned": 2397340,
+          "in_catalogue": true,
+          "pairs": 2400000,
+          "retained": 2660,
+          "retained_fraction": 0.001108,
+          "role": "known"
+        },
+        "GCF_000016525.1": {
+          "assigned": 79951,
+          "in_catalogue": true,
+          "pairs": 80000,
+          "retained": 49,
+          "retained_fraction": 0.000612,
+          "role": "known_rare"
+        }
+      },
+      "catalogue": "all_known",
+      "catalogue_sha256": "5e799f4eeae4a18100f7e163b95fd4c8be307329c71e888ba52b7b40c7667899",
+      "false_removal": {},
+      "mapper": "minimap2",
+      "policy": {
+        "min_aligned_fraction": 0.9,
+        "min_identity": 0.98,
+        "min_mapq": 20,
+        "retain_both_mates_if_either_is_not_confident": true,
+        "same_species_multimapping_is_assigned": true,
+        "secondary_alignments": 50
+      },
+      "profiler": "sylph",
+      "reasons": {
+        "cross-species-alternative": 8085,
+        "low-identity": 4241,
+        "low-mapq-no-reported-alternative": 8,
+        "mate-unmapped": 7,
+        "same-species-alternatives": 1890234,
+        "unique": 6097425
+      },
+      "residual_contamination": {
+        "GCF_000005845.2": 0.003539,
+        "GCF_000006765.1": 0.00072,
+        "GCF_000009045.1": 0.001374,
+        "GCF_000010245.2": 0.00499,
+        "GCF_000011065.1": 0.000495,
+        "GCF_000013425.1": 0.001108,
+        "GCF_000016525.1": 0.000612
+      },
+      "run": "minimap2-N50-all",
+      "stage_seconds": {
+        "index": 0.1,
+        "map": 99.5,
+        "profile": 9.4
+      },
+      "tool_versions": {
+        "mapper": "2.31-r1302",
+        "profiler": "sylph 1.0.0"
+      },
+      "totals": {
+        "input_pair_reduction": 0.998458,
+        "pairs": 8000000,
+        "pool_heldout_fraction": 0.0,
+        "retained": 12333
+      }
+    },
+    {
+      "by_genome": {
+        "GCF_000005845.2": {
+          "assigned": 1583966,
+          "in_catalogue": true,
+          "pairs": 1600000,
+          "retained": 16034,
+          "retained_fraction": 0.010021,
+          "role": "known"
+        },
+        "GCF_000006765.1": {
+          "assigned": 2398648,
+          "in_catalogue": true,
+          "pairs": 2400000,
+          "retained": 1352,
+          "retained_fraction": 0.000563,
+          "role": "known"
+        },
+        "GCF_000009045.1": {
+          "assigned": 11,
+          "in_catalogue": false,
+          "pairs": 660000,
+          "retained": 659989,
+          "retained_fraction": 0.999983,
+          "role": "species_holdout_A"
+        },
+        "GCF_000010245.2": {
+          "assigned": 197569,
+          "in_catalogue": true,
+          "pairs": 200000,
+          "retained": 2431,
+          "retained_fraction": 0.012155,
+          "role": "strain_holdout"
+        },
+        "GCF_000011065.1": {
+          "assigned": 0,
+          "in_catalogue": false,
+          "pairs": 660000,
+          "retained": 660000,
+          "retained_fraction": 1.0,
+          "role": "species_holdout_B"
+        },
+        "GCF_000013425.1": {
+          "assigned": 2397647,
+          "in_catalogue": true,
+          "pairs": 2400000,
+          "retained": 2353,
+          "retained_fraction": 0.00098,
+          "role": "known"
+        },
+        "GCF_000016525.1": {
+          "assigned": 79505,
+          "in_catalogue": true,
+          "pairs": 80000,
+          "retained": 495,
+          "retained_fraction": 0.006188,
+          "role": "known_rare"
+        }
+      },
+      "catalogue": "species_holdout",
+      "catalogue_sha256": "395a6c6582b9a947a949cca6904f8026ff98eec66e978f5adc9683148ac710f8",
+      "false_removal": {
+        "GCF_000009045.1": 1.7e-05,
+        "GCF_000011065.1": 0.0
+      },
+      "mapper": "strobealign",
+      "policy": {
+        "min_aligned_fraction": 0.9,
+        "min_identity": 0.98,
+        "min_mapq": 20,
+        "retain_both_mates_if_either_is_not_confident": true,
+        "same_species_multimapping_is_assigned": true,
+        "secondary_alignments": 10
+      },
+      "profiler": "sylph",
+      "reasons": {
+        "alternatives-truncated": 17167,
+        "cross-species-alternative": 1872,
+        "low-aligned-fraction": 1290,
+        "low-identity": 13387,
+        "mate-unmapped": 1308938,
+        "same-species-alternatives": 1838106,
+        "unique": 4819240
+      },
+      "residual_contamination": {
+        "GCF_000005845.2": 0.010021,
+        "GCF_000006765.1": 0.000563,
+        "GCF_000010245.2": 0.012155,
+        "GCF_000013425.1": 0.00098,
+        "GCF_000016525.1": 0.006188
+      },
+      "run": "strobealign-N10-species",
+      "stage_seconds": {
+        "index": 0.1,
+        "map": 80.8,
+        "profile": 9.5
+      },
+      "tool_versions": {
+        "mapper": "strobealign 0.20.0",
+        "profiler": "sylph 1.0.0"
+      },
+      "totals": {
+        "input_pair_reduction": 0.832168,
+        "pairs": 8000000,
+        "pool_heldout_fraction": 0.983119,
+        "retained": 1342654
+      }
+    },
+    {
+      "by_genome": {
+        "GCF_000005845.2": {
+          "assigned": 1595857,
+          "in_catalogue": true,
+          "pairs": 1600000,
+          "retained": 4143,
+          "retained_fraction": 0.002589,
+          "role": "known"
+        },
+        "GCF_000006765.1": {
+          "assigned": 2398648,
+          "in_catalogue": true,
+          "pairs": 2400000,
+          "retained": 1352,
+          "retained_fraction": 0.000563,
+          "role": "known"
+        },
+        "GCF_000009045.1": {
+          "assigned": 11,
+          "in_catalogue": false,
+          "pairs": 660000,
+          "retained": 659989,
+          "retained_fraction": 0.999983,
+          "role": "species_holdout_A"
+        },
+        "GCF_000010245.2": {
+          "assigned": 199244,
+          "in_catalogue": true,
+          "pairs": 200000,
+          "retained": 756,
+          "retained_fraction": 0.00378,
+          "role": "strain_holdout"
+        },
+        "GCF_000011065.1": {
+          "assigned": 0,
+          "in_catalogue": false,
+          "pairs": 660000,
+          "retained": 660000,
+          "retained_fraction": 1.0,
+          "role": "species_holdout_B"
+        },
+        "GCF_000013425.1": {
+          "assigned": 2397676,
+          "in_catalogue": true,
+          "pairs": 2400000,
+          "retained": 2324,
+          "retained_fraction": 0.000968,
+          "role": "known"
+        },
+        "GCF_000016525.1": {
+          "assigned": 79951,
+          "in_catalogue": true,
+          "pairs": 80000,
+          "retained": 49,
+          "retained_fraction": 0.000612,
+          "role": "known_rare"
+        }
+      },
+      "catalogue": "species_holdout",
+      "catalogue_sha256": "395a6c6582b9a947a949cca6904f8026ff98eec66e978f5adc9683148ac710f8",
+      "false_removal": {
+        "GCF_000009045.1": 1.7e-05,
+        "GCF_000011065.1": 0.0
+      },
+      "mapper": "strobealign",
+      "policy": {
+        "min_aligned_fraction": 0.9,
+        "min_identity": 0.98,
+        "min_mapq": 20,
+        "retain_both_mates_if_either_is_not_confident": true,
+        "same_species_multimapping_is_assigned": true,
+        "secondary_alignments": 20
+      },
+      "profiler": "sylph",
+      "reasons": {
+        "alternatives-truncated": 2078,
+        "cross-species-alternative": 2920,
+        "low-aligned-fraction": 1290,
+        "low-identity": 13388,
+        "mate-unmapped": 1308937,
+        "same-species-alternatives": 1852142,
+        "unique": 4819245
+      },
+      "residual_contamination": {
+        "GCF_000005845.2": 0.002589,
+        "GCF_000006765.1": 0.000563,
+        "GCF_000010245.2": 0.00378,
+        "GCF_000013425.1": 0.000968,
+        "GCF_000016525.1": 0.000612
+      },
+      "run": "strobealign-N20-species",
+      "stage_seconds": {
+        "index": 0.1,
+        "map": 79.6,
+        "profile": 9.9
+      },
+      "tool_versions": {
+        "mapper": "strobealign 0.20.0",
+        "profiler": "sylph 1.0.0"
+      },
+      "totals": {
+        "input_pair_reduction": 0.833923,
+        "pairs": 8000000,
+        "pool_heldout_fraction": 0.993509,
+        "retained": 1328613
+      }
+    },
+    {
+      "by_genome": {
+        "GCF_000005845.2": {
+          "assigned": 1595856,
+          "in_catalogue": true,
+          "pairs": 1600000,
+          "retained": 4144,
+          "retained_fraction": 0.00259,
+          "role": "known"
+        },
+        "GCF_000006765.1": {
+          "assigned": 2398648,
+          "in_catalogue": true,
+          "pairs": 2400000,
+          "retained": 1352,
+          "retained_fraction": 0.000563,
+          "role": "known"
+        },
+        "GCF_000009045.1": {
+          "assigned": 11,
+          "in_catalogue": false,
+          "pairs": 660000,
+          "retained": 659989,
+          "retained_fraction": 0.999983,
+          "role": "species_holdout_A"
+        },
+        "GCF_000010245.2": {
+          "assigned": 199244,
+          "in_catalogue": true,
+          "pairs": 200000,
+          "retained": 756,
+          "retained_fraction": 0.00378,
+          "role": "strain_holdout"
+        },
+        "GCF_000011065.1": {
+          "assigned": 0,
+          "in_catalogue": false,
+          "pairs": 660000,
+          "retained": 660000,
+          "retained_fraction": 1.0,
+          "role": "species_holdout_B"
+        },
+        "GCF_000013425.1": {
+          "assigned": 2397677,
+          "in_catalogue": true,
+          "pairs": 2400000,
+          "retained": 2323,
+          "retained_fraction": 0.000968,
+          "role": "known"
+        },
+        "GCF_000016525.1": {
+          "assigned": 79951,
+          "in_catalogue": true,
+          "pairs": 80000,
+          "retained": 49,
+          "retained_fraction": 0.000612,
+          "role": "known_rare"
+        }
+      },
+      "catalogue": "species_holdout",
+      "catalogue_sha256": "395a6c6582b9a947a949cca6904f8026ff98eec66e978f5adc9683148ac710f8",
+      "false_removal": {
+        "GCF_000009045.1": 1.7e-05,
+        "GCF_000011065.1": 0.0
+      },
+      "mapper": "strobealign",
+      "policy": {
+        "min_aligned_fraction": 0.9,
+        "min_identity": 0.98,
+        "min_mapq": 20,
+        "retain_both_mates_if_either_is_not_confident": true,
+        "same_species_multimapping_is_assigned": true,
+        "secondary_alignments": 50
+      },
+      "profiler": "sylph",
+      "reasons": {
+        "cross-species-alternative": 4998,
+        "low-aligned-fraction": 1288,
+        "low-identity": 13390,
+        "mate-unmapped": 1308937,
+        "same-species-alternatives": 1852148,
+        "unique": 4819239
+      },
+      "residual_contamination": {
+        "GCF_000005845.2": 0.00259,
+        "GCF_000006765.1": 0.000563,
+        "GCF_000010245.2": 0.00378,
+        "GCF_000013425.1": 0.000968,
+        "GCF_000016525.1": 0.000612
+      },
+      "run": "strobealign-N50-species",
+      "stage_seconds": {
+        "index": 0.1,
+        "map": 81.0,
+        "profile": 10.9
+      },
+      "tool_versions": {
+        "mapper": "strobealign 0.20.0",
+        "profiler": "sylph 1.0.0"
+      },
+      "totals": {
+        "input_pair_reduction": 0.833923,
+        "pairs": 8000000,
+        "pool_heldout_fraction": 0.993509,
+        "retained": 1328613
+      }
+    },
+    {
+      "by_genome": {
+        "GCF_000005845.2": {
+          "assigned": 1579248,
+          "in_catalogue": true,
+          "pairs": 1600000,
+          "retained": 20752,
+          "retained_fraction": 0.01297,
+          "role": "known"
+        },
+        "GCF_000006765.1": {
+          "assigned": 2397928,
+          "in_catalogue": true,
+          "pairs": 2400000,
+          "retained": 2072,
+          "retained_fraction": 0.000863,
+          "role": "known"
+        },
+        "GCF_000009045.1": {
+          "assigned": 13,
+          "in_catalogue": false,
+          "pairs": 660000,
+          "retained": 659987,
+          "retained_fraction": 0.99998,
+          "role": "species_holdout_A"
+        },
+        "GCF_000010245.2": {
+          "assigned": 197022,
+          "in_catalogue": true,
+          "pairs": 200000,
+          "retained": 2978,
+          "retained_fraction": 0.01489,
+          "role": "strain_holdout"
+        },
+        "GCF_000011065.1": {
+          "assigned": 0,
+          "in_catalogue": false,
+          "pairs": 660000,
+          "retained": 660000,
+          "retained_fraction": 1.0,
+          "role": "species_holdout_B"
+        },
+        "GCF_000013425.1": {
+          "assigned": 2397836,
+          "in_catalogue": true,
+          "pairs": 2400000,
+          "retained": 2164,
+          "retained_fraction": 0.000902,
+          "role": "known"
+        },
+        "GCF_000016525.1": {
+          "assigned": 79841,
+          "in_catalogue": true,
+          "pairs": 80000,
+          "retained": 159,
+          "retained_fraction": 0.001988,
+          "role": "known_rare"
+        }
+      },
+      "catalogue": "species_holdout",
+      "catalogue_sha256": "395a6c6582b9a947a949cca6904f8026ff98eec66e978f5adc9683148ac710f8",
+      "false_removal": {
+        "GCF_000009045.1": 2e-05,
+        "GCF_000011065.1": 0.0
+      },
+      "mapper": "minimap2",
+      "policy": {
+        "min_aligned_fraction": 0.9,
+        "min_identity": 0.98,
+        "min_mapq": 20,
+        "retain_both_mates_if_either_is_not_confident": true,
+        "same_species_multimapping_is_assigned": true,
+        "secondary_alignments": 10
+      },
+      "profiler": "sylph",
+      "reasons": {
+        "alternatives-truncated": 21951,
+        "cross-species-alternative": 2598,
+        "low-aligned-fraction": 347,
+        "low-identity": 8832,
+        "low-mapq-no-reported-alternative": 9,
+        "mate-unmapped": 1314384,
+        "same-species-alternatives": 1852168,
+        "unique": 4799711
+      },
+      "residual_contamination": {
+        "GCF_000005845.2": 0.01297,
+        "GCF_000006765.1": 0.000863,
+        "GCF_000010245.2": 0.01489,
+        "GCF_000013425.1": 0.000902,
+        "GCF_000016525.1": 0.001988
+      },
+      "run": "minimap2-N10-species",
+      "stage_seconds": {
+        "index": 0.1,
+        "map": 98.0,
+        "profile": 10.4
+      },
+      "tool_versions": {
+        "mapper": "2.31-r1302",
+        "profiler": "sylph 1.0.0"
+      },
+      "totals": {
+        "input_pair_reduction": 0.831486,
+        "pairs": 8000000,
+        "pool_heldout_fraction": 0.979137,
+        "retained": 1348112
+      }
+    },
+    {
+      "by_genome": {
+        "GCF_000005845.2": {
+          "assigned": 1594337,
+          "in_catalogue": true,
+          "pairs": 1600000,
+          "retained": 5663,
+          "retained_fraction": 0.003539,
+          "role": "known"
+        },
+        "GCF_000006765.1": {
+          "assigned": 2398271,
+          "in_catalogue": true,
+          "pairs": 2400000,
+          "retained": 1729,
+          "retained_fraction": 0.00072,
+          "role": "known"
+        },
+        "GCF_000009045.1": {
+          "assigned": 13,
+          "in_catalogue": false,
+          "pairs": 660000,
+          "retained": 659987,
+          "retained_fraction": 0.99998,
+          "role": "species_holdout_A"
+        },
+        "GCF_000010245.2": {
+          "assigned": 199002,
+          "in_catalogue": true,
+          "pairs": 200000,
+          "retained": 998,
+          "retained_fraction": 0.00499,
+          "role": "strain_holdout"
+        },
+        "GCF_000011065.1": {
+          "assigned": 0,
+          "in_catalogue": false,
+          "pairs": 660000,
+          "retained": 660000,
+          "retained_fraction": 1.0,
+          "role": "species_holdout_B"
+        },
+        "GCF_000013425.1": {
+          "assigned": 2397837,
+          "in_catalogue": true,
+          "pairs": 2400000,
+          "retained": 2163,
+          "retained_fraction": 0.000901,
+          "role": "known"
+        },
+        "GCF_000016525.1": {
+          "assigned": 79951,
+          "in_catalogue": true,
+          "pairs": 80000,
+          "retained": 49,
+          "retained_fraction": 0.000612,
+          "role": "known_rare"
+        }
+      },
+      "catalogue": "species_holdout",
+      "catalogue_sha256": "395a6c6582b9a947a949cca6904f8026ff98eec66e978f5adc9683148ac710f8",
+      "false_removal": {
+        "GCF_000009045.1": 2e-05,
+        "GCF_000011065.1": 0.0
+      },
+      "mapper": "minimap2",
+      "policy": {
+        "min_aligned_fraction": 0.9,
+        "min_identity": 0.98,
+        "min_mapq": 20,
+        "retain_both_mates_if_either_is_not_confident": true,
+        "same_species_multimapping_is_assigned": true,
+        "secondary_alignments": 50
+      },
+      "profiler": "sylph",
+      "reasons": {
+        "cross-species-alternative": 7029,
+        "low-aligned-fraction": 344,
+        "low-identity": 8832,
+        "low-mapq-no-reported-alternative": 9,
+        "mate-unmapped": 1314384,
+        "same-species-alternatives": 1869691,
+        "unique": 4799711
+      },
+      "residual_contamination": {
+        "GCF_000005845.2": 0.003539,
+        "GCF_000006765.1": 0.00072,
+        "GCF_000010245.2": 0.00499,
+        "GCF_000013425.1": 0.000901,
+        "GCF_000016525.1": 0.000612
+      },
+      "run": "minimap2-N50-species",
+      "stage_seconds": {
+        "index": 0.1,
+        "map": 99.2,
+        "profile": 9.6
+      },
+      "tool_versions": {
+        "mapper": "2.31-r1302",
+        "profiler": "sylph 1.0.0"
+      },
+      "totals": {
+        "input_pair_reduction": 0.833676,
+        "pairs": 8000000,
+        "pool_heldout_fraction": 0.992032,
+        "retained": 1330589
+      }
+    }
+  ],
+  "schema_version": 1
+}

@@ -6,6 +6,7 @@ use std::{
 use clap::Parser;
 use meta_co_assembler::{
     cli::{Cli, Command},
+    discovery::{run_discover, run_extract_pairs},
     error::Error,
     execution::{CancelToken, RunStatus},
     manifest::{read_metadata, read_samples, validation_report},
@@ -21,6 +22,27 @@ fn write_json(value: &impl Serialize) -> Result<(), Error> {
         context: "cannot write stdout".into(),
         source,
     })
+}
+
+/// Prints an executed run's summary and maps its status to an exit category.
+fn finish_run(
+    name: &str,
+    summary: &serde_json::Value,
+    status: RunStatus,
+    stop_reason: Option<String>,
+) -> Result<(), Error> {
+    write_json(summary)?;
+    let manifest = summary["manifest"].as_str().unwrap_or_default();
+    match status {
+        RunStatus::Succeeded => Ok(()),
+        RunStatus::Interrupted => Err(Error::Interrupted(format!(
+            "{name} was interrupted; partial work is recorded in {manifest}"
+        ))),
+        _ => Err(Error::RunFailed(format!(
+            "{name} failed: {}; see {manifest}",
+            stop_reason.unwrap_or_default()
+        ))),
+    }
 }
 
 fn execute(cli: Cli) -> Result<(), Error> {
@@ -39,19 +61,25 @@ fn execute(cli: Cli) -> Result<(), Error> {
             let cancel = CancelToken::new();
             cancel.cancel_on_termination_signals()?;
             let outcome = run_profile(&args, &cancel)?;
-            write_json(&outcome.summary)?;
-            let manifest = outcome.summary["manifest"].as_str().unwrap_or_default();
-            let reason = outcome.report.stop_reason.unwrap_or_default();
-            match outcome.report.status {
-                RunStatus::Interrupted => Err(Error::Interrupted(format!(
-                    "profiling was interrupted; partial work is recorded in {manifest}"
-                ))),
-                RunStatus::Succeeded => Ok(()),
-                _ => Err(Error::RunFailed(format!(
-                    "profiling failed: {reason}; see {manifest}"
-                ))),
-            }
+            finish_run(
+                "profiling",
+                &outcome.summary,
+                outcome.report.status,
+                outcome.report.stop_reason,
+            )
         }
+        Command::Discover(args) => {
+            let cancel = CancelToken::new();
+            cancel.cancel_on_termination_signals()?;
+            let outcome = run_discover(&args, &cancel)?;
+            finish_run(
+                "discovery",
+                &outcome.summary,
+                outcome.report.status,
+                outcome.report.stop_reason,
+            )
+        }
+        Command::ExtractPairs(args) => write_json(&run_extract_pairs(&args)?),
         Command::Run(args) => {
             args.plan.validate()?;
             Err(Error::Unavailable(

@@ -383,8 +383,25 @@ pub fn bytes_to_mib(bytes: u64) -> u64 {
     bytes.div_ceil(1024 * 1024)
 }
 
-/// Validates inputs, builds the backend index, and screens every sample.
-pub fn run_profile(args: &ProfileArgs, cancel: &CancelToken) -> Result<ProfileOutcome, Error> {
+/// Everything needed to execute profiling, alone or as the first stages of a
+/// longer run. Inputs are validated and the catalogue digests verified.
+pub struct Prepared {
+    pub samples: Vec<Sample>,
+    pub catalogue: Arc<Catalogue>,
+    pub tool: ToolIdentity,
+    pub backend: &'static str,
+    pub layout: RunLayout,
+    /// The index task followed by one `profile-ID` task per sample.
+    pub tasks: Vec<TaskSpec>,
+    /// Inputs that must never be inside output or scratch directories.
+    pub protected: Vec<PathBuf>,
+    pub configuration: Value,
+    pub budget: Budget,
+}
+
+/// Validates inputs, verifies the catalogue, finds the backend, and builds
+/// the profiling tasks without running anything.
+pub fn prepare_profiling(args: &ProfileArgs, command: &str) -> Result<Prepared, Error> {
     args.validate()?;
     let (backend, rule) = match args.profiler {
         Profiler::Sylph => (
@@ -447,7 +464,7 @@ pub fn run_profile(args: &ProfileArgs, cancel: &CancelToken) -> Result<ProfileOu
         source,
     })?;
     let configuration = json!({
-        "command": "profile",
+        "command": command,
         "profiler": backend,
         "tool": tool,
         "rule": rule,
@@ -455,21 +472,42 @@ pub fn run_profile(args: &ProfileArgs, cancel: &CancelToken) -> Result<ProfileOu
         "samples": {"path": args.samples, "sha256": samples_sha256, "count": samples.len()},
         "catalogue": {"path": catalogue.path, "sha256": catalogue.sha256, "references": catalogue.references.len()},
     });
-    let request = RunRequest {
-        layout: layout.clone(),
+    Ok(Prepared {
+        samples,
+        catalogue,
+        tool,
+        backend,
+        layout,
+        tasks,
+        protected,
+        configuration,
         budget: Budget {
             threads,
             memory_mib: u64::from(args.memory_gib.get()) * 1024,
             scratch_mib: 0,
             jobs,
         },
+    })
+}
+
+/// Validates inputs, builds the backend index, and screens every sample.
+pub fn run_profile(args: &ProfileArgs, cancel: &CancelToken) -> Result<ProfileOutcome, Error> {
+    let prepared = prepare_profiling(args, "profile")?;
+    let request = RunRequest {
+        layout: prepared.layout.clone(),
+        budget: prepared.budget,
         force: args.force,
-        protected_inputs: protected,
-        configuration,
+        protected_inputs: prepared.protected,
+        configuration: prepared.configuration,
         options: ExecOptions::default(),
     };
-    let report = execute(&request, &tasks, cancel)?;
-    let summary = summarize(&report, &layout, &samples, backend);
+    let report = execute(&request, &prepared.tasks, cancel)?;
+    let summary = summarize(
+        &report,
+        &prepared.layout,
+        &prepared.samples,
+        prepared.backend,
+    );
     Ok(ProfileOutcome { report, summary })
 }
 

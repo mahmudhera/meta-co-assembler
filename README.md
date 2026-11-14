@@ -22,13 +22,18 @@ termination, capped logs, and atomic stage completion; resume is not
 supported ([decision](docs/decisions/0002-local-execution.md)). M3 adds the
 `profile` command, which selects candidate references per sample from a
 frozen catalogue with Sylph or experimental LoCovE
-([decision](docs/decisions/0003-reference-profiling.md)). `run` stays
-reserved until mapping and assembly exist.
+([decision](docs/decisions/0003-reference-profiling.md)). M4 adds the
+`discover` command, which also maps each sample to its selected references
+with Strobealign or Minimap2 and writes a per-sample discovery pool of pairs
+not confidently explained
+([decision](docs/decisions/0004-discovery-read-pools.md)). `run` stays
+reserved until assembly exists.
 
 ```sh
-meta-co-assembler profile --samples data/pilot/samples.tsv \
+meta-co-assembler discover --samples data/pilot/samples.tsv \
   --catalogue data/pilot/catalogues/species_holdout/catalogue.tsv \
-  --output-dir results/profile-species-holdout --threads 16 --jobs 4 --memory-gib 32
+  --output-dir results/discover-species-holdout --threads 16 --jobs 4 --memory-gib 64
+python scripts/evaluate_discovery.py results/discover-species-holdout
 ```
 
 ## Environment and build

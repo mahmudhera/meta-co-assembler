@@ -12,6 +12,7 @@
 
 use std::{
     fs,
+    io::Read,
     path::{Path, PathBuf},
     process::Command,
 };
@@ -58,7 +59,8 @@ fn reverse_complement(sequence: &[u8]) -> Vec<u8> {
 }
 
 /// Two E. coli-like strains 0.5% apart, an unrelated species, and a
-/// distractor. Sample S1 contains strain 1 and the species; S2 only the species.
+/// distractor in the catalogue, plus a novel genome outside it. Sample S1
+/// contains strain 1 and the species; S2 the species and the novel genome.
 struct Synthetic {
     root: PathBuf,
 }
@@ -83,6 +85,7 @@ impl Synthetic {
         }
         let species = rng.genome();
         let distractor = rng.genome();
+        let novel = rng.genome();
         let mut catalogue = "reference_id\tfasta\ttaxid\tspecies_taxid\tsha256\n".to_owned();
         for (id, sequence, species_taxid) in [
             ("strain1", &strain1, "562"),
@@ -104,7 +107,10 @@ impl Synthetic {
         }
         fs::write(root.join("catalogue.tsv"), catalogue).unwrap();
         let mut samples = "sample_id\tread1\tread2\n".to_owned();
-        for (id, sources) in [("S1", vec![&strain1, &species]), ("S2", vec![&species])] {
+        for (id, sources) in [
+            ("S1", vec![&strain1, &species]),
+            ("S2", vec![&species, &novel]),
+        ] {
             let (mut one, mut two) = (String::new(), String::new());
             for (source, genome) in sources.iter().enumerate() {
                 for pair in 0..PAIRS_PER_GENOME {
@@ -159,6 +165,60 @@ impl Synthetic {
             String::from_utf8_lossy(&output.stderr)
         );
         serde_json::from_slice(&output.stdout).unwrap()
+    }
+
+    fn discover(&self, mapper: &str) -> Value {
+        let output = Command::new(env!("CARGO_BIN_EXE_meta-co-assembler"))
+            .arg("discover")
+            .arg("--samples")
+            .arg(self.root.join("samples.tsv"))
+            .arg("--catalogue")
+            .arg(self.root.join("catalogue.tsv"))
+            .arg("--output-dir")
+            .arg(self.root.join(format!("discover-{mapper}")))
+            .args([
+                "--mapper",
+                mapper,
+                "--threads",
+                "4",
+                "--jobs",
+                "2",
+                "--memory-gib",
+                "4",
+            ])
+            .output()
+            .unwrap();
+        assert_eq!(
+            output.status.code(),
+            Some(0),
+            "{mapper} discovery failed (are the tools on PATH?): {}",
+            String::from_utf8_lossy(&output.stderr)
+        );
+        serde_json::from_slice(&output.stdout).unwrap()
+    }
+
+    /// Fraction of a source's pairs that were retained, from the decision table.
+    fn retained_fraction(&self, mapper: &str, sample: &str, source: usize) -> f64 {
+        let path = self.root.join(format!(
+            "discover-{mapper}/stages/map-{sample}/decisions.tsv.gz"
+        ));
+        let mut text = String::new();
+        flate2::read::GzDecoder::new(fs::File::open(path).unwrap())
+            .read_to_string(&mut text)
+            .unwrap();
+        let prefix = format!("{sample}_{source}_");
+        let outcomes: Vec<bool> = text
+            .lines()
+            .skip(1)
+            .filter_map(|line| {
+                let fields: Vec<_> = line.split('\t').collect();
+                fields[1]
+                    .starts_with(&prefix)
+                    .then(|| fields[2] != "reference-assigned")
+            })
+            .collect();
+        assert_eq!(outcomes.len(), PAIRS_PER_GENOME);
+        outcomes.iter().filter(|retained| **retained).count() as f64 / outcomes.len() as f64
     }
 
     fn selected(&self, profiler: &str, sample: &str) -> Vec<(String, String)> {
@@ -239,4 +299,43 @@ fn real_locove_selects_present_genomes_and_never_the_distractor() {
         )
         .is_file()
     );
+}
+
+fn check_discovery(data: &Synthetic, mapper: &str) {
+    let summary = data.discover(mapper);
+    assert_eq!(summary["status"], "succeeded");
+    for sample in summary["samples"].as_array().unwrap() {
+        assert_eq!(sample["counts"]["pairs_in"], 2 * PAIRS_PER_GENOME);
+    }
+    // Known genomes are removed; strain1 reads also map to strain2, which is
+    // the same species, so they still count as explained.
+    assert!(
+        data.retained_fraction(mapper, "S1", 0) < 0.02,
+        "{mapper}: strain1 retained"
+    );
+    assert!(
+        data.retained_fraction(mapper, "S1", 1) < 0.02,
+        "{mapper}: species retained in S1"
+    );
+    assert!(
+        data.retained_fraction(mapper, "S2", 0) < 0.02,
+        "{mapper}: species retained in S2"
+    );
+    // Reads from the genome outside the catalogue stay in the discovery pool.
+    assert!(
+        data.retained_fraction(mapper, "S2", 1) > 0.99,
+        "{mapper}: novel reads removed"
+    );
+}
+
+#[test]
+#[ignore = "requires sylph and strobealign from meta-co-assembler-env; run with --ignored"]
+fn real_strobealign_discovery_keeps_novel_pairs_and_removes_known_ones() {
+    check_discovery(&Synthetic::new("strobealign"), "strobealign");
+}
+
+#[test]
+#[ignore = "requires sylph and minimap2 from meta-co-assembler-env; run with --ignored"]
+fn real_minimap2_discovery_keeps_novel_pairs_and_removes_known_ones() {
+    check_discovery(&Synthetic::new("minimap2"), "minimap2");
 }

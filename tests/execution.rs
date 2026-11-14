@@ -725,3 +725,46 @@ fn hooks_prepare_inputs_and_normalize_outputs_and_their_failures_block_publicati
     );
     assert!(!request.layout.stage_dir("bad-finalize").exists());
 }
+
+#[test]
+fn steps_can_be_chosen_after_preparation_and_are_validated() {
+    let fixture = Fixture::new();
+    let tool = fixture.tool("mark", "echo \"$1\" > chosen.txt");
+    let mut chosen = task("chosen", &tool, &[]);
+    chosen.steps.clear();
+    chosen.prepare = Some(Box::new(|dir| {
+        fs::write(dir.join("mode"), "b").map_err(|e| e.to_string())
+    }));
+    let tool_for_hook = tool.clone();
+    chosen.steps_from = Some(Box::new(move |dir| {
+        let mode = fs::read_to_string(dir.join("mode")).map_err(|e| e.to_string())?;
+        Ok(vec![Step::new(
+            format!("mode-{mode}"),
+            vec![ProcessSpec::new(&tool_for_hook).arg(mode)],
+        )])
+    }));
+    chosen.outputs.push(OutputSpec::file("chosen.txt"));
+    let mut invalid = task("invalid", &tool, &[]);
+    invalid.steps.clear();
+    invalid.steps_from = Some(Box::new(|_| Ok(vec![Step::new("../escape", vec![])])));
+    let request = fixture.request("out");
+    let report = execute(&request, &[chosen, invalid], &CancelToken::new()).unwrap();
+
+    assert_eq!(stage(&report, "chosen").steps[0].name, "mode-b");
+    assert_eq!(
+        fs::read_to_string(request.layout.stage_dir("chosen").join("chosen.txt")).unwrap(),
+        "b\n"
+    );
+    let failed = stage(&report, "invalid");
+    assert_eq!(failed.status, StageStatus::Failed);
+    assert!(
+        failed
+            .reason
+            .as_ref()
+            .unwrap()
+            .contains("cannot choose steps"),
+        "{:?}",
+        failed.reason
+    );
+    assert!(failed.steps.is_empty());
+}

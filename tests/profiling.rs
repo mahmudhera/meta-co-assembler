@@ -17,69 +17,11 @@ use std::{
     time::Duration,
 };
 
-use common::{eventually_dead, read_json, read_pid};
+use common::{FAKE_LOCOVE, FAKE_SYLPH, eventually_dead, read_json, read_pid};
 use meta_co_assembler::catalogue::sha256_file;
 use serde_json::Value;
 
 static NEXT_DIR: AtomicU64 = AtomicU64::new(0);
-
-const FAKE_SYLPH: &str = r#"#!/bin/sh
-echo "sylph $*" >> "$FAKE_LOG"
-case "$1" in
-  --version) echo "sylph 1.0.0-fake" ;;
-  sketch)
-    shift; out=database; dir=.; name=; db=0
-    while [ $# -gt 0 ]; do
-      case "$1" in
-        --gl) db=1; shift ;;
-        -o) out="$2"; shift ;;
-        -d) dir="$2"; shift ;;
-        -S) name="$2"; shift ;;
-      esac
-      shift
-    done
-    if [ "$db" = 1 ]; then echo db > "$out.syldb"; else echo sketch > "$dir/$name.paired.sylsp"; fi ;;
-  query)
-    shift; out=; sketch=
-    while [ $# -gt 0 ]; do
-      case "$1" in
-        -o) out="$2"; shift ;;
-        *.sylsp) sketch="$1" ;;
-      esac
-      shift
-    done
-    name=$(basename "$sketch" .paired.sylsp)
-    if [ -n "${FAKE_HANG:-}" ]; then sleep 30 & echo $! > "$FAKE_HANG"; wait; fi
-    cp "$FAKE_FIXTURES/query-$name.tsv" "$out" ;;
-  *) echo "unexpected sylph command $1" >&2; exit 9 ;;
-esac
-"#;
-
-const FAKE_LOCOVE: &str = r#"#!/bin/sh
-echo "locove $* RAYON=${RAYON_NUM_THREADS:-unset}" >> "$FAKE_LOG"
-case "$1" in
-  build-id) echo fake-build-id ;;
-  build)
-    shift
-    while [ $# -gt 0 ]; do case "$1" in --out) out="$2"; shift ;; esac; shift; done
-    echo index > "$out" ;;
-  run)
-    shift; out=; stats=; r1=
-    while [ $# -gt 0 ]; do
-      case "$1" in
-        --out) out="$2"; shift ;;
-        --stats-out) stats="$2"; shift ;;
-        --index|--threads) shift ;;
-        *) if [ -z "$r1" ]; then r1="$1"; fi ;;
-      esac
-      shift
-    done
-    [ -d "$out" ] || { echo "output directory must exist" >&2; exit 2; }
-    echo npz > "$out/segments.npz"; echo '{}' > "$out/record-map.json"
-    cp "$FAKE_FIXTURES/stats-$(basename "$r1").tsv" "$stats" ;;
-  *) echo "unexpected locove command $1" >&2; exit 9 ;;
-esac
-"#;
 
 const QUERY_HEADER: &str = "Sample_file\tGenome_file\tAdjusted_ANI\tEff_cov\tANI_5-95_percentile\tEff_lambda\tLambda_5-95_percentile\tMedian_cov\tMean_cov_geq1\tContainment_ind\tNaive_ANI\tContig_name\n";
 const STATS_HEADER: &str = "genome\tgenome_bases\tdepth_raw_mean\tdepth_raw_mean_defined_pct\tdepth_geom_per_read\tdepth_geom_per_read_defined_pct\tdepth_geom_per_read_novelty\tdepth_geom_per_read_novelty_defined_pct\tkmer_breadth\tbreadth_defined_pct\n";

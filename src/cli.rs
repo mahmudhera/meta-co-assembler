@@ -7,7 +7,7 @@ use clap::{Args, Parser, Subcommand, ValueEnum};
 use serde::Serialize;
 
 use crate::error::Error;
-use crate::tools::{Profiler, ToolSelection};
+use crate::tools::{Mapper, Profiler, ToolSelection};
 
 #[derive(Debug, Parser)]
 #[command(
@@ -28,6 +28,12 @@ pub enum Command {
     /// Screen each sample against a frozen catalogue and select candidate
     /// references; exits 4 if a stage fails and 130 if interrupted.
     Profile(ProfileArgs),
+    /// Profile samples, map them to their selected references, and write
+    /// discovery pools of pairs that are not confidently explained.
+    Discover(DiscoverArgs),
+    /// Internal: decide pairs from SAM on stdin and write discovery pools.
+    #[command(hide = true)]
+    ExtractPairs(ExtractPairsArgs),
     /// Reserved for pipeline execution; currently returns exit code 3.
     Run(RunArgs),
 }
@@ -144,6 +150,83 @@ impl ProfileArgs {
         }
         Ok(())
     }
+}
+
+#[derive(Debug, Args)]
+pub struct DiscoverArgs {
+    #[command(flatten)]
+    pub profile: ProfileArgs,
+    /// Read mapper used against each sample's selected references.
+    #[arg(long, value_enum, default_value = "strobealign")]
+    pub mapper: Mapper,
+    /// Minimum alignment identity, 1 - NM/(M+=+X+I+D), for each mate.
+    #[arg(long, default_value = "0.98")]
+    pub min_identity: f64,
+    /// Minimum aligned fraction of each mate's query, soft clips included.
+    #[arg(long, default_value = "0.90")]
+    pub min_aligned_fraction: f64,
+    /// MAPQ below which a mate with capped secondary alignments is ambiguous.
+    #[arg(long, default_value = "20")]
+    pub min_mapq: u8,
+    /// Secondary alignments requested per read, used to detect alternatives.
+    #[arg(long, default_value = "50")]
+    pub secondary_alignments: usize,
+}
+
+impl DiscoverArgs {
+    pub fn validate(&self) -> Result<(), Error> {
+        self.profile.validate()?;
+        for (flag, value) in [
+            ("--min-identity", self.min_identity),
+            ("--min-aligned-fraction", self.min_aligned_fraction),
+        ] {
+            if !(value.is_finite() && value > 0.0 && value <= 1.0) {
+                return Err(Error::InvalidInput(format!(
+                    "{flag} must be a fraction greater than 0 and at most 1"
+                )));
+            }
+        }
+        if self.min_mapq == 255 {
+            return Err(Error::InvalidInput(
+                "--min-mapq must be below 255, which SAM uses for unavailable".into(),
+            ));
+        }
+        if !(1..=1000).contains(&self.secondary_alignments) {
+            return Err(Error::InvalidInput(
+                "--secondary-alignments must be between 1 and 1000 to detect alternatives".into(),
+            ));
+        }
+        if self.profile.threads.get() < 2 {
+            return Err(Error::InvalidInput(
+                "discover needs --threads of at least 2: the mapper and the pair extractor run together".into(),
+            ));
+        }
+        Ok(())
+    }
+}
+
+/// Internal command used inside `discover`'s mapping stages.
+#[derive(Debug, Args)]
+pub struct ExtractPairsArgs {
+    #[arg(long)]
+    pub sample_id: String,
+    #[arg(long)]
+    pub read1: PathBuf,
+    #[arg(long)]
+    pub read2: PathBuf,
+    /// Contig table; without it no reference was selected and all pairs are kept.
+    #[arg(long)]
+    pub contigs: Option<PathBuf>,
+    #[arg(long)]
+    pub min_identity: f64,
+    #[arg(long)]
+    pub min_aligned_fraction: f64,
+    #[arg(long)]
+    pub min_mapq: u8,
+    #[arg(long)]
+    pub secondary_alignments: usize,
+    #[arg(long, default_value = ".")]
+    pub output_dir: PathBuf,
 }
 
 #[derive(Debug, Args)]
