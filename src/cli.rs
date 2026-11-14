@@ -7,7 +7,7 @@ use clap::{Args, Parser, Subcommand, ValueEnum};
 use serde::Serialize;
 
 use crate::error::Error;
-use crate::tools::ToolSelection;
+use crate::tools::{Profiler, ToolSelection};
 
 #[derive(Debug, Parser)]
 #[command(
@@ -25,6 +25,9 @@ pub enum Command {
     Validate(ValidateArgs),
     /// Print a metadata-grouped research plan as JSON; execute no tools.
     Plan(PlanArgs),
+    /// Screen each sample against a frozen catalogue and select candidate
+    /// references; exits 4 if a stage fails and 130 if interrupted.
+    Profile(ProfileArgs),
     /// Reserved for pipeline execution; currently returns exit code 3.
     Run(RunArgs),
 }
@@ -77,6 +80,61 @@ impl PlanArgs {
         if self.group_by.trim().is_empty() || self.group_by == "sample_id" {
             return Err(Error::InvalidInput(
                 "--group-by must name a nonempty metadata column other than sample_id".into(),
+            ));
+        }
+        if self.jobs.get() > self.threads.get() {
+            return Err(Error::InvalidInput(
+                "--jobs must not exceed the total --threads budget".into(),
+            ));
+        }
+        Ok(())
+    }
+}
+
+#[derive(Debug, Args)]
+pub struct ProfileArgs {
+    /// TSV with sample_id, read1, read2 columns.
+    #[arg(long)]
+    pub samples: PathBuf,
+    /// Catalogue TSV with reference_id, fasta, taxid, species_taxid, sha256.
+    #[arg(long)]
+    pub catalogue: PathBuf,
+    /// New run directory; a non-empty directory is refused without --force.
+    #[arg(long)]
+    pub output_dir: PathBuf,
+    /// Screening backend; kraken2 is not implemented.
+    #[arg(long, value_enum, default_value = "sylph")]
+    pub profiler: Profiler,
+    /// Sylph: minimum adjusted containment ANI percent (provisional pilot value).
+    #[arg(long, default_value = "95")]
+    pub min_ani: f64,
+    /// LoCovE: minimum per-genome k-mer breadth from 0 to 1 (provisional).
+    #[arg(long, default_value = "0.10")]
+    pub min_breadth: f64,
+    /// Total CPU thread budget across concurrent tasks.
+    #[arg(long, default_value = "1")]
+    pub threads: NonZeroUsize,
+    /// Total memory budget in GiB across concurrent tasks.
+    #[arg(long)]
+    pub memory_gib: NonZeroU32,
+    /// Maximum concurrent tasks; must not exceed --threads.
+    #[arg(long, default_value = "1")]
+    pub jobs: NonZeroUsize,
+    /// Delete a previous meta-co-assembler run in --output-dir and rerun everything.
+    #[arg(long)]
+    pub force: bool,
+}
+
+impl ProfileArgs {
+    pub fn validate(&self) -> Result<(), Error> {
+        if !(self.min_ani.is_finite() && self.min_ani > 0.0 && self.min_ani <= 100.0) {
+            return Err(Error::InvalidInput(
+                "--min-ani must be a percentage greater than 0 and at most 100".into(),
+            ));
+        }
+        if !(self.min_breadth.is_finite() && self.min_breadth > 0.0 && self.min_breadth <= 1.0) {
+            return Err(Error::InvalidInput(
+                "--min-breadth must be a fraction greater than 0 and at most 1".into(),
             ));
         }
         if self.jobs.get() > self.threads.get() {

@@ -6,7 +6,9 @@ pub enum Error {
     Io { context: String, source: io::Error },
     Csv { context: String, source: csv::Error },
     Json(serde_json::Error),
-    Unavailable(&'static str),
+    Unavailable(String),
+    RunFailed(String),
+    Interrupted(String),
     Execution(String),
 }
 
@@ -16,6 +18,8 @@ impl Error {
             Self::InvalidInput(_) => 2,
             Self::Csv { source, .. } if !source.is_io_error() => 2,
             Self::Unavailable(_) => 3,
+            Self::RunFailed(_) => 4,
+            Self::Interrupted(_) => 130,
             _ => 1,
         }
     }
@@ -26,6 +30,7 @@ impl fmt::Display for Error {
         match self {
             Self::InvalidInput(message) => f.write_str(message),
             Self::Unavailable(message) => f.write_str(message),
+            Self::RunFailed(message) | Self::Interrupted(message) => f.write_str(message),
             Self::Execution(message) => f.write_str(message),
             Self::Io { context, source } => write!(f, "{context}: {source}"),
             Self::Csv { context, source } => write!(f, "{context}: {source}"),
