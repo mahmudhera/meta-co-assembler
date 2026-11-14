@@ -108,6 +108,14 @@ Implement selected-reference mapping and paired-read extraction under the
 confirmed confidence policy. Preserve a per-sample discovery pool for later
 grouping and recruitment.
 
+Implementation for review: [decision](docs/decisions/0004-discovery-read-pools.md)
+and the `discover` command, with Strobealign or Minimap2 and a lockstep Rust
+extractor. The owner amended the policy so that multi-mapping within one
+species counts as explained. On the pilot species holdout, inputs drop by 83%
+while removing 0.002% of held-out pairs
+([results](experiments/pilot/m4-discovery-holdout.json)); the holdouts have no
+close catalogue relatives, so harder holdouts are needed before M7.
+
 Acceptance:
 
 - If either mate is unassigned or ambiguous, both are retained.

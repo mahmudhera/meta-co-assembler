@@ -61,6 +61,8 @@ not validated biological defaults:
 - Sylph containment ANI at least 95%, with no added abundance floor.
 - Remove a pair only if both mates pass MAPQ 20, identity 98%, aligned fraction
   90%, and same-reference criteria; retain ambiguity and both mates otherwise.
+  (Amended in [the M4 decision](0004-discovery-read-pools.md): multi-mapping
+  within one species counts as explained.)
 - Later recruitment uses at least one seed-mapped mate with identity 95% and
   aligned fraction 80%, with a three-round maximum.
 - Target at least 50% fewer assembly input pairs and no more than five
