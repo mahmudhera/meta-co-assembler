@@ -11,8 +11,11 @@ LLM, on a single node, with explicit CPU and memory budgets.
 
 The CLI validates sample and metadata tables and prints deterministic metadata
 grouping plans. Profiling, mapping, read extraction, assembly, and iteration are
-not implemented. No external biological tool or reference catalogue has been
-selected. Select these with the project owner before implementing adapters.
+not implemented. M1 defines a controlled synthetic pilot and selectable tools:
+Sylph/Kraken2/experimental LoCovE, Strobealign/Minimap2, and
+MEGAHIT/metaSPAdes, with Samtools for alignment I/O. The initial pilot uses
+Sylph, Strobealign, and MEGAHIT. See the [pilot protocol](experiments/pilot/README.md)
+and [LoCovE investigation](docs/research/locove.md).
 
 ## Environment and build
 
@@ -30,11 +33,14 @@ conda env update --name meta-co-assembler-env --file environment.yml --prune
 ```
 
 The [environment definition](environment.yml) pins Rust 1.99.1, including Cargo,
-rustfmt, and Clippy, and the native C compiler/linker package. Conda manages
-these tools; `Cargo.toml` and `Cargo.lock` manage Rust library dependencies.
+rustfmt, and Clippy, the native C compiler/linker, Python, and the released
+pilot tools. Conda manages these tools; `Cargo.toml` and `Cargo.lock` manage
+Rust library dependencies.
 The compiler metapackage's version is pinned; platform-specific transitive
 packages are resolved by Conda, so this file is not an exact platform lockfile.
-Biological tools will be added only after selection with the project owner.
+LoCovE is source-built into this environment using its
+[pinned revision and explicit setup](experiments/pilot/README.md#locove-setup-and-investigation).
+New tool choices still require the project owner's input.
 
 Run builds and development checks inside `meta-co-assembler-env`:
 
@@ -55,6 +61,11 @@ For scripts and agent sessions that do not retain shell activation, use
 conda run --no-capture-output --name meta-co-assembler-env cargo build --locked --release
 conda run --no-capture-output --name meta-co-assembler-env cargo test --locked --all-targets
 ```
+
+Confirm that `cargo --version` and `rustc --version` report the pinned Rust
+version before recording results. A rustup or system toolchain that appears
+earlier on `PATH`, for example from `~/.cargo/env`, can shadow the environment's
+toolchain even under `conda run`. CI fails if the resolved versions differ.
 
 ## Try the input contracts
 
@@ -82,6 +93,11 @@ Use `--iteration-strategy recruitment` to describe the alternative iterative
 strategy. Neither strategy executes yet. `plan` reads tables and file metadata,
 not FASTQ contents; it prints JSON to stdout and writes no project files.
 
+Tool choices are independent plan options: `--profiler sylph|kraken2|locove`,
+`--mapper strobealign|minimap2`, and `--assembler megahit|metaspades`.
+Use `--mapping-mode locove-guided` to record the experimental guidance design.
+Every plan remains non-executable; selecting a backend does not run it.
+
 Unassigned means not confidently explained by the selected references under an
 explicit mapping policy. It does not mean novel. Both mates will be retained
 when either mate is unassigned or ambiguous. Samples remain traceable through
@@ -99,6 +115,7 @@ Activate `meta-co-assembler-env` first, or prefix each command with
 cargo fmt --all --check
 cargo clippy --locked --all-targets -- -D warnings
 cargo test --locked --all-targets
+python -m unittest discover -s tests/pilot -v
 ```
 
 The tests use tiny, temporary fixtures and require no reference database,

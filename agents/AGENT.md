@@ -30,6 +30,12 @@ the contig pilot justifies further investment.
   claims require separate evidence.
 - Preprocessing and SLURM support are future features.
 
+The M1 choices are recorded in `docs/decisions/0001-pilot.md` and
+`experiments/pilot/pilot.json`. Keep backends selectable. LoCovE's pooled
+interval evidence must not be treated as a per-read alignment or a confident
+removal decision. Read `docs/pilot-interfaces.md` before implementing adapters.
+New biological thresholds and production catalogues still need owner input.
+
 ## Owner decisions at implementation time
 
 Before implementing a biological adapter, catalogue, clustering algorithm, or
@@ -94,6 +100,9 @@ Rust libraries in `Cargo.toml` and commit the corresponding `Cargo.lock`.
 The environment file pins direct tools, not every transitive platform package.
 Record resolved versions for research runs. Add biological tools only after
 the owner's choice, and update setup documentation with dependency changes.
+LoCovE is the explicit source-built exception: use `tools/source-tools.json`
+and install into the named environment as described in the pilot README.
+Do not silently update the recorded source revision.
 
 ## Quality baseline
 

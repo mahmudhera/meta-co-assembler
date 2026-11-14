@@ -36,7 +36,7 @@ fn execute(cli: Cli) -> Result<(), Error> {
         Command::Run(args) => {
             args.plan.validate()?;
             Err(Error::Unavailable(
-                "pipeline execution is unavailable: choose the reference catalogue and external tools with the project owner before implementing adapters; no outputs were created",
+                "pipeline execution is unavailable: execution adapters are not implemented; selected tools are recorded for planning only; no outputs were created",
             ))
         }
     }

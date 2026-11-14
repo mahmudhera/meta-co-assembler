@@ -1,0 +1,10 @@
+genome_id	assembly_name	organism	taxid	species_taxid	domain	role	bases	records	source_md5
+GCF_000005845.2	ASM584v2	Escherichia coli K-12 MG1655	511145	562	Bacteria	known	4641652	1	c13d459b5caa702ff7e1f26fe44b8ad7
+GCF_000006765.1	ASM676v1	Pseudomonas aeruginosa PAO1	208964	287	Bacteria	known	6264404	1	c859ec5a25506367506bce972788aca8
+GCF_000013425.1	ASM1342v1	Staphylococcus aureus NCTC 8325	93061	1280	Bacteria	known	2821361	1	b086eb1020e7df022afa545dc6d93297
+GCF_000016525.1	ASM1652v1	Methanobrevibacter smithii ATCC 35061	420247	2173	Archaea	known_rare	1853160	1	a02c2d50841358c72ec6db7c306ef48a
+GCF_000009045.1	ASM904v1	Bacillus subtilis 168	224308	1423	Bacteria	species_holdout_A	4215606	1	87378255941a61ec4b4384af8ba28ff5
+GCF_000011065.1	ASM1106v1	Bacteroides thetaiotaomicron VPI-5482	226186	818	Bacteria	species_holdout_B	6293399	2	052fb0317fac44eb1817c3eac7e73ae2
+GCF_000010245.2	ASM1024v1	Escherichia coli K-12 W3110	316407	562	Bacteria	strain_holdout	4646332	1	571d2c8c23d5f5bdaffb7bc9909ffb1e
+GCF_000008565.1	ASM856v1	Deinococcus radiodurans R1	243230	1299	Bacteria	distractor	3284156	4	b50e1ebdf0dd203250b0837f932e5aee
+GCF_000008645.1	ASM864v1	Methanothermobacter thermautotrophicus Delta H	187420	145262	Archaea	distractor	1751377	1	321847a7dc1fa8c2220da7e9b183e4a1

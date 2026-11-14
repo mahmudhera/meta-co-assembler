@@ -1,0 +1,80 @@
+{
+  "schema_version": 1,
+  "seed": 20261113,
+  "genomes": "genomes.tsv",
+  "composition": "composition.tsv",
+  "read_pairs_per_sample": 1000000,
+  "simulation": {
+    "tool": "art_illumina",
+    "version": "2016.06.05",
+    "profile": "HS25",
+    "read_length": 150,
+    "fragment_mean": 350,
+    "fragment_sd": 50,
+    "gzip_level": 3,
+    "art_surplus_fraction": 0.01,
+    "art_min_surplus_pairs": 100
+  },
+  "resources": {
+    "threads": 16,
+    "memory_gib": 64,
+    "scratch_gib": 100,
+    "genome_download_limit_mib": 1024,
+    "simulation_jobs": 4,
+    "sample_jobs": 2
+  },
+  "initial_tools": {
+    "profiler": "sylph",
+    "mapper": "strobealign",
+    "read_extractor": "samtools-with-pair-level-decision",
+    "assembler": "megahit",
+    "evaluator": "quast"
+  },
+  "tool_options": {
+    "profiler": ["sylph", "kraken2", "locove"],
+    "mapper": ["strobealign", "minimap2"],
+    "assembler": ["megahit", "metaspades"],
+    "mapping_mode": ["full-reference", "locove-guided"]
+  },
+  "policies": {
+    "status": "owner-confirmed provisional pilot settings; not validated biological defaults",
+    "sylph_min_containment_ani_percent": 95,
+    "additional_abundance_floor": null,
+    "reference_assignment": {
+      "min_mapq": 20,
+      "min_identity": 0.98,
+      "min_aligned_fraction": 0.90,
+      "require_both_mates": true,
+      "require_same_genome": true,
+      "retain_ambiguous_pairs": true
+    },
+    "recruitment": {
+      "min_identity": 0.95,
+      "min_aligned_fraction": 0.80,
+      "require_at_least_one_seed_mapped_mate": true,
+      "max_rounds": 3
+    },
+    "evaluation": {
+      "min_contig_length": 1000,
+      "min_assembly_input_pair_reduction": 0.50,
+      "max_heldout_species_recovery_loss_percentage_points": 5,
+      "strain_holdout_is_separate_stress_test": true,
+      "decision": "owner review including correctness, runtime, and RAM; no automatic success claim"
+    },
+    "locove": {
+      "status": "experimental; thresholds and guided mapping require evaluation",
+      "k": 21,
+      "c": 20,
+      "g": 300,
+      "undefined_segments": "unknown, never evidence of absence",
+      "coverage_is_pooled": true,
+      "read_assignments_available": false
+    }
+  },
+  "catalogues": {
+    "all_known": [],
+    "species_holdout": ["GCF_000009045.1", "GCF_000011065.1"],
+    "strain_holdout": ["GCF_000010245.2"],
+    "combined_holdout": ["GCF_000009045.1", "GCF_000011065.1", "GCF_000010245.2"]
+  }
+}

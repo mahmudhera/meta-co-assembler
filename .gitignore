@@ -12,3 +12,8 @@
 *.bai
 *.cram
 *.crai
+*.fna
+*.fna.gz
+*.npz
+__pycache__/
+*.py[cod]

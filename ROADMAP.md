@@ -29,6 +29,14 @@ are not part of M0.
 
 Suggested branch: `feature/pilot-design`. Depends on M0.
 
+Implementation for review: [decision](docs/decisions/0001-pilot.md),
+[pilot and preparation](experiments/pilot/README.md),
+[execution interfaces](docs/pilot-interfaces.md), and
+[LoCovE investigation](docs/research/locove.md).
+Tool choices are selectable; runtime adapters remain later work.
+The eight-sample dataset has been generated and verified; see the
+[local verification record](experiments/pilot/verification.json).
+
 Ask the owner to choose the profiler, mapper, extraction implementation,
 coassembler, and frozen reference catalogue. Present primary-source comparisons
 of scientific behavior, pairing support, runtime, memory, platform availability,

@@ -16,6 +16,7 @@ Plans explicitly remain non-executable. FASTQ contents are not read.
 | `cli` | Typed command arguments, strategy selection, resource validation |
 | `manifest` | Streaming TSV parsing, read-path checks, metadata summary |
 | `plan` | Deterministic grouping and non-executable JSON research plans |
+| `tools` | Selectable backends and guidance options, recorded only |
 | `error` | Contextual diagnostics and documented exit categories |
 | Binary entry point | Dispatch and JSON stdout/stderr boundary |
 
@@ -26,15 +27,17 @@ enforce resource budgets, cache results, fingerprint inputs, or run tools.
 ## Dependency environment
 
 `environment.yml` defines the local Conda environment
-`meta-co-assembler-env`, initially containing the Rust toolchain and native
-C compiler/linker. Rust library dependencies remain in `Cargo.toml` and
+`meta-co-assembler-env`, containing the Rust toolchain, native
+C compiler/linker, Python, and released pilot tools. Rust libraries remain in `Cargo.toml` and
 `Cargo.lock`. Agent sessions use the named environment through activation
 or `conda run`; builds do not depend on another project's environment.
 
 Direct tool versions are pinned. Conda resolves platform-specific transitive
 packages, so research provenance must capture their resolved versions as well.
-Add chosen biological tools to this definition when implementing their
-adapters. Installing/updating the environment is an explicit setup action;
+LoCovE uses the source revision in `tools/source-tools.json` and is explicitly
+installed into the same environment through Cargo, as described in the pilot
+README. Add new chosen tools to the definition when implementing adapters.
+Installing/updating the environment is an explicit setup action;
 pipeline execution never installs dependencies automatically.
 
 The Conda environment is initially verified on Linux. Native-toolchain CI
@@ -69,7 +72,15 @@ flowchart TD
 
 Profiling, mapping, extraction, and assembly are logical stages; they need not
 be four unrelated executables. Their implementations are chosen with the
-owner. No particular tool or reference catalogue is implied by this diagram.
+owner. Pilot implementations and alternatives are recorded in
+`docs/decisions/0001-pilot.md`; this diagram describes the logical stages.
+
+LoCovE is an experimental screen and optional region guide. It supplies
+sample-wide, record-local interval evidence with shared k-mers pooled across
+references. It does not provide read IDs or alignments. Guidance can accompany
+any profiler, but must preserve coordinates, uncertainty, and full-reference
+confidence checking. Cropping can inflate MAPQ by eliminating competitors.
+See `docs/pilot-interfaces.md` and `docs/research/locove.md`.
 
 ## Separation of concerns
 

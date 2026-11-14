@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "locove": {
+    "repository": "https://github.com/az002/LoCovE.git",
+    "revision": "436f7cf4e3574dd77fdff2d0c099bffa5b67bdd1",
+    "package_version": "0.1.0",
+    "features": [],
+    "status": "experimental; coverage output, not per-read assignment"
+  }
+}

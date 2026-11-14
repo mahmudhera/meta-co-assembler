@@ -3,7 +3,9 @@
 Status: implemented CLI and planning contract, version 0.1.0. Biological
 execution is unavailable. Before 1.0, documented contract changes are allowed
 with corresponding tests and migration notes. JSON has its own integer
-`schema_version`, currently 1.
+`schema_version`: validation reports use 1 and research plans use 2.
+Plan schema 2 adds explicit tool/guidance choices and renames unresolved tool
+choices to unresolved adapter implementations; plans remain non-executable.
 
 ## Decisions
 
@@ -19,6 +21,9 @@ with corresponding tests and migration notes. JSON has its own integer
 - The project owner chooses the profiler, mapper, extraction tool, assembler,
   catalogue, and biological thresholds when those features are implemented.
 
+The owner-confirmed M1 pilot choices are recorded in
+[the decision](decisions/0001-pilot.md). New choices still require owner input.
+
 ## Commands
 
 ```text
@@ -30,6 +35,13 @@ meta-co-assembler plan --samples FILE --metadata FILE --group-by COLUMN
     [--iteration-strategy residual-only|recruitment] [--max-rounds N]
 meta-co-assembler run <the same options as plan> --output-dir DIR
 ```
+
+Plan/run also accept `--profiler sylph|kraken2|locove`,
+`--mapper strobealign|minimap2`, `--assembler megahit|metaspades`, and
+`--mapping-mode full-reference|locove-guided`. Defaults are Sylph,
+Strobealign, MEGAHIT, and full-reference mapping. Guidance can accompany
+any profiler. These options select the recorded design; adapters and guided
+mapping are not implemented. See [the M1 interfaces](pilot-interfaces.md).
 
 `validate` prints a JSON summary containing sample count, metadata columns, and
 missing-value counts per metadata column. It validates paths and tables, not
@@ -64,6 +76,10 @@ are produced by this command.
 | `--iteration-strategy` | residual-only | residual-only or recruitment |
 | `--max-rounds` | 1 | Positive upper bound including the initial assembly |
 | `--output-dir` | required for run | Reserved execution output location |
+| `--profiler` | sylph | sylph, kraken2, or experimental locove |
+| `--mapper` | strobealign | strobealign or minimap2 |
+| `--assembler` | megahit | megahit or metaspades |
+| `--mapping-mode` | full-reference | full-reference or experimental locove-guided |
 
 The sample-count cap is an operational guardrail, not a biological optimum or
 a memory prediction. CPU and memory values are recorded, not enforced during

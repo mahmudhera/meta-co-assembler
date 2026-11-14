@@ -21,9 +21,11 @@ Follow the [CLI contract](docs/cli-contract.md),
 [architecture](docs/architecture.md), and [roadmap](ROADMAP.md). The project
 owner's current instructions take precedence over repository guidance.
 
-External biological tools and the reference catalogue are deliberately
-unselected. Ask the owner before selecting or implementing them; reuse choices
-already confirmed in the session or recorded decisions.
+The [M1 decision](docs/decisions/0001-pilot.md) records approved pilot tools,
+selectable alternatives, and the small RefSeq catalogue. Reuse those choices.
+Ask the owner about new tools, production catalogues, or unselected scientific
+policies. LoCovE guidance is experimental; preserve the confidence requirements
+in [the interface contract](docs/pilot-interfaces.md).
 
 The initial bootstrap was requested on main. Subsequent feature branches are
 created manually by the owner; work on the provided branch and requested

@@ -1,0 +1,81 @@
+{
+  "analysis_only": true,
+  "experiments": [
+    {
+      "breadth_strictly_greater_than": 0.0,
+      "candidate_bases": 22335751,
+      "flank_bases": 0,
+      "fraction_of_reference": 0.9000063504021344,
+      "retain_unknown": true
+    },
+    {
+      "breadth_strictly_greater_than": 0.0,
+      "candidate_bases": 24734200,
+      "flank_bases": 500,
+      "fraction_of_reference": 0.9966504852295529,
+      "retain_unknown": true
+    },
+    {
+      "breadth_strictly_greater_than": 0.1,
+      "candidate_bases": 22031427,
+      "flank_bases": 0,
+      "fraction_of_reference": 0.8877437883517346,
+      "retain_unknown": true
+    },
+    {
+      "breadth_strictly_greater_than": 0.1,
+      "candidate_bases": 24721202,
+      "flank_bases": 500,
+      "fraction_of_reference": 0.9961267382311857,
+      "retain_unknown": true
+    },
+    {
+      "breadth_strictly_greater_than": 0.5,
+      "candidate_bases": 17247546,
+      "flank_bases": 0,
+      "fraction_of_reference": 0.6949800312894306,
+      "retain_unknown": true
+    },
+    {
+      "breadth_strictly_greater_than": 0.5,
+      "candidate_bases": 24089580,
+      "flank_bases": 500,
+      "fraction_of_reference": 0.9706758899004672,
+      "retain_unknown": true
+    },
+    {
+      "breadth_strictly_greater_than": 0.8,
+      "candidate_bases": 10587435,
+      "flank_bases": 0,
+      "fraction_of_reference": 0.4266146562284752,
+      "retain_unknown": true
+    },
+    {
+      "breadth_strictly_greater_than": 0.8,
+      "candidate_bases": 20563980,
+      "flank_bases": 500,
+      "fraction_of_reference": 0.8286138482445692,
+      "retain_unknown": true
+    },
+    {
+      "breadth_strictly_greater_than": 0.95,
+      "candidate_bases": 6476243,
+      "flank_bases": 0,
+      "fraction_of_reference": 0.2609565188449392,
+      "retain_unknown": true
+    },
+    {
+      "breadth_strictly_greater_than": 0.95,
+      "candidate_bases": 16144541,
+      "flank_bases": 500,
+      "fraction_of_reference": 0.6505350737625802,
+      "retain_unknown": true
+    }
+  ],
+  "no_anchor_segments": 1024,
+  "per_read_assignments": false,
+  "records": 6,
+  "reference_bases": 24817326,
+  "schema_version": 1,
+  "segments": 82445
+}

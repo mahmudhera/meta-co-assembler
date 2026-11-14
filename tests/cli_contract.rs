@@ -145,7 +145,41 @@ fn plans_are_non_executable_and_record_both_iteration_strategies() {
             plan["unresolved"]
                 .as_array()
                 .unwrap()
-                .contains(&Value::String("coassembler".into()))
+                .contains(&Value::String("coassembler-adapter".into()))
+        );
+    }
+}
+
+#[test]
+fn backend_choices_and_experimental_guidance_are_explicit_in_the_plan() {
+    let fixture = Fixture::new();
+    for profiler in ["sylph", "kraken2", "locove"] {
+        let plan = success_json(&fixture.invoke(
+            "plan",
+            &[
+                "--profiler",
+                profiler,
+                "--mapper",
+                "minimap2",
+                "--assembler",
+                "metaspades",
+                "--mapping-mode",
+                "locove-guided",
+            ],
+        ));
+        assert_eq!(plan["schema_version"], 2);
+        assert_eq!(plan["tools"]["profiler"], profiler);
+        assert_eq!(plan["tools"]["mapper"], "minimap2");
+        assert_eq!(plan["tools"]["assembler"], "metaspades");
+        assert_eq!(plan["tools"]["mapping_mode"], "locove-guided");
+        assert_eq!(plan["executable"], false);
+        assert!(
+            plan["unresolved"]
+                .as_array()
+                .unwrap()
+                .contains(&Value::String(
+                    "full-reference-confidence-validation".into()
+                ))
         );
     }
 }
@@ -335,7 +369,7 @@ fn reserved_run_fails_without_opening_inputs_or_creating_outputs() {
     assert_eq!(output.status.code(), Some(3));
     assert!(output.stdout.is_empty());
     assert!(!output_dir.exists());
-    assert!(String::from_utf8_lossy(&output.stderr).contains("project owner"));
+    assert!(String::from_utf8_lossy(&output.stderr).contains("adapters are not implemented"));
 }
 
 #[test]
