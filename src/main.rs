@@ -10,6 +10,7 @@ use meta_co_assembler::{
     discovery::{run_discover, run_extract_pairs},
     error::Error,
     execution::{CancelToken, RunStatus},
+    iteration::{run_classify_pairs, run_iterate},
     manifest::{read_metadata, read_samples, validation_report},
     plan::make_plan,
     profiling::run_profile,
@@ -92,6 +93,18 @@ fn execute(cli: Cli) -> Result<(), Error> {
                 outcome.report.stop_reason,
             )
         }
+        Command::Iterate(args) => {
+            let cancel = CancelToken::new();
+            cancel.cancel_on_termination_signals()?;
+            let outcome = run_iterate(&args, &cancel)?;
+            finish_run(
+                "iteration",
+                &outcome.summary,
+                outcome.report.status,
+                outcome.report.stop_reason,
+            )
+        }
+        Command::ClassifyPairs(args) => write_json(&run_classify_pairs(&args)?),
         Command::AssembleReads(args) => {
             let cancel = CancelToken::new();
             cancel.cancel_on_termination_signals()?;

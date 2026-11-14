@@ -38,6 +38,12 @@ pub enum Command {
     Coassemble(CoassembleArgs),
     /// Assemble original reads by group or per sample (all-read baselines).
     AssembleReads(AssembleReadsArgs),
+    /// Iterate on one or more coassemble runs: map pairs to the accepted
+    /// contigs and reassemble what they do not settle, for bounded rounds.
+    Iterate(IterateArgs),
+    /// Internal: classify pairs against accepted contigs from SAM on stdin.
+    #[command(hide = true)]
+    ClassifyPairs(ClassifyPairsArgs),
     /// Reserved for pipeline execution; currently returns exit code 3.
     Run(RunArgs),
 }
@@ -325,6 +331,126 @@ pub struct AssembleReadsArgs {
     pub assembly: AssemblyArgs,
 }
 
+#[derive(Debug, Args)]
+pub struct IterateArgs {
+    /// Output directory of a succeeded coassemble run. Repeat to combine runs
+    /// whose samples are disjoint and whose discover runs share a catalogue.
+    #[arg(long = "coassembly-dir", required = true)]
+    pub coassembly_dirs: Vec<PathBuf>,
+    /// residual-only reassembles pairs that accepted contigs do not explain;
+    /// recruitment re-checks the original pools and reassembles every pair
+    /// that is not certainly explained.
+    #[arg(long, value_enum, default_value = "residual-only")]
+    pub iteration_strategy: IterationStrategy,
+    /// Upper bound on rounds, including the initial coassembly (2 to 99).
+    #[arg(long, default_value = "3")]
+    pub max_rounds: NonZeroU32,
+    /// Stop a group when the contigs explain less than this fraction of its
+    /// previous round's input (0 to 1; provisional).
+    #[arg(long, default_value = "0.01")]
+    pub min_progress: f64,
+    /// Contigs shorter than this are never accepted.
+    #[arg(long, default_value = "1000")]
+    pub min_contig_length: NonZeroU64,
+    /// Maps reads to the accepted contigs.
+    #[arg(long, value_enum, default_value = "strobealign")]
+    pub mapper: Mapper,
+    /// Minimum identity of a mate's alignment to a contig.
+    #[arg(long, default_value = "0.98")]
+    pub min_identity: f64,
+    /// Minimum aligned fraction of a mate's alignment to a contig.
+    #[arg(long, default_value = "0.90")]
+    pub min_aligned_fraction: f64,
+    /// Recruitment: minimum MAPQ of both mates for a certain pair.
+    #[arg(long, default_value = "20")]
+    pub min_mapq: u8,
+    /// Secondary alignments requested from the mapper per read.
+    #[arg(long, default_value = "50")]
+    pub secondary_alignments: usize,
+    /// Reuse the input runs' groups instead of regrouping.
+    #[arg(long, conflicts_with_all = ["metadata", "group_by", "per_sample", "all_samples"])]
+    pub keep_groups: bool,
+    #[command(flatten)]
+    pub assembly: AssemblyArgs,
+}
+
+impl IterateArgs {
+    pub fn validate(&self) -> Result<(), Error> {
+        let invalid = |message: &str| Err(Error::InvalidInput(message.into()));
+        if !(self.keep_groups || self.assembly.grouping.chosen()) {
+            return invalid(
+                "choose --keep-groups, --metadata with --group-by, --per-sample, or --all-samples",
+            );
+        }
+        self.assembly.validate_resources()?;
+        if !(2..=99).contains(&self.max_rounds.get()) {
+            return invalid("--max-rounds must be between 2 and 99 for iterate");
+        }
+        if !(self.min_progress.is_finite() && (0.0..=1.0).contains(&self.min_progress)) {
+            return invalid("--min-progress must be between 0 and 1");
+        }
+        for (flag, value) in [
+            ("--min-identity", self.min_identity),
+            ("--min-aligned-fraction", self.min_aligned_fraction),
+        ] {
+            if !(value.is_finite() && value > 0.0 && value <= 1.0) {
+                return Err(Error::InvalidInput(format!(
+                    "{flag} must be greater than 0 and at most 1"
+                )));
+            }
+        }
+        if !(1..=1000).contains(&self.secondary_alignments) {
+            return invalid(
+                "--secondary-alignments must be between 1 and 1000 to detect alternatives",
+            );
+        }
+        if self.assembly.threads.get() < 2 {
+            return invalid(
+                "iterate needs --threads of at least 2: the mapper and the pair classifier run together",
+            );
+        }
+        Ok(())
+    }
+}
+
+/// How `classify-pairs` decides that a pair needs no further assembly.
+#[derive(Clone, Copy, Debug, PartialEq, Eq, ValueEnum, Serialize)]
+#[serde(rename_all = "kebab-case")]
+pub enum PairRule {
+    /// Both mates align to any accepted contig above the thresholds.
+    Explained,
+    /// Both mates align above the thresholds, properly paired on one contig,
+    /// with sufficient MAPQ and no qualifying alignment to another contig.
+    Certain,
+}
+
+/// Internal command used inside `iterate`'s check stages.
+#[derive(Debug, Args)]
+pub struct ClassifyPairsArgs {
+    #[arg(long)]
+    pub sample_id: String,
+    #[arg(long)]
+    pub read1: PathBuf,
+    #[arg(long)]
+    pub read2: PathBuf,
+    #[arg(long, value_enum)]
+    pub rule: PairRule,
+    #[arg(long)]
+    pub min_identity: f64,
+    #[arg(long)]
+    pub min_aligned_fraction: f64,
+    #[arg(long)]
+    pub min_mapq: u8,
+    /// The previous check's decisions over the same pool (recruitment).
+    #[arg(long)]
+    pub previous_decisions: Option<PathBuf>,
+    /// Read no alignments: every pair stays unresolved (used for empty pools).
+    #[arg(long)]
+    pub no_alignments: bool,
+    #[arg(long, default_value = ".")]
+    pub output_dir: PathBuf,
+}
+
 /// Internal command used inside `discover`'s mapping stages.
 #[derive(Debug, Args)]
 pub struct ExtractPairsArgs {
@@ -503,5 +629,152 @@ mod tests {
         for flag in ["--profiler", "--mapper", "--assembler", "--mapping-mode"] {
             assert!(Cli::try_parse_from(plan_args(&[flag, "unknown"])).is_err());
         }
+    }
+
+    fn iterate(extra: &[&str]) -> Result<IterateArgs, String> {
+        let mut args = vec![
+            "meta-co-assembler",
+            "iterate",
+            "--coassembly-dir",
+            "a",
+            "--output-dir",
+            "out",
+            "--memory-gib",
+            "4",
+        ];
+        if !extra.contains(&"--threads") {
+            args.extend(["--threads", "4"]);
+        }
+        args.extend_from_slice(extra);
+        match Cli::try_parse_from(args)
+            .map_err(|error| error.to_string())?
+            .command
+        {
+            Command::Iterate(args) => args.validate().map(|()| args).map_err(|e| e.to_string()),
+            _ => unreachable!(),
+        }
+    }
+
+    #[test]
+    fn iterate_defaults_follow_the_recorded_pilot_policy() {
+        let args = iterate(&["--keep-groups"]).unwrap();
+        assert_eq!(args.iteration_strategy, IterationStrategy::ResidualOnly);
+        assert_eq!(args.max_rounds.get(), 3);
+        assert!((args.min_progress - 0.01).abs() < f64::EPSILON);
+        assert_eq!(args.min_contig_length.get(), 1000);
+        assert!((args.min_identity - 0.98).abs() < f64::EPSILON);
+        assert!((args.min_aligned_fraction - 0.90).abs() < f64::EPSILON);
+        assert_eq!(args.mapper, Mapper::Strobealign);
+        assert_eq!(
+            args.assembly.grouping.sample_cap(None),
+            None,
+            "iterate pools without a sample cap"
+        );
+        let args = iterate(&[
+            "--all-samples",
+            "--coassembly-dir",
+            "b",
+            "--max-group-samples",
+            "5",
+        ])
+        .unwrap();
+        assert_eq!(args.assembly.grouping.sample_cap(None), Some(5));
+        assert_eq!(
+            args.coassembly_dirs,
+            [PathBuf::from("a"), PathBuf::from("b")]
+        );
+        assert!(args.assembly.grouping.all_samples);
+    }
+
+    #[test]
+    fn iterate_rejects_missing_or_conflicting_grouping_and_bad_bounds() {
+        for (extra, message) in [
+            (&[][..], "choose --keep-groups"),
+            (
+                &["--keep-groups", "--per-sample"][..],
+                "cannot be used with",
+            ),
+            (
+                &["--keep-groups", "--metadata", "m.tsv", "--group-by", "c"][..],
+                "cannot be used with",
+            ),
+            (&["--metadata", "m.tsv"][..], "--group-by"),
+            (
+                &["--all-samples", "--per-sample"][..],
+                "cannot be used with",
+            ),
+            (
+                &["--keep-groups", "--max-rounds", "1"][..],
+                "between 2 and 99",
+            ),
+            (
+                &["--keep-groups", "--max-rounds", "100"][..],
+                "between 2 and 99",
+            ),
+            (
+                &["--keep-groups", "--min-progress", "1.5"][..],
+                "--min-progress",
+            ),
+            (
+                &["--keep-groups", "--min-progress", "NaN"][..],
+                "--min-progress",
+            ),
+            (
+                &["--keep-groups", "--min-identity", "0"][..],
+                "--min-identity",
+            ),
+            (
+                &["--keep-groups", "--secondary-alignments", "0"][..],
+                "--secondary-alignments",
+            ),
+            (
+                &["--keep-groups", "--threads", "1", "--jobs", "1"][..],
+                "at least 2",
+            ),
+            (
+                &["--keep-groups", "--min-contig-length", "0"][..],
+                "invalid value",
+            ),
+        ] {
+            let error = iterate(extra).map(|_| ()).unwrap_err();
+            assert!(error.contains(message), "{extra:?}: {error}");
+        }
+    }
+
+    #[test]
+    fn assembly_grouping_is_required_and_exclusive() {
+        let parse = |extra: &[&str]| {
+            let mut args = vec![
+                "meta-co-assembler",
+                "coassemble",
+                "--discovery-dir",
+                "d",
+                "--output-dir",
+                "out",
+                "--memory-gib",
+                "4",
+            ];
+            args.extend_from_slice(extra);
+            match Cli::try_parse_from(args)
+                .map_err(|error| error.to_string())?
+                .command
+            {
+                Command::Coassemble(args) => args.assembly.validate().map_err(|e| e.to_string()),
+                _ => unreachable!(),
+            }
+        };
+        assert!(parse(&[]).unwrap_err().contains("choose --metadata"));
+        assert!(parse(&["--all-samples"]).is_ok());
+        assert!(parse(&["--per-sample"]).is_ok());
+        assert!(
+            parse(&["--group-by", "c"])
+                .unwrap_err()
+                .contains("--metadata")
+        );
+        assert!(
+            parse(&["--all-samples", "--group-by", "c"])
+                .unwrap_err()
+                .contains("cannot be used with")
+        );
     }
 }
