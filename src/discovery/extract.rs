@@ -18,7 +18,7 @@ use flate2::{Compression, read::MultiGzDecoder, write::GzEncoder};
 use serde_json::json;
 
 use super::decide::{Alignment, Contigs, Decision, Outcome, Policy, decide};
-use crate::error::Error;
+use crate::{digest::HashingWriter, error::Error};
 
 pub const DISCOVERY_R1: &str = "discovery_R1.fastq.gz";
 pub const DISCOVERY_R2: &str = "discovery_R2.fastq.gz";
@@ -56,8 +56,13 @@ pub struct FastqRecord {
     pub name: String,
 }
 
-pub struct FastqReader {
-    input: Box<dyn BufRead>,
+/// Bases in a record's sequence line, excluding the line ending.
+pub fn sequence_length(record: &FastqRecord) -> u64 {
+    record.lines[1].trim_ascii_end().len() as u64
+}
+
+pub struct FastqReader<'a> {
+    input: Box<dyn BufRead + 'a>,
     path: PathBuf,
     records: u64,
 }
@@ -79,13 +84,20 @@ pub fn pair_name(header: &[u8]) -> String {
         .to_owned()
 }
 
-impl FastqReader {
+impl FastqReader<'static> {
     pub fn open(path: &Path) -> Result<Self, Error> {
-        Ok(Self {
-            input: open_text(path)?,
+        Ok(Self::from_reader(path, open_text(path)?))
+    }
+}
+
+impl<'a> FastqReader<'a> {
+    /// Reads already-decompressed text; `path` labels diagnostics.
+    pub fn from_reader(path: &Path, input: Box<dyn BufRead + 'a>) -> Self {
+        Self {
+            input,
             path: path.to_owned(),
             records: 0,
-        })
+        }
     }
 
     pub fn next_record(&mut self) -> Result<Option<FastqRecord>, Error> {
@@ -243,29 +255,32 @@ pub struct Request<'a> {
     pub output_dir: &'a Path,
 }
 
-fn create(path: &Path) -> Result<GzEncoder<io::BufWriter<File>>, Error> {
+type Output = GzEncoder<HashingWriter<io::BufWriter<File>>>;
+
+fn create(path: &Path) -> Result<Output, Error> {
     let file = File::create_new(path).map_err(|source| Error::Io {
         context: format!("cannot create {}", path.display()),
         source,
     })?;
     Ok(GzEncoder::new(
-        io::BufWriter::with_capacity(1 << 20, file),
+        HashingWriter::new(io::BufWriter::with_capacity(1 << 20, file)),
         Compression::fast(),
     ))
 }
 
-fn finish(encoder: GzEncoder<io::BufWriter<File>>, path: &Path) -> Result<(), Error> {
+/// Completes the gzip stream and returns the SHA-256 of the file's bytes.
+fn finish(encoder: Output, path: &Path) -> Result<String, Error> {
     let io_error = |source| Error::Io {
         context: format!("cannot finish {}", path.display()),
         source,
     };
-    encoder
-        .finish()
-        .map_err(io_error)?
+    let (writer, digest) = encoder.finish().map_err(io_error)?.finish();
+    writer
         .into_inner()
         .map_err(|error| io_error(error.into_error()))?
         .sync_all()
-        .map_err(io_error)
+        .map_err(io_error)?;
+    Ok(digest)
 }
 
 /// Runs the decision stream over `alignments` (SAM on stdin in practice).
@@ -289,6 +304,7 @@ pub fn extract(request: &Request<'_>, alignments: impl Read) -> Result<serde_jso
         .map_err(write_error)?;
 
     let mut pairs = 0u64;
+    let (mut bases_in, mut bases_retained) = (0u64, 0u64);
     let mut outcomes: BTreeMap<&str, u64> = BTreeMap::new();
     let mut reasons: BTreeMap<&str, u64> = BTreeMap::new();
     let mut assigned_by_reference: BTreeMap<String, u64> = BTreeMap::new();
@@ -305,6 +321,8 @@ pub fn extract(request: &Request<'_>, alignments: impl Read) -> Result<serde_jso
             }
         };
         pairs += 1;
+        let pair_bases = sequence_length(&first) + sequence_length(&second);
+        bases_in += pair_bases;
         if first.name != second.name {
             return Err(invalid(format!(
                 "pair {pairs}: mate names differ ({:?} and {:?})",
@@ -343,6 +361,7 @@ pub fn extract(request: &Request<'_>, alignments: impl Read) -> Result<serde_jso
                 *assigned_by_reference.entry(reference.clone()).or_default() += 1;
             }
         } else {
+            bases_retained += pair_bases;
             for line in &first.lines {
                 out1.write_all(line).map_err(write_error)?;
             }
@@ -372,9 +391,9 @@ pub fn extract(request: &Request<'_>, alignments: impl Read) -> Result<serde_jso
             )));
         }
     }
-    finish(out1, &path(DISCOVERY_R1))?;
-    finish(out2, &path(DISCOVERY_R2))?;
-    finish(table, &path(DECISIONS))?;
+    let digest1 = finish(out1, &path(DISCOVERY_R1))?;
+    let digest2 = finish(out2, &path(DISCOVERY_R2))?;
+    let digest_table = finish(table, &path(DECISIONS))?;
 
     let assigned = outcomes.get("reference-assigned").copied().unwrap_or(0);
     let retained = pairs - assigned;
@@ -397,11 +416,14 @@ pub fn extract(request: &Request<'_>, alignments: impl Read) -> Result<serde_jso
             "pairs_assigned": assigned,
             "pairs_retained": retained,
             "reads_retained": retained * 2,
+            "bases_in": bases_in,
+            "bases_retained": bases_retained,
             "pairs_by_outcome": outcomes,
         },
         "reasons": reasons,
         "assigned_by_reference": assigned_by_reference,
         "outputs": {"read1": DISCOVERY_R1, "read2": DISCOVERY_R2, "decisions": DECISIONS},
+        "sha256": {"read1": digest1, "read2": digest2, "decisions": digest_table},
     });
     let summary_path = path(SUMMARY);
     let mut file = File::create_new(&summary_path).map_err(|source| Error::Io {
@@ -544,6 +566,10 @@ mod tests {
         assert_eq!(summary["reasons"]["mate-unmapped"], 1);
         assert_eq!(summary["reasons"]["discordant-pair"], 1);
         assert_eq!(summary["assigned_by_reference"]["refA"], 1);
+        assert_eq!(summary["counts"]["bases_in"], 60);
+        assert_eq!(summary["counts"]["bases_retained"], 40);
+        let digest = crate::catalogue::sha256_file(&dir.1.join(DISCOVERY_R1)).unwrap();
+        assert_eq!(summary["sha256"]["read1"], digest.as_str());
         assert_eq!(
             dir.read_gz(DISCOVERY_R1),
             fastq(&["p2", "p3"], 1),

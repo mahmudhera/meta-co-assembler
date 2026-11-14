@@ -768,3 +768,39 @@ fn steps_can_be_chosen_after_preparation_and_are_validated() {
     );
     assert!(failed.steps.is_empty());
 }
+
+#[cfg(target_os = "linux")]
+#[test]
+fn peak_memory_of_a_step_is_sampled_from_its_process_group() {
+    let fixture = Fixture::new();
+    // The shell holds ~60 MB in a variable, then a child holds it again.
+    let tool = fixture.tool(
+        "hungry",
+        "x=$(head -c 60000000 /dev/zero | tr '\\0' a)\nsleep 0.3\necho done > out.txt",
+    );
+    let mut spec = task("hungry", &tool, &[]);
+    spec.outputs.push(OutputSpec::file("out.txt"));
+    let request = fixture.request("out");
+    let report = execute(&request, &[spec], &CancelToken::new()).unwrap();
+    let stage = stage(&report, "hungry");
+    let memory = stage.steps[0].memory.expect("memory is sampled on Linux");
+    assert!(memory.samples > 0);
+    assert!(memory.peak_process_rss_kib >= 50_000, "{memory:?}");
+    assert!(stage.peak_rss_kib.unwrap() >= 50_000);
+    let manifest = read_json(&request.layout.manifest());
+    assert!(manifest["stages"][0]["peak_rss_kib"].as_u64().unwrap() >= 50_000);
+}
+
+#[test]
+fn maybe_empty_outputs_accept_empty_files_but_not_missing_ones() {
+    let fixture = Fixture::new();
+    let tool = fixture.tool("touch", ": > empty.fa");
+    let mut ok = task("ok", &tool, &[]);
+    ok.outputs.push(OutputSpec::maybe_empty("empty.fa"));
+    let mut missing = task("missing", &tool, &[]);
+    missing.outputs.push(OutputSpec::maybe_empty("absent.fa"));
+    let request = fixture.request("out");
+    let report = execute(&request, &[ok, missing], &CancelToken::new()).unwrap();
+    assert_eq!(stage(&report, "ok").status, StageStatus::Complete);
+    assert_eq!(stage(&report, "missing").status, StageStatus::Failed);
+}

@@ -133,6 +133,12 @@ Connect metadata batches to the chosen assembler. Add volume-aware group limits
 and resource estimates before admitting assembly tasks. Preserve sample
 provenance when pools are streamed or materialized.
 
+Implementation for review: [decision](docs/decisions/0005-grouped-coassembly.md),
+the `coassemble` and `assemble-reads` commands with MEGAHIT, and measured peak
+memory. On the pilot species holdout the M1 gate passes: 83% fewer
+assembly-input pairs and at most 0.03 points of held-out recovery loss
+([results](experiments/pilot/m5-comparison.json)); the holdouts remain easy.
+
 Acceptance:
 
 - A tiny complete pipeline produces real per-group contig FASTA.

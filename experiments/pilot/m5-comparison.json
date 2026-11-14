@@ -1,0 +1,230 @@
+{
+  "arms": {
+    "all-reads-grouped": {
+      "assembly_seconds": 298.0,
+      "command": "assemble-reads",
+      "contig_statuses": [
+        "contigs"
+      ],
+      "groups": 2,
+      "input_bases": 2400000000,
+      "input_pairs": 8000000,
+      "max_peak_rss_kib": 970860,
+      "max_scratch_peak_bytes": 631576440,
+      "source_kind": "all-reads"
+    },
+    "all-reads-per-sample": {
+      "assembly_seconds": 615.7,
+      "command": "assemble-reads",
+      "contig_statuses": [
+        "contigs"
+      ],
+      "groups": 8,
+      "input_bases": 2400000000,
+      "input_pairs": 8000000,
+      "max_peak_rss_kib": 298752,
+      "max_scratch_peak_bytes": 364860309,
+      "source_kind": "all-reads"
+    },
+    "discovery": {
+      "assembly_seconds": 80.6,
+      "command": "coassemble",
+      "contig_statuses": [
+        "contigs"
+      ],
+      "groups": 2,
+      "input_bases": 398583900,
+      "input_pairs": 1328613,
+      "max_peak_rss_kib": 207864,
+      "max_scratch_peak_bytes": 148198554,
+      "source_kind": "discovery-pools"
+    }
+  },
+  "communities": {
+    "community_A": {
+      "genome_fraction_percent": {
+        "all-reads-grouped": {
+          "GCF_000005845.2": 98.403,
+          "GCF_000006765.1": 99.114,
+          "GCF_000009045.1": 98.809,
+          "GCF_000010245.2": 67.413,
+          "GCF_000013425.1": 98.881,
+          "GCF_000016525.1": 96.118
+        },
+        "all-reads-per-sample": {
+          "GCF_000005845.2": 98.764,
+          "GCF_000006765.1": 99.661,
+          "GCF_000009045.1": 99.196,
+          "GCF_000010245.2": 70.318,
+          "GCF_000013425.1": 99.212,
+          "GCF_000016525.1": 20.058
+        },
+        "discovery": {
+          "GCF_000005845.2": null,
+          "GCF_000006765.1": null,
+          "GCF_000009045.1": 98.78,
+          "GCF_000010245.2": null,
+          "GCF_000013425.1": 0.062,
+          "GCF_000016525.1": null
+        }
+      },
+      "heldout": [
+        "GCF_000009045.1"
+      ],
+      "metaquast_command": "metaquast.py -r <community truth references> -o <dir> -m 1000 -t 16 --no-icarus --no-plots -l <arm names> <one contig FASTA per arm>",
+      "report": {
+        "all-reads-grouped": {
+          "bases_at_least_1000": 19521407,
+          "combined_genome_fraction_percent": 93.04,
+          "contigs_at_least_1000": 452,
+          "indels_per_100kbp": 0.91,
+          "largest_contig": 925379,
+          "local_misassemblies": 3,
+          "misassemblies": 7,
+          "mismatches_per_100kbp": 5.1,
+          "n50": 203182,
+          "unaligned_length": 0
+        },
+        "all-reads-per-sample": {
+          "bases_at_least_1000": 71345498,
+          "combined_genome_fraction_percent": 88.132,
+          "contigs_at_least_1000": 1196,
+          "indels_per_100kbp": 0.84,
+          "largest_contig": 809478,
+          "local_misassemblies": 15,
+          "misassemblies": 33,
+          "mismatches_per_100kbp": 4.68,
+          "n50": 203182,
+          "unaligned_length": 0
+        },
+        "discovery": {
+          "bases_at_least_1000": 4166564,
+          "combined_genome_fraction_percent": 17.068,
+          "contigs_at_least_1000": 22,
+          "indels_per_100kbp": 0.14,
+          "largest_contig": 925379,
+          "local_misassemblies": 1,
+          "misassemblies": 0,
+          "mismatches_per_100kbp": 1.9,
+          "n50": 541708,
+          "unaligned_length": 0
+        }
+      },
+      "truth_references": [
+        "GCF_000005845.2",
+        "GCF_000006765.1",
+        "GCF_000009045.1",
+        "GCF_000010245.2",
+        "GCF_000013425.1",
+        "GCF_000016525.1"
+      ]
+    },
+    "community_B": {
+      "genome_fraction_percent": {
+        "all-reads-grouped": {
+          "GCF_000005845.2": 98.373,
+          "GCF_000006765.1": 99.134,
+          "GCF_000010245.2": 72.556,
+          "GCF_000011065.1": 98.859,
+          "GCF_000013425.1": 98.789,
+          "GCF_000016525.1": 96.052
+        },
+        "all-reads-per-sample": {
+          "GCF_000005845.2": 98.803,
+          "GCF_000006765.1": 99.715,
+          "GCF_000010245.2": 77.685,
+          "GCF_000011065.1": 99.464,
+          "GCF_000013425.1": 99.27,
+          "GCF_000016525.1": 19.081
+        },
+        "discovery": {
+          "GCF_000005845.2": null,
+          "GCF_000006765.1": null,
+          "GCF_000010245.2": null,
+          "GCF_000011065.1": 98.859,
+          "GCF_000013425.1": 0.061,
+          "GCF_000016525.1": null
+        }
+      },
+      "heldout": [
+        "GCF_000011065.1"
+      ],
+      "metaquast_command": "metaquast.py -r <community truth references> -o <dir> -m 1000 -t 16 --no-icarus --no-plots -l <arm names> <one contig FASTA per arm>",
+      "report": {
+        "all-reads-grouped": {
+          "bases_at_least_1000": 21577149,
+          "combined_genome_fraction_percent": 94.506,
+          "contigs_at_least_1000": 535,
+          "indels_per_100kbp": 0.75,
+          "largest_contig": 550303,
+          "local_misassemblies": 3,
+          "misassemblies": 7,
+          "mismatches_per_100kbp": 5.29,
+          "n50": 179925,
+          "unaligned_length": 0
+        },
+        "all-reads-per-sample": {
+          "bases_at_least_1000": 79418102,
+          "combined_genome_fraction_percent": 90.343,
+          "contigs_at_least_1000": 3023,
+          "indels_per_100kbp": 0.77,
+          "largest_contig": 475059,
+          "local_misassemblies": 12,
+          "misassemblies": 36,
+          "mismatches_per_100kbp": 7.91,
+          "n50": 61439,
+          "unaligned_length": 0
+        },
+        "discovery": {
+          "bases_at_least_1000": 6225961,
+          "combined_genome_fraction_percent": 23.61,
+          "contigs_at_least_1000": 71,
+          "indels_per_100kbp": 0.14,
+          "largest_contig": 468171,
+          "local_misassemblies": 0,
+          "misassemblies": 1,
+          "mismatches_per_100kbp": 1.67,
+          "n50": 192135,
+          "unaligned_length": 0
+        }
+      },
+      "truth_references": [
+        "GCF_000005845.2",
+        "GCF_000006765.1",
+        "GCF_000010245.2",
+        "GCF_000011065.1",
+        "GCF_000013425.1",
+        "GCF_000016525.1"
+      ]
+    }
+  },
+  "evaluator": "QUAST v5.3.0 (MetaQUAST mode)",
+  "gate": {
+    "community_A": {
+      "heldout_recovery_loss_pp": {
+        "GCF_000009045.1": 0.029
+      },
+      "input_pair_reduction": 0.834,
+      "passes_recovery": true,
+      "passes_reduction": true
+    },
+    "community_B": {
+      "heldout_recovery_loss_pp": {
+        "GCF_000011065.1": 0.0
+      },
+      "input_pair_reduction": 0.8339,
+      "passes_recovery": true,
+      "passes_reduction": true
+    },
+    "overall": {
+      "input_pair_reduction": 0.8339,
+      "passes": true
+    }
+  },
+  "gate_thresholds": {
+    "max_heldout_loss_pp": 5.0,
+    "min_input_pair_reduction": 0.5
+  },
+  "min_contig_length": 1000,
+  "schema_version": 1
+}

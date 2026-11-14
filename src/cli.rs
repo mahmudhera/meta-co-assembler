@@ -7,7 +7,7 @@ use clap::{Args, Parser, Subcommand, ValueEnum};
 use serde::Serialize;
 
 use crate::error::Error;
-use crate::tools::{Mapper, Profiler, ToolSelection};
+use crate::tools::{Assembler, Mapper, Profiler, ToolSelection};
 
 #[derive(Debug, Parser)]
 #[command(
@@ -34,6 +34,10 @@ pub enum Command {
     /// Internal: decide pairs from SAM on stdin and write discovery pools.
     #[command(hide = true)]
     ExtractPairs(ExtractPairsArgs),
+    /// Coassemble the discovery pools of a completed discover run by group.
+    Coassemble(CoassembleArgs),
+    /// Assemble original reads by group or per sample (all-read baselines).
+    AssembleReads(AssembleReadsArgs),
     /// Reserved for pipeline execution; currently returns exit code 3.
     Run(RunArgs),
 }
@@ -203,6 +207,93 @@ impl DiscoverArgs {
         }
         Ok(())
     }
+}
+
+/// How samples are grouped for assembly.
+#[derive(Debug, Args)]
+pub struct GroupingArgs {
+    /// Metadata TSV with exactly the run's sample IDs.
+    #[arg(long, required_unless_present = "per_sample")]
+    pub metadata: Option<PathBuf>,
+    /// Metadata column whose exact values define groups.
+    #[arg(long, required_unless_present = "per_sample")]
+    pub group_by: Option<String>,
+    /// Assemble every sample on its own instead of grouping.
+    #[arg(long, conflicts_with_all = ["metadata", "group_by"])]
+    pub per_sample: bool,
+    /// Split metadata groups into batches of at most this many samples.
+    #[arg(long, default_value = "32")]
+    pub max_group_samples: NonZeroUsize,
+    /// Also split groups so that each assembles at most this many bases.
+    #[arg(long)]
+    pub max_group_bases: Option<std::num::NonZeroU64>,
+}
+
+/// Options shared by the assembly commands.
+#[derive(Debug, Args)]
+pub struct AssemblyArgs {
+    #[command(flatten)]
+    pub grouping: GroupingArgs,
+    /// New run directory; a non-empty directory is refused without --force.
+    #[arg(long)]
+    pub output_dir: PathBuf,
+    /// Assembler; metaspades is not implemented.
+    #[arg(long, value_enum, default_value = "megahit")]
+    pub assembler: Assembler,
+    /// Total CPU threads; each assembly uses all of them.
+    #[arg(long, default_value = "1")]
+    pub threads: NonZeroUsize,
+    /// Total memory in GiB; each assembly may use 90% of it (MEGAHIT -m).
+    #[arg(long)]
+    pub memory_gib: NonZeroU32,
+    /// Maximum concurrent tasks; must not exceed --threads.
+    #[arg(long, default_value = "1")]
+    pub jobs: NonZeroUsize,
+    /// Temporary space for the assembler; defaults to OUTPUT/scratch.
+    #[arg(long)]
+    pub scratch_dir: Option<PathBuf>,
+    /// Scratch reserved for each assembly in GiB; 0 reserves none but usage is still measured.
+    #[arg(long, default_value = "0")]
+    pub scratch_gib: u32,
+    /// Delete a previous meta-co-assembler run in --output-dir and rerun everything.
+    #[arg(long)]
+    pub force: bool,
+}
+
+impl AssemblyArgs {
+    pub fn validate(&self) -> Result<(), Error> {
+        if self.jobs.get() > self.threads.get() {
+            return Err(Error::InvalidInput(
+                "--jobs must not exceed the total --threads budget".into(),
+            ));
+        }
+        if let Some(column) = &self.grouping.group_by {
+            if column.trim().is_empty() || column == "sample_id" {
+                return Err(Error::InvalidInput(
+                    "--group-by must name a metadata column other than sample_id; use --per-sample for single-sample assembly".into(),
+                ));
+            }
+        }
+        Ok(())
+    }
+}
+
+#[derive(Debug, Args)]
+pub struct CoassembleArgs {
+    /// Output directory of a succeeded discover run.
+    #[arg(long)]
+    pub discovery_dir: PathBuf,
+    #[command(flatten)]
+    pub assembly: AssemblyArgs,
+}
+
+#[derive(Debug, Args)]
+pub struct AssembleReadsArgs {
+    /// TSV with sample_id, read1, read2 columns.
+    #[arg(long)]
+    pub samples: PathBuf,
+    #[command(flatten)]
+    pub assembly: AssemblyArgs,
 }
 
 /// Internal command used inside `discover`'s mapping stages.

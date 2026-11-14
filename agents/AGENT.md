@@ -8,8 +8,8 @@ AI agents assist software development only; no LLM runs inside the pipeline.
 
 Read the CLI contract, architecture, roadmap, and existing code before editing.
 Report the current capability honestly: validation, research planning,
-per-sample reference profiling, and discovery-pool extraction work; assembly
-and iteration do not.
+per-sample reference profiling, discovery-pool extraction, and single-round
+grouped coassembly work; iteration and MAG recovery do not.
 Do not return placeholder scientific results.
 
 The owner is exploring whether this approach works. Prefer the smallest

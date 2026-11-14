@@ -138,6 +138,96 @@ pub struct StepRecord {
     /// Processes of the group were still alive after the pipeline ended and
     /// had to be terminated (Unix only).
     pub leftover_processes_terminated: bool,
+    /// Sampled memory of the process group; absent where `/proc` is unavailable.
+    pub memory: Option<MemoryRecord>,
+}
+
+/// Peak memory of a step's process group, sampled from `/proc` (Linux).
+/// Sampling can miss short spikes and processes that start and exit between
+/// samples; per-process high-water marks are kernel-maintained.
+#[derive(Clone, Copy, Debug, Default, PartialEq, Eq, Serialize)]
+pub struct MemoryRecord {
+    /// Largest sampled sum of resident memory over the group's processes.
+    pub peak_group_rss_kib: u64,
+    /// Largest per-process peak RSS (VmHWM) seen while sampling.
+    pub peak_process_rss_kib: u64,
+    pub samples: u64,
+}
+
+/// Sum of current RSS and the largest VmHWM of processes in a process group.
+#[cfg(target_os = "linux")]
+fn group_memory(pgid: i32) -> Option<(u64, u64)> {
+    let kib = |value: &str| {
+        value
+            .split_whitespace()
+            .next()
+            .and_then(|number| number.parse::<u64>().ok())
+            .unwrap_or(0)
+    };
+    let mut found = None;
+    for entry in std::fs::read_dir("/proc").ok()?.flatten() {
+        let name = entry.file_name();
+        let Some(pid) = name
+            .to_str()
+            .filter(|n| n.bytes().all(|b| b.is_ascii_digit()))
+        else {
+            continue;
+        };
+        let Ok(stat) = std::fs::read_to_string(format!("/proc/{pid}/stat")) else {
+            continue;
+        };
+        // Fields after the command name: state, ppid, pgrp, ...
+        let pgrp = stat
+            .rsplit_once(')')
+            .and_then(|(_, rest)| rest.split_whitespace().nth(2))
+            .and_then(|field| field.parse::<i32>().ok());
+        if pgrp != Some(pgid) {
+            continue;
+        }
+        let Ok(status) = std::fs::read_to_string(format!("/proc/{pid}/status")) else {
+            continue;
+        };
+        let (sum, hwm) = found.get_or_insert((0u64, 0u64));
+        for line in status.lines() {
+            if let Some(value) = line.strip_prefix("VmRSS:") {
+                *sum += kib(value);
+            } else if let Some(value) = line.strip_prefix("VmHWM:") {
+                *hwm = (*hwm).max(kib(value));
+            }
+        }
+    }
+    found
+}
+
+struct MemorySampler {
+    interval: Duration,
+    last: Option<Instant>,
+    record: Option<MemoryRecord>,
+}
+
+impl MemorySampler {
+    fn new(interval: Duration) -> Self {
+        Self {
+            interval,
+            last: None,
+            record: None,
+        }
+    }
+
+    #[cfg_attr(not(target_os = "linux"), allow(unused_variables))]
+    fn sample(&mut self, group: &Group) {
+        if self.last.is_some_and(|at| at.elapsed() < self.interval) {
+            return;
+        }
+        self.last = Some(Instant::now());
+        #[cfg(target_os = "linux")]
+        if let Some((sum, hwm)) = group.pgid.and_then(|pgid| group_memory(pgid.as_raw())) {
+            let record = self.record.get_or_insert_with(MemoryRecord::default);
+            record.peak_group_rss_kib = record.peak_group_rss_kib.max(sum);
+            record.peak_process_rss_kib = record.peak_process_rss_kib.max(hwm);
+            record.samples += 1;
+        }
+    }
 }
 
 pub(crate) struct StepContext<'a> {
@@ -150,6 +240,7 @@ pub(crate) struct StepContext<'a> {
     pub poll: Duration,
     pub log_cap: u64,
     pub log_tail: usize,
+    pub memory_interval: Duration,
 }
 
 /// Whether a relative path stays inside the directory it is joined to.
@@ -381,6 +472,7 @@ pub(crate) fn run_step(
     drop(upstream);
 
     let mut terminating: Option<(Instant, bool)> = None;
+    let mut memory = MemorySampler::new(context.memory_interval);
     if end != StepEnd::Succeeded {
         group.terminate(false);
         terminating = Some((Instant::now(), false));
@@ -418,6 +510,7 @@ pub(crate) fn run_step(
             }
         }
         tick();
+        memory.sample(&group);
         thread::sleep(context.poll);
     }
 
@@ -449,6 +542,7 @@ pub(crate) fn run_step(
         logs,
         duration_ms: u64::try_from(started.elapsed().as_millis()).unwrap_or(u64::MAX),
         leftover_processes_terminated,
+        memory: memory.record,
     }
 }
 

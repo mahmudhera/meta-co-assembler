@@ -5,6 +5,7 @@ use std::{
 
 use clap::Parser;
 use meta_co_assembler::{
+    assembly::{run_assemble_reads, run_coassemble},
     cli::{Cli, Command},
     discovery::{run_discover, run_extract_pairs},
     error::Error,
@@ -80,6 +81,28 @@ fn execute(cli: Cli) -> Result<(), Error> {
             )
         }
         Command::ExtractPairs(args) => write_json(&run_extract_pairs(&args)?),
+        Command::Coassemble(args) => {
+            let cancel = CancelToken::new();
+            cancel.cancel_on_termination_signals()?;
+            let outcome = run_coassemble(&args, &cancel)?;
+            finish_run(
+                "coassembly",
+                &outcome.summary,
+                outcome.report.status,
+                outcome.report.stop_reason,
+            )
+        }
+        Command::AssembleReads(args) => {
+            let cancel = CancelToken::new();
+            cancel.cancel_on_termination_signals()?;
+            let outcome = run_assemble_reads(&args, &cancel)?;
+            finish_run(
+                "assembly",
+                &outcome.summary,
+                outcome.report.status,
+                outcome.report.stop_reason,
+            )
+        }
         Command::Run(args) => {
             args.plan.validate()?;
             Err(Error::Unavailable(
