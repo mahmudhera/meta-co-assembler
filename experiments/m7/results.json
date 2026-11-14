@@ -1,0 +1,3716 @@
+{
+  "criteria": "Continue if, on every dataset, the best discovery arm loses <= 5 points per held-out genome against grouped all-read assembly with >= 50% fewer assembly-input pairs and lower end-to-end wall time and peak RAM; revise if failures are confined to identifiable cases with a plausible fix; stop if losses are broad or end-to-end cost is not lower.",
+  "datasets": {
+    "hard": {
+      "arms": {
+        "allreads-grouped": {
+          "assemblies": 3,
+          "assembly_seconds": 673.7,
+          "assembly_statuses": [
+            "contigs"
+          ],
+          "command": "assemble-reads",
+          "end_to_end": {
+            "cpu_seconds": 8425.4,
+            "max_single_process_rss_kib": 674736,
+            "peak_group_rss_kib": 658700,
+            "peak_scratch_bytes": 929464087,
+            "wall_seconds": 676.0
+          },
+          "input_bases": 1800000000,
+          "input_pairs": 6000000,
+          "max_peak_rss_kib": 658700,
+          "max_scratch_peak_bytes": 929464087,
+          "pooled_contig_sets": 0,
+          "shared": false,
+          "source_kind": "all-reads"
+        },
+        "allreads-per-sample": {
+          "assemblies": 12,
+          "assembly_seconds": 1249.6,
+          "assembly_statuses": [
+            "contigs"
+          ],
+          "command": "assemble-reads",
+          "end_to_end": {
+            "cpu_seconds": 15860.2,
+            "max_single_process_rss_kib": 580020,
+            "peak_group_rss_kib": 585160,
+            "peak_scratch_bytes": 546243820,
+            "wall_seconds": 1251.4
+          },
+          "input_bases": 1800000000,
+          "input_pairs": 6000000,
+          "max_peak_rss_kib": 585160,
+          "max_scratch_peak_bytes": 546243820,
+          "pooled_contig_sets": 0,
+          "shared": false,
+          "source_kind": "all-reads"
+        },
+        "allreads-pooled": {
+          "assemblies": 1,
+          "assembly_seconds": 488.7,
+          "assembly_statuses": [
+            "contigs"
+          ],
+          "command": "assemble-reads",
+          "end_to_end": {
+            "cpu_seconds": 6573.1,
+            "max_single_process_rss_kib": 1400256,
+            "peak_group_rss_kib": 1423300,
+            "peak_scratch_bytes": 1585852840,
+            "wall_seconds": 490.4
+          },
+          "input_bases": 1800000000,
+          "input_pairs": 6000000,
+          "max_peak_rss_kib": 1423300,
+          "max_scratch_peak_bytes": 1585852840,
+          "pooled_contig_sets": 1,
+          "shared": false,
+          "source_kind": "all-reads"
+        },
+        "discovery-grouped": {
+          "assemblies": 3,
+          "assembly_seconds": 156.9,
+          "assembly_statuses": [
+            "contigs"
+          ],
+          "command": "coassemble",
+          "end_to_end": {
+            "concurrent_mapping_rss_bound_kib": 1281888,
+            "cpu_seconds": 2177.0,
+            "max_single_process_rss_kib": 423336,
+            "peak_group_rss_kib": 402528,
+            "peak_scratch_bytes": 246454900,
+            "wall_seconds": 184.3
+          },
+          "input_bases": 580531800,
+          "input_pairs": 1935106,
+          "max_peak_rss_kib": 402528,
+          "max_scratch_peak_bytes": 246454900,
+          "pooled_contig_sets": 0,
+          "shared": false,
+          "source_kind": "discovery-pools"
+        },
+        "discovery-per-sample": {
+          "assemblies": 12,
+          "assembly_seconds": 364.9,
+          "assembly_statuses": [
+            "contigs"
+          ],
+          "command": "coassemble",
+          "end_to_end": {
+            "concurrent_mapping_rss_bound_kib": 1281888,
+            "cpu_seconds": 4581.5,
+            "max_single_process_rss_kib": 381864,
+            "peak_group_rss_kib": 396860,
+            "peak_scratch_bytes": 134624747,
+            "wall_seconds": 392.2
+          },
+          "input_bases": 580531800,
+          "input_pairs": 1935106,
+          "max_peak_rss_kib": 396860,
+          "max_scratch_peak_bytes": 134624747,
+          "pooled_contig_sets": 0,
+          "shared": false,
+          "source_kind": "discovery-pools"
+        },
+        "discovery-pooled": {
+          "assemblies": 1,
+          "assembly_seconds": 158.7,
+          "assembly_statuses": [
+            "contigs"
+          ],
+          "command": "coassemble",
+          "end_to_end": {
+            "concurrent_mapping_rss_bound_kib": 1281888,
+            "cpu_seconds": 2209.2,
+            "max_single_process_rss_kib": 500644,
+            "peak_group_rss_kib": 499468,
+            "peak_scratch_bytes": 562040571,
+            "wall_seconds": 186.2
+          },
+          "input_bases": 580531800,
+          "input_pairs": 1935106,
+          "max_peak_rss_kib": 499468,
+          "max_scratch_peak_bytes": 562040571,
+          "pooled_contig_sets": 1,
+          "shared": false,
+          "source_kind": "discovery-pools"
+        },
+        "iterate-recruitment": {
+          "assemblies": 5,
+          "assembly_seconds": 202.7,
+          "assembly_statuses": [
+            "contigs"
+          ],
+          "check_and_accept_seconds": 55.7,
+          "command": "iterate",
+          "end_to_end": {
+            "concurrent_mapping_rss_bound_kib": 1281888,
+            "cpu_seconds": 3006.1,
+            "max_single_process_rss_kib": 2494636,
+            "peak_group_rss_kib": 402528,
+            "peak_scratch_bytes": 246454900,
+            "wall_seconds": 287.6
+          },
+          "input_bases": 653674200,
+          "input_pairs": 2178914,
+          "max_peak_rss_kib": 402528,
+          "max_scratch_peak_bytes": 246454900,
+          "pooled_contig_sets": 4,
+          "rounds_evaluated": 3,
+          "shared": true,
+          "source_kind": "discovery-pools"
+        },
+        "iterate-residual-only": {
+          "assemblies": 5,
+          "assembly_seconds": 186.7,
+          "assembly_statuses": [
+            "contigs"
+          ],
+          "check_and_accept_seconds": 37.0,
+          "command": "iterate",
+          "end_to_end": {
+            "concurrent_mapping_rss_bound_kib": 1281888,
+            "cpu_seconds": 2696.3,
+            "max_single_process_rss_kib": 2535668,
+            "peak_group_rss_kib": 2151056,
+            "peak_scratch_bytes": 246454900,
+            "wall_seconds": 252.5
+          },
+          "input_bases": 612380400,
+          "input_pairs": 2041268,
+          "max_peak_rss_kib": 402528,
+          "max_scratch_peak_bytes": 246454900,
+          "pooled_contig_sets": 4,
+          "rounds_evaluated": 3,
+          "shared": true,
+          "source_kind": "discovery-pools"
+        },
+        "iterate-round1": {
+          "assemblies": 3,
+          "assembly_seconds": 156.9,
+          "assembly_statuses": [
+            "contigs"
+          ],
+          "check_and_accept_seconds": 1.9,
+          "command": "iterate",
+          "end_to_end": {
+            "concurrent_mapping_rss_bound_kib": 1281888,
+            "cpu_seconds": 2177.0,
+            "max_single_process_rss_kib": 423336,
+            "peak_group_rss_kib": 402528,
+            "peak_scratch_bytes": 246454900,
+            "wall_seconds": 184.3
+          },
+          "input_bases": 580531800,
+          "input_pairs": 1935106,
+          "max_peak_rss_kib": 402528,
+          "max_scratch_peak_bytes": 246454900,
+          "pooled_contig_sets": 3,
+          "rounds_evaluated": 1,
+          "shared": true,
+          "source_kind": "discovery-pools"
+        }
+      },
+      "communities": {
+        "community_A": {
+          "heldout": {
+            "GCF_000007525.1": "novel_rare",
+            "GCF_000007645.1": "novel_congener",
+            "GCF_000009205.2": "novel_thin",
+            "GCF_000020225.1": "novel_thin",
+            "GCF_000025465.1": "novel_congener"
+          },
+          "heldout_genome_fraction_percent": {
+            "allreads-grouped": {
+              "GCF_000007525.1": 73.019,
+              "GCF_000007645.1": 97.973,
+              "GCF_000009205.2": 11.251,
+              "GCF_000020225.1": 74.631,
+              "GCF_000025465.1": 90.77
+            },
+            "allreads-per-sample": {
+              "GCF_000007525.1": 2.732,
+              "GCF_000007645.1": 98.381,
+              "GCF_000009205.2": 0.551,
+              "GCF_000020225.1": 1.975,
+              "GCF_000025465.1": 98.131
+            },
+            "allreads-pooled": {
+              "GCF_000007525.1": 72.882,
+              "GCF_000007645.1": 98.023,
+              "GCF_000009205.2": 93.658,
+              "GCF_000020225.1": 98.889,
+              "GCF_000025465.1": 73.673
+            },
+            "discovery-grouped": {
+              "GCF_000007525.1": 73.25,
+              "GCF_000007645.1": 97.997,
+              "GCF_000009205.2": 11.408,
+              "GCF_000020225.1": 74.795,
+              "GCF_000025465.1": 98.046
+            },
+            "discovery-per-sample": {
+              "GCF_000007525.1": 2.773,
+              "GCF_000007645.1": 98.714,
+              "GCF_000009205.2": 0.472,
+              "GCF_000020225.1": 2.017,
+              "GCF_000025465.1": 96.629
+            },
+            "discovery-pooled": {
+              "GCF_000007525.1": 73.159,
+              "GCF_000007645.1": 97.983,
+              "GCF_000009205.2": 93.698,
+              "GCF_000020225.1": 98.889,
+              "GCF_000025465.1": 98.017
+            },
+            "iterate-recruitment": {
+              "GCF_000007525.1": 73.715,
+              "GCF_000007645.1": 98.252,
+              "GCF_000009205.2": 91.259,
+              "GCF_000020225.1": 99.105,
+              "GCF_000025465.1": 98.277
+            },
+            "iterate-residual-only": {
+              "GCF_000007525.1": 73.863,
+              "GCF_000007645.1": 98.133,
+              "GCF_000009205.2": 91.227,
+              "GCF_000020225.1": 98.773,
+              "GCF_000025465.1": 98.124
+            },
+            "iterate-round1": {
+              "GCF_000007525.1": 73.25,
+              "GCF_000007645.1": 97.997,
+              "GCF_000009205.2": 31.614,
+              "GCF_000020225.1": 97.856,
+              "GCF_000025465.1": 97.997
+            }
+          },
+          "report": {
+            "allreads-grouped": {
+              "bases_at_least_1000": 39901001,
+              "combined_genome_fraction_percent": 81.308,
+              "contigs_at_least_1000": 7844,
+              "indels_per_100kbp": 4.48,
+              "largest_contig": 886137,
+              "local_misassemblies": 14,
+              "misassemblies": 58,
+              "mismatches_per_100kbp": 122.75,
+              "n50": 8894,
+              "unaligned_length": 0
+            },
+            "allreads-per-sample": {
+              "bases_at_least_1000": 80363031,
+              "combined_genome_fraction_percent": 55.644,
+              "contigs_at_least_1000": 29455,
+              "indels_per_100kbp": 8.75,
+              "largest_contig": 25547,
+              "local_misassemblies": 37,
+              "misassemblies": 233,
+              "mismatches_per_100kbp": 400.31,
+              "n50": 3302,
+              "unaligned_length": 533
+            },
+            "allreads-pooled": {
+              "bases_at_least_1000": 58726927,
+              "combined_genome_fraction_percent": 94.065,
+              "contigs_at_least_1000": 5530,
+              "indels_per_100kbp": 8.63,
+              "largest_contig": 982984,
+              "local_misassemblies": 116,
+              "misassemblies": 115,
+              "mismatches_per_100kbp": 295.88,
+              "n50": 34015,
+              "unaligned_length": 9852986
+            },
+            "discovery-grouped": {
+              "bases_at_least_1000": 12012449,
+              "combined_genome_fraction_percent": 24.282,
+              "contigs_at_least_1000": 2248,
+              "indels_per_100kbp": 1.82,
+              "largest_contig": 270414,
+              "local_misassemblies": 2,
+              "misassemblies": 14,
+              "mismatches_per_100kbp": 29.17,
+              "n50": 34832,
+              "unaligned_length": 0
+            },
+            "discovery-per-sample": {
+              "bases_at_least_1000": 27019241,
+              "combined_genome_fraction_percent": 16.283,
+              "contigs_at_least_1000": 9170,
+              "indels_per_100kbp": 2.95,
+              "largest_contig": 19778,
+              "local_misassemblies": 6,
+              "misassemblies": 42,
+              "mismatches_per_100kbp": 51.85,
+              "n50": 3576,
+              "unaligned_length": 0
+            },
+            "discovery-pooled": {
+              "bases_at_least_1000": 28944219,
+              "combined_genome_fraction_percent": 39.061,
+              "contigs_at_least_1000": 2019,
+              "indels_per_100kbp": 31.53,
+              "largest_contig": 982984,
+              "local_misassemblies": 137,
+              "misassemblies": 150,
+              "mismatches_per_100kbp": 971.72,
+              "n50": 88544,
+              "unaligned_length": 9751655
+            },
+            "iterate-recruitment": {
+              "bases_at_least_1000": 30835575,
+              "combined_genome_fraction_percent": 38.778,
+              "contigs_at_least_1000": 4815,
+              "indels_per_100kbp": 28.59,
+              "largest_contig": 700721,
+              "local_misassemblies": 138,
+              "misassemblies": 170,
+              "mismatches_per_100kbp": 879.78,
+              "n50": 53343,
+              "unaligned_length": 9764424
+            },
+            "iterate-residual-only": {
+              "bases_at_least_1000": 30857252,
+              "combined_genome_fraction_percent": 38.761,
+              "contigs_at_least_1000": 5100,
+              "indels_per_100kbp": 28.5,
+              "largest_contig": 700721,
+              "local_misassemblies": 136,
+              "misassemblies": 169,
+              "mismatches_per_100kbp": 878.35,
+              "n50": 52843,
+              "unaligned_length": 9760844
+            },
+            "iterate-round1": {
+              "bases_at_least_1000": 27959472,
+              "combined_genome_fraction_percent": 33.452,
+              "contigs_at_least_1000": 3970,
+              "indels_per_100kbp": 31.93,
+              "largest_contig": 700721,
+              "local_misassemblies": 134,
+              "misassemblies": 162,
+              "mismatches_per_100kbp": 1007.83,
+              "n50": 72606,
+              "unaligned_length": 9753402
+            }
+          },
+          "represented_by_relative": []
+        },
+        "community_B": {
+          "heldout": {
+            "GCF_000009205.2": "novel_thin",
+            "GCF_000020225.1": "novel_thin",
+            "GCF_000026225.1": "novel_congener",
+            "GCF_000195795.1": "novel_congener"
+          },
+          "heldout_genome_fraction_percent": {
+            "allreads-grouped": {
+              "GCF_000009205.2": 12.402,
+              "GCF_000020225.1": 73.526,
+              "GCF_000026225.1": 92.662,
+              "GCF_000195795.1": 96.91
+            },
+            "allreads-per-sample": {
+              "GCF_000009205.2": 0.33,
+              "GCF_000020225.1": 1.776,
+              "GCF_000026225.1": 98.329,
+              "GCF_000195795.1": 98.617
+            },
+            "allreads-pooled": {
+              "GCF_000009205.2": 93.662,
+              "GCF_000020225.1": 98.889,
+              "GCF_000026225.1": 83.932,
+              "GCF_000195795.1": 94.225
+            },
+            "discovery-grouped": {
+              "GCF_000009205.2": 12.597,
+              "GCF_000020225.1": 73.387,
+              "GCF_000026225.1": 97.719,
+              "GCF_000195795.1": 97.552
+            },
+            "discovery-per-sample": {
+              "GCF_000009205.2": 0.407,
+              "GCF_000020225.1": 1.834,
+              "GCF_000026225.1": 96.621,
+              "GCF_000195795.1": 97.949
+            },
+            "discovery-pooled": {
+              "GCF_000009205.2": 93.702,
+              "GCF_000020225.1": 98.897,
+              "GCF_000026225.1": 97.84,
+              "GCF_000195795.1": 97.534
+            },
+            "iterate-recruitment": {
+              "GCF_000009205.2": 91.259,
+              "GCF_000020225.1": 99.113,
+              "GCF_000026225.1": 97.924,
+              "GCF_000195795.1": 97.56
+            },
+            "iterate-residual-only": {
+              "GCF_000009205.2": 91.227,
+              "GCF_000020225.1": 98.781,
+              "GCF_000026225.1": 97.938,
+              "GCF_000195795.1": 97.704
+            },
+            "iterate-round1": {
+              "GCF_000009205.2": 31.614,
+              "GCF_000020225.1": 97.864,
+              "GCF_000026225.1": 97.816,
+              "GCF_000195795.1": 97.56
+            }
+          },
+          "report": {
+            "allreads-grouped": {
+              "bases_at_least_1000": 39237689,
+              "combined_genome_fraction_percent": 83.683,
+              "contigs_at_least_1000": 5853,
+              "indels_per_100kbp": 2.19,
+              "largest_contig": 564055,
+              "local_misassemblies": 17,
+              "misassemblies": 52,
+              "mismatches_per_100kbp": 65.79,
+              "n50": 14190,
+              "unaligned_length": 0
+            },
+            "allreads-per-sample": {
+              "bases_at_least_1000": 84638628,
+              "combined_genome_fraction_percent": 61.583,
+              "contigs_at_least_1000": 31287,
+              "indels_per_100kbp": 8.14,
+              "largest_contig": 22249,
+              "local_misassemblies": 61,
+              "misassemblies": 299,
+              "mismatches_per_100kbp": 330.17,
+              "n50": 3283,
+              "unaligned_length": 4104
+            },
+            "allreads-pooled": {
+              "bases_at_least_1000": 58726927,
+              "combined_genome_fraction_percent": 96.454,
+              "contigs_at_least_1000": 5530,
+              "indels_per_100kbp": 13.27,
+              "largest_contig": 982984,
+              "local_misassemblies": 72,
+              "misassemblies": 107,
+              "mismatches_per_100kbp": 391.93,
+              "n50": 34015,
+              "unaligned_length": 10210665
+            },
+            "discovery-grouped": {
+              "bases_at_least_1000": 10058835,
+              "combined_genome_fraction_percent": 21.538,
+              "contigs_at_least_1000": 1535,
+              "indels_per_100kbp": 1.46,
+              "largest_contig": 492964,
+              "local_misassemblies": 6,
+              "misassemblies": 7,
+              "mismatches_per_100kbp": 31.77,
+              "n50": 69274,
+              "unaligned_length": 0
+            },
+            "discovery-per-sample": {
+              "bases_at_least_1000": 26221891,
+              "combined_genome_fraction_percent": 16.329,
+              "contigs_at_least_1000": 8610,
+              "indels_per_100kbp": 1.74,
+              "largest_contig": 20482,
+              "local_misassemblies": 16,
+              "misassemblies": 27,
+              "mismatches_per_100kbp": 38.32,
+              "n50": 3730,
+              "unaligned_length": 0
+            },
+            "discovery-pooled": {
+              "bases_at_least_1000": 28944219,
+              "combined_genome_fraction_percent": 39.991,
+              "contigs_at_least_1000": 2019,
+              "indels_per_100kbp": 41.26,
+              "largest_contig": 982984,
+              "local_misassemblies": 70,
+              "misassemblies": 135,
+              "mismatches_per_100kbp": 1267.23,
+              "n50": 88544,
+              "unaligned_length": 10189034
+            },
+            "iterate-recruitment": {
+              "bases_at_least_1000": 30835575,
+              "combined_genome_fraction_percent": 39.943,
+              "contigs_at_least_1000": 4815,
+              "indels_per_100kbp": 39.16,
+              "largest_contig": 700721,
+              "local_misassemblies": 72,
+              "misassemblies": 160,
+              "mismatches_per_100kbp": 1176.92,
+              "n50": 53343,
+              "unaligned_length": 10218641
+            },
+            "iterate-residual-only": {
+              "bases_at_least_1000": 30857252,
+              "combined_genome_fraction_percent": 39.911,
+              "contigs_at_least_1000": 5100,
+              "indels_per_100kbp": 39.15,
+              "largest_contig": 700721,
+              "local_misassemblies": 69,
+              "misassemblies": 157,
+              "mismatches_per_100kbp": 1173.24,
+              "n50": 52843,
+              "unaligned_length": 10218144
+            },
+            "iterate-round1": {
+              "bases_at_least_1000": 27959472,
+              "combined_genome_fraction_percent": 34.365,
+              "contigs_at_least_1000": 3970,
+              "indels_per_100kbp": 43.91,
+              "largest_contig": 700721,
+              "local_misassemblies": 69,
+              "misassemblies": 152,
+              "mismatches_per_100kbp": 1352.57,
+              "n50": 72606,
+              "unaligned_length": 10194236
+            }
+          },
+          "represented_by_relative": []
+        },
+        "community_C": {
+          "heldout": {
+            "GCF_000009205.2": "novel_thin",
+            "GCF_000020225.1": "novel_thin",
+            "GCF_000025985.1": "novel_common"
+          },
+          "heldout_genome_fraction_percent": {
+            "allreads-grouped": {
+              "GCF_000009205.2": 12.461,
+              "GCF_000020225.1": 73.971,
+              "GCF_000025985.1": 99.421
+            },
+            "allreads-per-sample": {
+              "GCF_000009205.2": 0.415,
+              "GCF_000020225.1": 2.144,
+              "GCF_000025985.1": 99.779
+            },
+            "allreads-pooled": {
+              "GCF_000009205.2": 93.658,
+              "GCF_000020225.1": 98.889,
+              "GCF_000025985.1": 99.42
+            },
+            "discovery-grouped": {
+              "GCF_000009205.2": 12.419,
+              "GCF_000020225.1": 73.975,
+              "GCF_000025985.1": 99.42
+            },
+            "discovery-per-sample": {
+              "GCF_000009205.2": 0.473,
+              "GCF_000020225.1": 2.164,
+              "GCF_000025985.1": 99.782
+            },
+            "discovery-pooled": {
+              "GCF_000009205.2": 93.698,
+              "GCF_000020225.1": 98.889,
+              "GCF_000025985.1": 99.42
+            },
+            "iterate-recruitment": {
+              "GCF_000009205.2": 91.259,
+              "GCF_000020225.1": 99.105,
+              "GCF_000025985.1": 99.438
+            },
+            "iterate-residual-only": {
+              "GCF_000009205.2": 91.227,
+              "GCF_000020225.1": 98.773,
+              "GCF_000025985.1": 99.466
+            },
+            "iterate-round1": {
+              "GCF_000009205.2": 31.614,
+              "GCF_000020225.1": 97.856,
+              "GCF_000025985.1": 99.42
+            }
+          },
+          "report": {
+            "allreads-grouped": {
+              "bases_at_least_1000": 29825801,
+              "combined_genome_fraction_percent": 66.979,
+              "contigs_at_least_1000": 4850,
+              "indels_per_100kbp": 1.28,
+              "largest_contig": 982984,
+              "local_misassemblies": 10,
+              "misassemblies": 70,
+              "mismatches_per_100kbp": 23.99,
+              "n50": 101054,
+              "unaligned_length": 0
+            },
+            "allreads-per-sample": {
+              "bases_at_least_1000": 78228922,
+              "combined_genome_fraction_percent": 48.858,
+              "contigs_at_least_1000": 18298,
+              "indels_per_100kbp": 1.95,
+              "largest_contig": 436925,
+              "local_misassemblies": 26,
+              "misassemblies": 141,
+              "mismatches_per_100kbp": 43.83,
+              "n50": 5442,
+              "unaligned_length": 4418
+            },
+            "allreads-pooled": {
+              "bases_at_least_1000": 58726927,
+              "combined_genome_fraction_percent": 98.274,
+              "contigs_at_least_1000": 5530,
+              "indels_per_100kbp": 20.13,
+              "largest_contig": 982984,
+              "local_misassemblies": 172,
+              "misassemblies": 174,
+              "mismatches_per_100kbp": 644.96,
+              "n50": 34015,
+              "unaligned_length": 9639195
+            },
+            "discovery-grouped": {
+              "bases_at_least_1000": 7734847,
+              "combined_genome_fraction_percent": 17.407,
+              "contigs_at_least_1000": 1324,
+              "indels_per_100kbp": 2.02,
+              "largest_contig": 700721,
+              "local_misassemblies": 0,
+              "misassemblies": 12,
+              "mismatches_per_100kbp": 29.17,
+              "n50": 251499,
+              "unaligned_length": 0
+            },
+            "discovery-per-sample": {
+              "bases_at_least_1000": 20949488,
+              "combined_genome_fraction_percent": 12.06,
+              "contigs_at_least_1000": 384,
+              "indels_per_100kbp": 1.49,
+              "largest_contig": 436925,
+              "local_misassemblies": 0,
+              "misassemblies": 2,
+              "mismatches_per_100kbp": 7.69,
+              "n50": 122179,
+              "unaligned_length": 0
+            },
+            "discovery-pooled": {
+              "bases_at_least_1000": 28944219,
+              "combined_genome_fraction_percent": 43.683,
+              "contigs_at_least_1000": 2019,
+              "indels_per_100kbp": 66.54,
+              "largest_contig": 982984,
+              "local_misassemblies": 199,
+              "misassemblies": 273,
+              "mismatches_per_100kbp": 2115.87,
+              "n50": 88544,
+              "unaligned_length": 9516637
+            },
+            "iterate-recruitment": {
+              "bases_at_least_1000": 30835575,
+              "combined_genome_fraction_percent": 43.593,
+              "contigs_at_least_1000": 4815,
+              "indels_per_100kbp": 62.12,
+              "largest_contig": 700721,
+              "local_misassemblies": 200,
+              "misassemblies": 293,
+              "mismatches_per_100kbp": 1955.36,
+              "n50": 53343,
+              "unaligned_length": 9547197
+            },
+            "iterate-residual-only": {
+              "bases_at_least_1000": 30857252,
+              "combined_genome_fraction_percent": 43.561,
+              "contigs_at_least_1000": 5100,
+              "indels_per_100kbp": 62.11,
+              "largest_contig": 700721,
+              "local_misassemblies": 197,
+              "misassemblies": 291,
+              "mismatches_per_100kbp": 1951.68,
+              "n50": 52843,
+              "unaligned_length": 9542782
+            },
+            "iterate-round1": {
+              "bases_at_least_1000": 27959472,
+              "combined_genome_fraction_percent": 37.713,
+              "contigs_at_least_1000": 3970,
+              "indels_per_100kbp": 70.36,
+              "largest_contig": 700721,
+              "local_misassemblies": 195,
+              "misassemblies": 284,
+              "mismatches_per_100kbp": 2245.17,
+              "n50": 72606,
+              "unaligned_length": 9521834
+            }
+          },
+          "represented_by_relative": []
+        }
+      },
+      "correctness_all_genomes": {
+        "allreads-grouped": {
+          "bases_at_least_1000": 108964491,
+          "combined_genome_fraction_percent": 90.523,
+          "contigs_at_least_1000": 18547,
+          "indels_per_100kbp": 2.74,
+          "largest_contig": 982984,
+          "local_misassemblies": 41,
+          "misassemblies": 180,
+          "mismatches_per_100kbp": 75.99,
+          "n50": 17844,
+          "unaligned_length": 0
+        },
+        "allreads-per-sample": {
+          "bases_at_least_1000": 243230581,
+          "combined_genome_fraction_percent": 70.076,
+          "contigs_at_least_1000": 79040,
+          "indels_per_100kbp": 6.56,
+          "largest_contig": 436925,
+          "local_misassemblies": 122,
+          "misassemblies": 676,
+          "mismatches_per_100kbp": 265.25,
+          "n50": 3791,
+          "unaligned_length": 6724
+        },
+        "allreads-pooled": {
+          "bases_at_least_1000": 58726927,
+          "combined_genome_fraction_percent": 93.733,
+          "contigs_at_least_1000": 5530,
+          "indels_per_100kbp": 1.23,
+          "largest_contig": 982984,
+          "local_misassemblies": 16,
+          "misassemblies": 50,
+          "mismatches_per_100kbp": 27.84,
+          "n50": 34015,
+          "unaligned_length": 0
+        },
+        "discovery-grouped": {
+          "bases_at_least_1000": 29806131,
+          "combined_genome_fraction_percent": 42.174,
+          "contigs_at_least_1000": 5107,
+          "indels_per_100kbp": 2.03,
+          "largest_contig": 700721,
+          "local_misassemblies": 8,
+          "misassemblies": 33,
+          "mismatches_per_100kbp": 31.39,
+          "n50": 61898,
+          "unaligned_length": 0
+        },
+        "discovery-per-sample": {
+          "bases_at_least_1000": 74190620,
+          "combined_genome_fraction_percent": 33.578,
+          "contigs_at_least_1000": 18164,
+          "indels_per_100kbp": 2,
+          "largest_contig": 436925,
+          "local_misassemblies": 22,
+          "misassemblies": 71,
+          "mismatches_per_100kbp": 33.36,
+          "n50": 5204,
+          "unaligned_length": 0
+        },
+        "discovery-pooled": {
+          "bases_at_least_1000": 28944219,
+          "combined_genome_fraction_percent": 46.343,
+          "contigs_at_least_1000": 2019,
+          "indels_per_100kbp": 1.51,
+          "largest_contig": 982984,
+          "local_misassemblies": 8,
+          "misassemblies": 15,
+          "mismatches_per_100kbp": 19.16,
+          "n50": 88544,
+          "unaligned_length": 0
+        },
+        "iterate-recruitment": {
+          "bases_at_least_1000": 30835575,
+          "combined_genome_fraction_percent": 46.298,
+          "contigs_at_least_1000": 4815,
+          "indels_per_100kbp": 2,
+          "largest_contig": 700721,
+          "local_misassemblies": 10,
+          "misassemblies": 41,
+          "mismatches_per_100kbp": 30.75,
+          "n50": 53343,
+          "unaligned_length": 0
+        },
+        "iterate-residual-only": {
+          "bases_at_least_1000": 30857252,
+          "combined_genome_fraction_percent": 46.285,
+          "contigs_at_least_1000": 5100,
+          "indels_per_100kbp": 1.87,
+          "largest_contig": 700721,
+          "local_misassemblies": 8,
+          "misassemblies": 37,
+          "mismatches_per_100kbp": 29.77,
+          "n50": 52843,
+          "unaligned_length": 0
+        }
+      },
+      "description": "Hard benchmark: 12 samples x 500k pairs, 3 communities, congeners, thin, rare, and common novel genomes",
+      "discovery": {
+        "false_removal": {
+          "GCF_000007525.1": 0.0,
+          "GCF_000007645.1": 0.003913,
+          "GCF_000009205.2": 0.001314,
+          "GCF_000020225.1": 0.0,
+          "GCF_000025465.1": 0.07208,
+          "GCF_000025985.1": 0.0,
+          "GCF_000026225.1": 0.05725,
+          "GCF_000195795.1": 0.027375
+        },
+        "input_pair_reduction": 0.677482,
+        "pool_composition": {
+          "by_genome": {
+            "GCF_000005845.2": {
+              "category": "catalogued_selected",
+              "retained_pairs": 6911
+            },
+            "GCF_000006765.1": {
+              "category": "catalogued_selected",
+              "retained_pairs": 129
+            },
+            "GCF_000006945.2": {
+              "category": "catalogued_selected",
+              "retained_pairs": 1108
+            },
+            "GCF_000007525.1": {
+              "category": "catalogue_absent",
+              "retained_pairs": 30136
+            },
+            "GCF_000007645.1": {
+              "category": "catalogue_absent",
+              "retained_pairs": 170307
+            },
+            "GCF_000007785.1": {
+              "category": "catalogued_selected",
+              "retained_pairs": 155
+            },
+            "GCF_000009205.2": {
+              "category": "catalogue_absent",
+              "retained_pairs": 85855
+            },
+            "GCF_000013425.1": {
+              "category": "catalogued_selected",
+              "retained_pairs": 506
+            },
+            "GCF_000016525.1": {
+              "category": "catalogued_selected",
+              "retained_pairs": 20
+            },
+            "GCF_000020225.1": {
+              "category": "catalogue_absent",
+              "retained_pairs": 106560
+            },
+            "GCF_000025465.1": {
+              "category": "catalogue_absent",
+              "retained_pairs": 337670
+            },
+            "GCF_000025985.1": {
+              "category": "catalogue_absent",
+              "retained_pairs": 698892
+            },
+            "GCF_000026225.1": {
+              "category": "catalogue_absent",
+              "retained_pairs": 291868
+            },
+            "GCF_000195795.1": {
+              "category": "catalogue_absent",
+              "retained_pairs": 200563
+            },
+            "GCF_000196035.1": {
+              "category": "catalogued_selected",
+              "retained_pairs": 356
+            },
+            "GCF_000240185.1": {
+              "category": "catalogued_selected",
+              "retained_pairs": 4070
+            }
+          },
+          "retained_pairs": {
+            "catalogue_absent": 1921851,
+            "catalogued_not_selected": 0,
+            "catalogued_selected": 13255
+          }
+        },
+        "reasons": {
+          "cross-species-alternative": 13611,
+          "discordant-pair": 302,
+          "low-aligned-fraction": 12648,
+          "low-identity": 587314,
+          "mate-unmapped": 1321231,
+          "same-species-alternatives": 69072,
+          "unique": 3995822
+        },
+        "residual_contamination": {
+          "GCF_000005845.2": 0.007445,
+          "GCF_000006765.1": 0.000477,
+          "GCF_000006945.2": 0.00478,
+          "GCF_000007785.1": 0.000573,
+          "GCF_000013425.1": 0.000897,
+          "GCF_000016525.1": 0.00054,
+          "GCF_000196035.1": 0.000605,
+          "GCF_000240185.1": 0.003581
+        },
+        "stage_seconds": {
+          "index": 0.2,
+          "map": 87.3,
+          "profile": 13.8
+        },
+        "tool_versions": {
+          "mapper": "strobealign 0.20.0",
+          "profiler": "sylph 1.0.0"
+        }
+      },
+      "gate": {
+        "discovery-grouped": {
+          "community_A": {
+            "heldout_recovery_loss_pp": {
+              "GCF_000007525.1": -0.231,
+              "GCF_000007645.1": -0.024,
+              "GCF_000009205.2": -0.157,
+              "GCF_000020225.1": -0.164,
+              "GCF_000025465.1": -7.276
+            },
+            "input_pair_reduction": 0.6966,
+            "passes_recovery": true,
+            "passes_reduction": true
+          },
+          "community_B": {
+            "heldout_recovery_loss_pp": {
+              "GCF_000009205.2": -0.195,
+              "GCF_000020225.1": 0.139,
+              "GCF_000026225.1": -5.057,
+              "GCF_000195795.1": -0.642
+            },
+            "input_pair_reduction": 0.7195,
+            "passes_recovery": true,
+            "passes_reduction": true
+          },
+          "community_C": {
+            "heldout_recovery_loss_pp": {
+              "GCF_000009205.2": 0.042,
+              "GCF_000020225.1": -0.004,
+              "GCF_000025985.1": 0.001
+            },
+            "input_pair_reduction": 0.6164,
+            "passes_recovery": true,
+            "passes_reduction": true
+          },
+          "end_to_end_vs_allreads_grouped": {
+            "cpu_ratio": 0.258,
+            "peak_rss_ratio": 0.627,
+            "wall_ratio": 0.273
+          },
+          "overall": {
+            "input_pair_reduction": 0.6775,
+            "passes": true
+          },
+          "passes_cost": true
+        },
+        "discovery-per-sample": {
+          "community_A": {
+            "heldout_recovery_loss_pp": {
+              "GCF_000007525.1": 70.246,
+              "GCF_000007645.1": -0.741,
+              "GCF_000009205.2": 10.779,
+              "GCF_000020225.1": 72.614,
+              "GCF_000025465.1": -5.859
+            },
+            "input_pair_reduction": 0.6966,
+            "passes_recovery": false,
+            "passes_reduction": true
+          },
+          "community_B": {
+            "heldout_recovery_loss_pp": {
+              "GCF_000009205.2": 11.995,
+              "GCF_000020225.1": 71.692,
+              "GCF_000026225.1": -3.959,
+              "GCF_000195795.1": -1.039
+            },
+            "input_pair_reduction": 0.7195,
+            "passes_recovery": false,
+            "passes_reduction": true
+          },
+          "community_C": {
+            "heldout_recovery_loss_pp": {
+              "GCF_000009205.2": 11.988,
+              "GCF_000020225.1": 71.807,
+              "GCF_000025985.1": -0.361
+            },
+            "input_pair_reduction": 0.6164,
+            "passes_recovery": false,
+            "passes_reduction": true
+          },
+          "end_to_end_vs_allreads_grouped": {
+            "cpu_ratio": 0.544,
+            "peak_rss_ratio": 0.566,
+            "wall_ratio": 0.58
+          },
+          "overall": {
+            "input_pair_reduction": 0.6775,
+            "passes": false
+          },
+          "passes_cost": true
+        },
+        "discovery-pooled": {
+          "community_A": {
+            "heldout_recovery_loss_pp": {
+              "GCF_000007525.1": -0.14,
+              "GCF_000007645.1": -0.01,
+              "GCF_000009205.2": -82.447,
+              "GCF_000020225.1": -24.258,
+              "GCF_000025465.1": -7.247
+            },
+            "input_pair_reduction": 0.6966,
+            "passes_recovery": true,
+            "passes_reduction": true
+          },
+          "community_B": {
+            "heldout_recovery_loss_pp": {
+              "GCF_000009205.2": -81.3,
+              "GCF_000020225.1": -25.371,
+              "GCF_000026225.1": -5.178,
+              "GCF_000195795.1": -0.624
+            },
+            "input_pair_reduction": 0.7195,
+            "passes_recovery": true,
+            "passes_reduction": true
+          },
+          "community_C": {
+            "heldout_recovery_loss_pp": {
+              "GCF_000009205.2": -81.237,
+              "GCF_000020225.1": -24.918,
+              "GCF_000025985.1": 0.001
+            },
+            "input_pair_reduction": 0.6164,
+            "passes_recovery": true,
+            "passes_reduction": true
+          },
+          "end_to_end_vs_allreads_grouped": {
+            "cpu_ratio": 0.262,
+            "peak_rss_ratio": 0.742,
+            "wall_ratio": 0.275
+          },
+          "overall": {
+            "input_pair_reduction": 0.6775,
+            "passes": true
+          },
+          "passes_cost": true
+        },
+        "iterate-recruitment": {
+          "community_A": {
+            "heldout_recovery_loss_pp": {
+              "GCF_000007525.1": -0.696,
+              "GCF_000007645.1": -0.279,
+              "GCF_000009205.2": -80.008,
+              "GCF_000020225.1": -24.474,
+              "GCF_000025465.1": -7.507
+            },
+            "input_pair_reduction": 0.6501,
+            "passes_recovery": true,
+            "passes_reduction": true
+          },
+          "community_B": {
+            "heldout_recovery_loss_pp": {
+              "GCF_000009205.2": -78.857,
+              "GCF_000020225.1": -25.587,
+              "GCF_000026225.1": -5.262,
+              "GCF_000195795.1": -0.65
+            },
+            "input_pair_reduction": 0.6802,
+            "passes_recovery": true,
+            "passes_reduction": true
+          },
+          "community_C": {
+            "heldout_recovery_loss_pp": {
+              "GCF_000009205.2": -78.798,
+              "GCF_000020225.1": -25.134,
+              "GCF_000025985.1": -0.017
+            },
+            "input_pair_reduction": 0.5802,
+            "passes_recovery": true,
+            "passes_reduction": true
+          },
+          "end_to_end_vs_allreads_grouped": {
+            "cpu_ratio": 0.357,
+            "peak_rss_ratio": 3.697,
+            "wall_ratio": 0.425
+          },
+          "overall": {
+            "input_pair_reduction": 0.6368,
+            "passes": true
+          },
+          "passes_cost": false
+        },
+        "iterate-residual-only": {
+          "community_A": {
+            "heldout_recovery_loss_pp": {
+              "GCF_000007525.1": -0.844,
+              "GCF_000007645.1": -0.16,
+              "GCF_000009205.2": -79.976,
+              "GCF_000020225.1": -24.142,
+              "GCF_000025465.1": -7.354
+            },
+            "input_pair_reduction": 0.6734,
+            "passes_recovery": true,
+            "passes_reduction": true
+          },
+          "community_B": {
+            "heldout_recovery_loss_pp": {
+              "GCF_000009205.2": -78.825,
+              "GCF_000020225.1": -25.255,
+              "GCF_000026225.1": -5.276,
+              "GCF_000195795.1": -0.794
+            },
+            "input_pair_reduction": 0.7038,
+            "passes_recovery": true,
+            "passes_reduction": true
+          },
+          "community_C": {
+            "heldout_recovery_loss_pp": {
+              "GCF_000009205.2": -78.766,
+              "GCF_000020225.1": -24.802,
+              "GCF_000025985.1": -0.045
+            },
+            "input_pair_reduction": 0.6022,
+            "passes_recovery": true,
+            "passes_reduction": true
+          },
+          "end_to_end_vs_allreads_grouped": {
+            "cpu_ratio": 0.32,
+            "peak_rss_ratio": 3.758,
+            "wall_ratio": 0.374
+          },
+          "overall": {
+            "input_pair_reduction": 0.6598,
+            "passes": true
+          },
+          "passes_cost": false
+        },
+        "iterate-round1": {
+          "community_A": {
+            "heldout_recovery_loss_pp": {
+              "GCF_000007525.1": -0.231,
+              "GCF_000007645.1": -0.024,
+              "GCF_000009205.2": -20.363,
+              "GCF_000020225.1": -23.225,
+              "GCF_000025465.1": -7.227
+            },
+            "input_pair_reduction": 0.6966,
+            "passes_recovery": true,
+            "passes_reduction": true
+          },
+          "community_B": {
+            "heldout_recovery_loss_pp": {
+              "GCF_000009205.2": -19.212,
+              "GCF_000020225.1": -24.338,
+              "GCF_000026225.1": -5.154,
+              "GCF_000195795.1": -0.65
+            },
+            "input_pair_reduction": 0.7195,
+            "passes_recovery": true,
+            "passes_reduction": true
+          },
+          "community_C": {
+            "heldout_recovery_loss_pp": {
+              "GCF_000009205.2": -19.153,
+              "GCF_000020225.1": -23.885,
+              "GCF_000025985.1": 0.001
+            },
+            "input_pair_reduction": 0.6164,
+            "passes_recovery": true,
+            "passes_reduction": true
+          },
+          "end_to_end_vs_allreads_grouped": {
+            "cpu_ratio": 0.258,
+            "peak_rss_ratio": 0.627,
+            "wall_ratio": 0.273
+          },
+          "overall": {
+            "input_pair_reduction": 0.6775,
+            "passes": true
+          },
+          "passes_cost": true
+        }
+      },
+      "origin_attributed_iterate_evaluation": {
+        "gate": {
+          "discovery-pooled": {
+            "community_A": {
+              "heldout_recovery_loss_pp": {
+                "GCF_000007525.1": -0.14,
+                "GCF_000007645.1": -0.01,
+                "GCF_000009205.2": -82.447,
+                "GCF_000020225.1": -24.258,
+                "GCF_000025465.1": -7.247
+              },
+              "input_pair_reduction": 0.6966,
+              "passes_recovery": true,
+              "passes_reduction": true
+            },
+            "community_B": {
+              "heldout_recovery_loss_pp": {
+                "GCF_000009205.2": -81.3,
+                "GCF_000020225.1": -25.371,
+                "GCF_000026225.1": -5.178,
+                "GCF_000195795.1": -0.624
+              },
+              "input_pair_reduction": 0.7195,
+              "passes_recovery": true,
+              "passes_reduction": true
+            },
+            "community_C": {
+              "heldout_recovery_loss_pp": {
+                "GCF_000009205.2": -81.237,
+                "GCF_000020225.1": -24.918,
+                "GCF_000025985.1": 0.001
+              },
+              "input_pair_reduction": 0.6164,
+              "passes_recovery": true,
+              "passes_reduction": true
+            },
+            "overall": {
+              "input_pair_reduction": 0.6775,
+              "passes": true
+            }
+          },
+          "iterate-recruitment": {
+            "community_A": {
+              "heldout_recovery_loss_pp": {
+                "GCF_000007525.1": -0.696,
+                "GCF_000007645.1": -0.279,
+                "GCF_000009205.2": -64.051,
+                "GCF_000020225.1": 5.074,
+                "GCF_000025465.1": -7.469
+              },
+              "input_pair_reduction": 0.6501,
+              "passes_recovery": false,
+              "passes_reduction": true
+            },
+            "community_B": {
+              "heldout_recovery_loss_pp": {
+                "GCF_000009205.2": -64.095,
+                "GCF_000020225.1": 4.678,
+                "GCF_000026225.1": -5.118,
+                "GCF_000195795.1": -0.642
+              },
+              "input_pair_reduction": 0.6802,
+              "passes_recovery": true,
+              "passes_reduction": true
+            },
+            "community_C": {
+              "heldout_recovery_loss_pp": {
+                "GCF_000009205.2": -64.04,
+                "GCF_000020225.1": 3.847,
+                "GCF_000025985.1": -0.017
+              },
+              "input_pair_reduction": 0.5802,
+              "passes_recovery": true,
+              "passes_reduction": true
+            },
+            "overall": {
+              "input_pair_reduction": 0.6368,
+              "passes": false
+            }
+          },
+          "iterate-residual-only": {
+            "community_A": {
+              "heldout_recovery_loss_pp": {
+                "GCF_000007525.1": -0.844,
+                "GCF_000007645.1": -0.16,
+                "GCF_000009205.2": -62.87,
+                "GCF_000020225.1": 21.228,
+                "GCF_000025465.1": -7.316
+              },
+              "input_pair_reduction": 0.6734,
+              "passes_recovery": false,
+              "passes_reduction": true
+            },
+            "community_B": {
+              "heldout_recovery_loss_pp": {
+                "GCF_000009205.2": -63.048,
+                "GCF_000020225.1": 20.821,
+                "GCF_000026225.1": -5.127,
+                "GCF_000195795.1": -0.786
+              },
+              "input_pair_reduction": 0.7038,
+              "passes_recovery": false,
+              "passes_reduction": true
+            },
+            "community_C": {
+              "heldout_recovery_loss_pp": {
+                "GCF_000009205.2": -62.881,
+                "GCF_000020225.1": 19.877,
+                "GCF_000025985.1": -0.045
+              },
+              "input_pair_reduction": 0.6022,
+              "passes_recovery": false,
+              "passes_reduction": true
+            },
+            "overall": {
+              "input_pair_reduction": 0.6598,
+              "passes": false
+            }
+          },
+          "iterate-round1": {
+            "community_A": {
+              "heldout_recovery_loss_pp": {
+                "GCF_000007525.1": -0.231,
+                "GCF_000007645.1": -0.024,
+                "GCF_000009205.2": 0.626,
+                "GCF_000020225.1": 22.52,
+                "GCF_000025465.1": -7.189
+              },
+              "input_pair_reduction": 0.6966,
+              "passes_recovery": false,
+              "passes_reduction": true
+            },
+            "community_B": {
+              "heldout_recovery_loss_pp": {
+                "GCF_000009205.2": 0.22,
+                "GCF_000020225.1": 22.18,
+                "GCF_000026225.1": -5.005,
+                "GCF_000195795.1": -0.642
+              },
+              "input_pair_reduction": 0.7195,
+              "passes_recovery": false,
+              "passes_reduction": true
+            },
+            "community_C": {
+              "heldout_recovery_loss_pp": {
+                "GCF_000009205.2": 0.463,
+                "GCF_000020225.1": 21.22,
+                "GCF_000025985.1": 0.001
+              },
+              "input_pair_reduction": 0.6164,
+              "passes_recovery": false,
+              "passes_reduction": true
+            },
+            "overall": {
+              "input_pair_reduction": 0.6775,
+              "passes": false
+            }
+          }
+        },
+        "heldout_genome_fraction_percent": {
+          "community_A": {
+            "allreads-grouped": {
+              "GCF_000007525.1": 73.019,
+              "GCF_000007645.1": 97.973,
+              "GCF_000009205.2": 11.251,
+              "GCF_000020225.1": 74.631,
+              "GCF_000025465.1": 90.77
+            },
+            "discovery-pooled": {
+              "GCF_000007525.1": 73.159,
+              "GCF_000007645.1": 97.983,
+              "GCF_000009205.2": 93.698,
+              "GCF_000020225.1": 98.889,
+              "GCF_000025465.1": 98.017
+            },
+            "iterate-recruitment": {
+              "GCF_000007525.1": 73.715,
+              "GCF_000007645.1": 98.252,
+              "GCF_000009205.2": 75.302,
+              "GCF_000020225.1": 69.557,
+              "GCF_000025465.1": 98.239
+            },
+            "iterate-residual-only": {
+              "GCF_000007525.1": 73.863,
+              "GCF_000007645.1": 98.133,
+              "GCF_000009205.2": 74.121,
+              "GCF_000020225.1": 53.403,
+              "GCF_000025465.1": 98.086
+            },
+            "iterate-round1": {
+              "GCF_000007525.1": 73.25,
+              "GCF_000007645.1": 97.997,
+              "GCF_000009205.2": 10.625,
+              "GCF_000020225.1": 52.111,
+              "GCF_000025465.1": 97.959
+            }
+          },
+          "community_B": {
+            "allreads-grouped": {
+              "GCF_000009205.2": 12.402,
+              "GCF_000020225.1": 73.526,
+              "GCF_000026225.1": 92.662,
+              "GCF_000195795.1": 96.91
+            },
+            "discovery-pooled": {
+              "GCF_000009205.2": 93.702,
+              "GCF_000020225.1": 98.897,
+              "GCF_000026225.1": 97.84,
+              "GCF_000195795.1": 97.534
+            },
+            "iterate-recruitment": {
+              "GCF_000009205.2": 76.497,
+              "GCF_000020225.1": 68.848,
+              "GCF_000026225.1": 97.78,
+              "GCF_000195795.1": 97.552
+            },
+            "iterate-residual-only": {
+              "GCF_000009205.2": 75.45,
+              "GCF_000020225.1": 52.705,
+              "GCF_000026225.1": 97.789,
+              "GCF_000195795.1": 97.696
+            },
+            "iterate-round1": {
+              "GCF_000009205.2": 12.182,
+              "GCF_000020225.1": 51.346,
+              "GCF_000026225.1": 97.667,
+              "GCF_000195795.1": 97.552
+            }
+          },
+          "community_C": {
+            "allreads-grouped": {
+              "GCF_000009205.2": 12.461,
+              "GCF_000020225.1": 73.971,
+              "GCF_000025985.1": 99.421
+            },
+            "discovery-pooled": {
+              "GCF_000009205.2": 93.698,
+              "GCF_000020225.1": 98.889,
+              "GCF_000025985.1": 99.42
+            },
+            "iterate-recruitment": {
+              "GCF_000009205.2": 76.501,
+              "GCF_000020225.1": 70.124,
+              "GCF_000025985.1": 99.438
+            },
+            "iterate-residual-only": {
+              "GCF_000009205.2": 75.342,
+              "GCF_000020225.1": 54.094,
+              "GCF_000025985.1": 99.466
+            },
+            "iterate-round1": {
+              "GCF_000009205.2": 11.998,
+              "GCF_000020225.1": 52.751,
+              "GCF_000025985.1": 99.42
+            }
+          }
+        }
+      },
+      "steps": {
+        "allreads-grouped": {
+          "cpu_seconds": 8425.4,
+          "max_single_process_rss_kib": 674736,
+          "peak_group_rss_kib": 658700,
+          "peak_scratch_bytes": 929464087,
+          "wall_seconds": 676.0
+        },
+        "allreads-per-sample": {
+          "cpu_seconds": 15860.2,
+          "max_single_process_rss_kib": 580020,
+          "peak_group_rss_kib": 585160,
+          "peak_scratch_bytes": 546243820,
+          "wall_seconds": 1251.4
+        },
+        "allreads-pooled": {
+          "cpu_seconds": 6573.1,
+          "max_single_process_rss_kib": 1400256,
+          "peak_group_rss_kib": 1423300,
+          "peak_scratch_bytes": 1585852840,
+          "wall_seconds": 490.4
+        },
+        "discover": {
+          "cpu_seconds": 292.2,
+          "max_single_process_rss_kib": 330048,
+          "peak_group_rss_kib": 335584,
+          "peak_scratch_bytes": 0,
+          "wall_seconds": 26.1
+        },
+        "discovery-grouped": {
+          "cpu_seconds": 1884.8,
+          "max_single_process_rss_kib": 423336,
+          "peak_group_rss_kib": 402528,
+          "peak_scratch_bytes": 246454900,
+          "wall_seconds": 158.2
+        },
+        "discovery-per-sample": {
+          "cpu_seconds": 4289.3,
+          "max_single_process_rss_kib": 381864,
+          "peak_group_rss_kib": 396860,
+          "peak_scratch_bytes": 134624747,
+          "wall_seconds": 366.1
+        },
+        "discovery-pooled": {
+          "cpu_seconds": 1917.0,
+          "max_single_process_rss_kib": 500644,
+          "peak_group_rss_kib": 499468,
+          "peak_scratch_bytes": 562040571,
+          "wall_seconds": 160.1
+        },
+        "iterate-recruitment": {
+          "cpu_seconds": 829.1,
+          "max_single_process_rss_kib": 2494636,
+          "peak_group_rss_kib": 391832,
+          "peak_scratch_bytes": 79117960,
+          "wall_seconds": 103.3
+        },
+        "iterate-residual-only": {
+          "cpu_seconds": 519.3,
+          "max_single_process_rss_kib": 2535668,
+          "peak_group_rss_kib": 2151056,
+          "peak_scratch_bytes": 70715865,
+          "wall_seconds": 68.2
+        }
+      }
+    },
+    "pilot": {
+      "arms": {
+        "allreads-grouped": {
+          "assemblies": 2,
+          "assembly_seconds": 292.7,
+          "assembly_statuses": [
+            "contigs"
+          ],
+          "command": "assemble-reads",
+          "end_to_end": {
+            "cpu_seconds": 3511.7,
+            "max_single_process_rss_kib": 946628,
+            "peak_group_rss_kib": 971128,
+            "peak_scratch_bytes": 633939212,
+            "wall_seconds": 295.9
+          },
+          "input_bases": 2400000000,
+          "input_pairs": 8000000,
+          "max_peak_rss_kib": 971128,
+          "max_scratch_peak_bytes": 633939212,
+          "pooled_contig_sets": 0,
+          "shared": false,
+          "source_kind": "all-reads"
+        },
+        "allreads-per-sample": {
+          "assemblies": 8,
+          "assembly_seconds": 616.9,
+          "assembly_statuses": [
+            "contigs"
+          ],
+          "command": "assemble-reads",
+          "end_to_end": {
+            "cpu_seconds": 7066.8,
+            "max_single_process_rss_kib": 435108,
+            "peak_group_rss_kib": 292488,
+            "peak_scratch_bytes": 364933847,
+            "wall_seconds": 619.7
+          },
+          "input_bases": 2400000000,
+          "input_pairs": 8000000,
+          "max_peak_rss_kib": 292488,
+          "max_scratch_peak_bytes": 364933847,
+          "pooled_contig_sets": 0,
+          "shared": false,
+          "source_kind": "all-reads"
+        },
+        "allreads-pooled": {
+          "assemblies": 1,
+          "assembly_seconds": 253.4,
+          "assembly_statuses": [
+            "contigs"
+          ],
+          "command": "assemble-reads",
+          "end_to_end": {
+            "cpu_seconds": 3242.4,
+            "max_single_process_rss_kib": 1852864,
+            "peak_group_rss_kib": 1875704,
+            "peak_scratch_bytes": 1035275917,
+            "wall_seconds": 256.1
+          },
+          "input_bases": 2400000000,
+          "input_pairs": 8000000,
+          "max_peak_rss_kib": 1875704,
+          "max_scratch_peak_bytes": 1035275917,
+          "pooled_contig_sets": 1,
+          "shared": false,
+          "source_kind": "all-reads"
+        },
+        "discovery-grouped": {
+          "assemblies": 2,
+          "assembly_seconds": 81.1,
+          "assembly_statuses": [
+            "contigs"
+          ],
+          "command": "coassemble",
+          "end_to_end": {
+            "concurrent_mapping_rss_bound_kib": 1035808,
+            "cpu_seconds": 1142.4,
+            "max_single_process_rss_kib": 391732,
+            "peak_group_rss_kib": 386720,
+            "peak_scratch_bytes": 121709227,
+            "wall_seconds": 108.8
+          },
+          "input_bases": 398583900,
+          "input_pairs": 1328613,
+          "max_peak_rss_kib": 216484,
+          "max_scratch_peak_bytes": 121709227,
+          "pooled_contig_sets": 0,
+          "shared": false,
+          "source_kind": "discovery-pools"
+        },
+        "discovery-per-sample": {
+          "assemblies": 8,
+          "assembly_seconds": 214.1,
+          "assembly_statuses": [
+            "contigs"
+          ],
+          "command": "coassemble",
+          "end_to_end": {
+            "concurrent_mapping_rss_bound_kib": 1035808,
+            "cpu_seconds": 2566.1,
+            "max_single_process_rss_kib": 391732,
+            "peak_group_rss_kib": 386720,
+            "peak_scratch_bytes": 106742419,
+            "wall_seconds": 242.0
+          },
+          "input_bases": 398583900,
+          "input_pairs": 1328613,
+          "max_peak_rss_kib": 267920,
+          "max_scratch_peak_bytes": 106742419,
+          "pooled_contig_sets": 0,
+          "shared": false,
+          "source_kind": "discovery-pools"
+        },
+        "discovery-pooled": {
+          "assemblies": 1,
+          "assembly_seconds": 71.9,
+          "assembly_statuses": [
+            "contigs"
+          ],
+          "command": "coassemble",
+          "end_to_end": {
+            "concurrent_mapping_rss_bound_kib": 1035808,
+            "cpu_seconds": 1109.1,
+            "max_single_process_rss_kib": 391732,
+            "peak_group_rss_kib": 386720,
+            "peak_scratch_bytes": 256734208,
+            "wall_seconds": 99.5
+          },
+          "input_bases": 398583900,
+          "input_pairs": 1328613,
+          "max_peak_rss_kib": 361764,
+          "max_scratch_peak_bytes": 256734208,
+          "pooled_contig_sets": 1,
+          "shared": false,
+          "source_kind": "discovery-pools"
+        },
+        "iterate-recruitment": {
+          "assemblies": 4,
+          "assembly_seconds": 90.9,
+          "assembly_statuses": [
+            "contigs"
+          ],
+          "check_and_accept_seconds": 32.0,
+          "command": "iterate",
+          "end_to_end": {
+            "concurrent_mapping_rss_bound_kib": 1035808,
+            "cpu_seconds": 1388.4,
+            "max_single_process_rss_kib": 627632,
+            "peak_group_rss_kib": 386720,
+            "peak_scratch_bytes": 121709227,
+            "wall_seconds": 152.2
+          },
+          "input_bases": 406356900,
+          "input_pairs": 1354523,
+          "max_peak_rss_kib": 216484,
+          "max_scratch_peak_bytes": 121709227,
+          "pooled_contig_sets": 3,
+          "rounds_evaluated": 3,
+          "shared": true,
+          "source_kind": "discovery-pools"
+        },
+        "iterate-residual-only": {
+          "assemblies": 4,
+          "assembly_seconds": 87.5,
+          "assembly_statuses": [
+            "contigs"
+          ],
+          "check_and_accept_seconds": 16.4,
+          "command": "iterate",
+          "end_to_end": {
+            "concurrent_mapping_rss_bound_kib": 1035808,
+            "cpu_seconds": 1275.2,
+            "max_single_process_rss_kib": 615856,
+            "peak_group_rss_kib": 386720,
+            "peak_scratch_bytes": 121709227,
+            "wall_seconds": 133.2
+          },
+          "input_bases": 403311300,
+          "input_pairs": 1344371,
+          "max_peak_rss_kib": 216484,
+          "max_scratch_peak_bytes": 121709227,
+          "pooled_contig_sets": 3,
+          "rounds_evaluated": 3,
+          "shared": true,
+          "source_kind": "discovery-pools"
+        },
+        "iterate-round1": {
+          "assemblies": 2,
+          "assembly_seconds": 81.1,
+          "assembly_statuses": [
+            "contigs"
+          ],
+          "check_and_accept_seconds": 0.9,
+          "command": "iterate",
+          "end_to_end": {
+            "concurrent_mapping_rss_bound_kib": 1035808,
+            "cpu_seconds": 1142.4,
+            "max_single_process_rss_kib": 391732,
+            "peak_group_rss_kib": 386720,
+            "peak_scratch_bytes": 121709227,
+            "wall_seconds": 108.8
+          },
+          "input_bases": 398583900,
+          "input_pairs": 1328613,
+          "max_peak_rss_kib": 216484,
+          "max_scratch_peak_bytes": 121709227,
+          "pooled_contig_sets": 2,
+          "rounds_evaluated": 1,
+          "shared": true,
+          "source_kind": "discovery-pools"
+        }
+      },
+      "communities": {
+        "community_A": {
+          "heldout": {
+            "GCF_000009045.1": "species_holdout_A"
+          },
+          "heldout_genome_fraction_percent": {
+            "allreads-grouped": {
+              "GCF_000009045.1": 98.809
+            },
+            "allreads-per-sample": {
+              "GCF_000009045.1": 99.133
+            },
+            "allreads-pooled": {
+              "GCF_000009045.1": 98.827
+            },
+            "discovery-grouped": {
+              "GCF_000009045.1": 98.78
+            },
+            "discovery-per-sample": {
+              "GCF_000009045.1": 98.984
+            },
+            "discovery-pooled": {
+              "GCF_000009045.1": 98.791
+            },
+            "iterate-recruitment": {
+              "GCF_000009045.1": 99.052
+            },
+            "iterate-residual-only": {
+              "GCF_000009045.1": 98.973
+            },
+            "iterate-round1": {
+              "GCF_000009045.1": 98.773
+            }
+          },
+          "report": {
+            "allreads-grouped": {
+              "bases_at_least_1000": 19521407,
+              "combined_genome_fraction_percent": 93.04,
+              "contigs_at_least_1000": 452,
+              "indels_per_100kbp": 0.91,
+              "largest_contig": 925379,
+              "local_misassemblies": 3,
+              "misassemblies": 7,
+              "mismatches_per_100kbp": 5.1,
+              "n50": 203182,
+              "unaligned_length": 0
+            },
+            "allreads-per-sample": {
+              "bases_at_least_1000": 71345498,
+              "combined_genome_fraction_percent": 88.132,
+              "contigs_at_least_1000": 1196,
+              "indels_per_100kbp": 0.84,
+              "largest_contig": 809478,
+              "local_misassemblies": 15,
+              "misassemblies": 33,
+              "mismatches_per_100kbp": 4.68,
+              "n50": 203182,
+              "unaligned_length": 0
+            },
+            "allreads-pooled": {
+              "bases_at_least_1000": 25791421,
+              "combined_genome_fraction_percent": 93.636,
+              "contigs_at_least_1000": 318,
+              "indels_per_100kbp": 0.71,
+              "largest_contig": 925379,
+              "local_misassemblies": 5,
+              "misassemblies": 10,
+              "mismatches_per_100kbp": 3.7,
+              "n50": 198721,
+              "unaligned_length": 6224016
+            },
+            "discovery-grouped": {
+              "bases_at_least_1000": 4166564,
+              "combined_genome_fraction_percent": 17.068,
+              "contigs_at_least_1000": 22,
+              "indels_per_100kbp": 0.14,
+              "largest_contig": 925379,
+              "local_misassemblies": 1,
+              "misassemblies": 0,
+              "mismatches_per_100kbp": 1.9,
+              "n50": 541708,
+              "unaligned_length": 0
+            },
+            "discovery-per-sample": {
+              "bases_at_least_1000": 16662358,
+              "combined_genome_fraction_percent": 17.185,
+              "contigs_at_least_1000": 145,
+              "indels_per_100kbp": 0.18,
+              "largest_contig": 809449,
+              "local_misassemblies": 3,
+              "misassemblies": 0,
+              "mismatches_per_100kbp": 1.83,
+              "n50": 306625,
+              "unaligned_length": 0
+            },
+            "discovery-pooled": {
+              "bases_at_least_1000": 10391578,
+              "combined_genome_fraction_percent": 17.055,
+              "contigs_at_least_1000": 92,
+              "indels_per_100kbp": 0.38,
+              "largest_contig": 925379,
+              "local_misassemblies": 1,
+              "misassemblies": 0,
+              "mismatches_per_100kbp": 3.53,
+              "n50": 231434,
+              "unaligned_length": 6223857
+            },
+            "iterate-recruitment": {
+              "bases_at_least_1000": 10418597,
+              "combined_genome_fraction_percent": 17.188,
+              "contigs_at_least_1000": 107,
+              "indels_per_100kbp": 1.77,
+              "largest_contig": 925379,
+              "local_misassemblies": 2,
+              "misassemblies": 3,
+              "mismatches_per_100kbp": 8.52,
+              "n50": 231434,
+              "unaligned_length": 6229475
+            },
+            "iterate-residual-only": {
+              "bases_at_least_1000": 10412167,
+              "combined_genome_fraction_percent": 17.148,
+              "contigs_at_least_1000": 106,
+              "indels_per_100kbp": 1.46,
+              "largest_contig": 925379,
+              "local_misassemblies": 1,
+              "misassemblies": 1,
+              "mismatches_per_100kbp": 10.34,
+              "n50": 231434,
+              "unaligned_length": 6234107
+            },
+            "iterate-round1": {
+              "bases_at_least_1000": 10390811,
+              "combined_genome_fraction_percent": 17.069,
+              "contigs_at_least_1000": 92,
+              "indels_per_100kbp": 0.22,
+              "largest_contig": 925379,
+              "local_misassemblies": 1,
+              "misassemblies": 0,
+              "mismatches_per_100kbp": 2.66,
+              "n50": 231434,
+              "unaligned_length": 6223856
+            }
+          },
+          "represented_by_relative": []
+        },
+        "community_B": {
+          "heldout": {
+            "GCF_000011065.1": "species_holdout_B"
+          },
+          "heldout_genome_fraction_percent": {
+            "allreads-grouped": {
+              "GCF_000011065.1": 98.859
+            },
+            "allreads-per-sample": {
+              "GCF_000011065.1": 99.444
+            },
+            "allreads-pooled": {
+              "GCF_000011065.1": 98.857
+            },
+            "discovery-grouped": {
+              "GCF_000011065.1": 98.856
+            },
+            "discovery-per-sample": {
+              "GCF_000011065.1": 99.32
+            },
+            "discovery-pooled": {
+              "GCF_000011065.1": 98.86
+            },
+            "iterate-recruitment": {
+              "GCF_000011065.1": 98.874
+            },
+            "iterate-residual-only": {
+              "GCF_000011065.1": 98.953
+            },
+            "iterate-round1": {
+              "GCF_000011065.1": 98.856
+            }
+          },
+          "report": {
+            "allreads-grouped": {
+              "bases_at_least_1000": 21577149,
+              "combined_genome_fraction_percent": 94.506,
+              "contigs_at_least_1000": 535,
+              "indels_per_100kbp": 0.75,
+              "largest_contig": 550303,
+              "local_misassemblies": 3,
+              "misassemblies": 7,
+              "mismatches_per_100kbp": 5.29,
+              "n50": 179925,
+              "unaligned_length": 0
+            },
+            "allreads-per-sample": {
+              "bases_at_least_1000": 79418102,
+              "combined_genome_fraction_percent": 90.343,
+              "contigs_at_least_1000": 3023,
+              "indels_per_100kbp": 0.77,
+              "largest_contig": 475059,
+              "local_misassemblies": 12,
+              "misassemblies": 36,
+              "mismatches_per_100kbp": 7.9,
+              "n50": 61439,
+              "unaligned_length": 0
+            },
+            "allreads-pooled": {
+              "bases_at_least_1000": 25791421,
+              "combined_genome_fraction_percent": 94.111,
+              "contigs_at_least_1000": 318,
+              "indels_per_100kbp": 1.64,
+              "largest_contig": 925379,
+              "local_misassemblies": 4,
+              "misassemblies": 9,
+              "mismatches_per_100kbp": 12.47,
+              "n50": 198721,
+              "unaligned_length": 4160607
+            },
+            "discovery-grouped": {
+              "bases_at_least_1000": 6225961,
+              "combined_genome_fraction_percent": 23.61,
+              "contigs_at_least_1000": 71,
+              "indels_per_100kbp": 0.14,
+              "largest_contig": 468171,
+              "local_misassemblies": 0,
+              "misassemblies": 1,
+              "mismatches_per_100kbp": 1.67,
+              "n50": 192135,
+              "unaligned_length": 0
+            },
+            "discovery-per-sample": {
+              "bases_at_least_1000": 24768010,
+              "combined_genome_fraction_percent": 23.725,
+              "contigs_at_least_1000": 1612,
+              "indels_per_100kbp": 0.38,
+              "largest_contig": 128250,
+              "local_misassemblies": 2,
+              "misassemblies": 4,
+              "mismatches_per_100kbp": 8.57,
+              "n50": 26106,
+              "unaligned_length": 0
+            },
+            "discovery-pooled": {
+              "bases_at_least_1000": 10391578,
+              "combined_genome_fraction_percent": 23.636,
+              "contigs_at_least_1000": 92,
+              "indels_per_100kbp": 1.94,
+              "largest_contig": 925379,
+              "local_misassemblies": 0,
+              "misassemblies": 1,
+              "mismatches_per_100kbp": 12.9,
+              "n50": 231434,
+              "unaligned_length": 4159301
+            },
+            "iterate-recruitment": {
+              "bases_at_least_1000": 10418597,
+              "combined_genome_fraction_percent": 23.678,
+              "contigs_at_least_1000": 107,
+              "indels_per_100kbp": 4.55,
+              "largest_contig": 925379,
+              "local_misassemblies": 0,
+              "misassemblies": 1,
+              "mismatches_per_100kbp": 29.61,
+              "n50": 231434,
+              "unaligned_length": 4175601
+            },
+            "iterate-residual-only": {
+              "bases_at_least_1000": 10412167,
+              "combined_genome_fraction_percent": 23.682,
+              "contigs_at_least_1000": 106,
+              "indels_per_100kbp": 3.49,
+              "largest_contig": 925379,
+              "local_misassemblies": 0,
+              "misassemblies": 2,
+              "mismatches_per_100kbp": 24.88,
+              "n50": 231434,
+              "unaligned_length": 4164975
+            },
+            "iterate-round1": {
+              "bases_at_least_1000": 10390811,
+              "combined_genome_fraction_percent": 23.636,
+              "contigs_at_least_1000": 92,
+              "indels_per_100kbp": 1.91,
+              "largest_contig": 925379,
+              "local_misassemblies": 0,
+              "misassemblies": 1,
+              "mismatches_per_100kbp": 12.9,
+              "n50": 231434,
+              "unaligned_length": 4158387
+            }
+          },
+          "represented_by_relative": []
+        }
+      },
+      "correctness_all_genomes": {
+        "allreads-grouped": {
+          "bases_at_least_1000": 41098556,
+          "combined_genome_fraction_percent": 95.473,
+          "contigs_at_least_1000": 987,
+          "indels_per_100kbp": 0.83,
+          "largest_contig": 925379,
+          "local_misassemblies": 6,
+          "misassemblies": 14,
+          "mismatches_per_100kbp": 5.2,
+          "n50": 185310,
+          "unaligned_length": 0
+        },
+        "allreads-per-sample": {
+          "bases_at_least_1000": 150763600,
+          "combined_genome_fraction_percent": 92.908,
+          "contigs_at_least_1000": 4219,
+          "indels_per_100kbp": 0.8,
+          "largest_contig": 809478,
+          "local_misassemblies": 27,
+          "misassemblies": 69,
+          "mismatches_per_100kbp": 6.38,
+          "n50": 113742,
+          "unaligned_length": 0
+        },
+        "allreads-pooled": {
+          "bases_at_least_1000": 25791421,
+          "combined_genome_fraction_percent": 94.828,
+          "contigs_at_least_1000": 318,
+          "indels_per_100kbp": 0.55,
+          "largest_contig": 925379,
+          "local_misassemblies": 5,
+          "misassemblies": 11,
+          "mismatches_per_100kbp": 2.96,
+          "n50": 198721,
+          "unaligned_length": 0
+        },
+        "discovery-grouped": {
+          "bases_at_least_1000": 10392525,
+          "combined_genome_fraction_percent": 33.939,
+          "contigs_at_least_1000": 93,
+          "indels_per_100kbp": 0.14,
+          "largest_contig": 925379,
+          "local_misassemblies": 1,
+          "misassemblies": 1,
+          "mismatches_per_100kbp": 1.76,
+          "n50": 231434,
+          "unaligned_length": 0
+        },
+        "discovery-per-sample": {
+          "bases_at_least_1000": 41430368,
+          "combined_genome_fraction_percent": 34.132,
+          "contigs_at_least_1000": 1757,
+          "indels_per_100kbp": 0.3,
+          "largest_contig": 809449,
+          "local_misassemblies": 5,
+          "misassemblies": 4,
+          "mismatches_per_100kbp": 5.86,
+          "n50": 51097,
+          "unaligned_length": 0
+        },
+        "discovery-pooled": {
+          "bases_at_least_1000": 10391578,
+          "combined_genome_fraction_percent": 33.926,
+          "contigs_at_least_1000": 92,
+          "indels_per_100kbp": 0.19,
+          "largest_contig": 925379,
+          "local_misassemblies": 1,
+          "misassemblies": 1,
+          "mismatches_per_100kbp": 1.8,
+          "n50": 231434,
+          "unaligned_length": 0
+        },
+        "iterate-recruitment": {
+          "bases_at_least_1000": 10418597,
+          "combined_genome_fraction_percent": 34.04,
+          "contigs_at_least_1000": 107,
+          "indels_per_100kbp": 0.84,
+          "largest_contig": 925379,
+          "local_misassemblies": 2,
+          "misassemblies": 4,
+          "mismatches_per_100kbp": 4.55,
+          "n50": 231434,
+          "unaligned_length": 0
+        },
+        "iterate-residual-only": {
+          "bases_at_least_1000": 10412167,
+          "combined_genome_fraction_percent": 34.014,
+          "contigs_at_least_1000": 106,
+          "indels_per_100kbp": 0.56,
+          "largest_contig": 925379,
+          "local_misassemblies": 1,
+          "misassemblies": 2,
+          "mismatches_per_100kbp": 3.92,
+          "n50": 231434,
+          "unaligned_length": 0
+        }
+      },
+      "description": "M1 pilot: 8 samples x 1M pairs, 2 communities, species-holdout catalogue",
+      "discovery": {
+        "false_removal": {
+          "GCF_000009045.1": 1.7e-05,
+          "GCF_000011065.1": 0.0
+        },
+        "input_pair_reduction": 0.833923,
+        "pool_composition": {
+          "by_genome": {
+            "GCF_000005845.2": {
+              "category": "catalogued_selected",
+              "retained_pairs": 4144
+            },
+            "GCF_000006765.1": {
+              "category": "catalogued_selected",
+              "retained_pairs": 1352
+            },
+            "GCF_000009045.1": {
+              "category": "catalogue_absent",
+              "retained_pairs": 659989
+            },
+            "GCF_000010245.2": {
+              "category": "catalogued_selected",
+              "retained_pairs": 756
+            },
+            "GCF_000011065.1": {
+              "category": "catalogue_absent",
+              "retained_pairs": 660000
+            },
+            "GCF_000013425.1": {
+              "category": "catalogued_selected",
+              "retained_pairs": 2323
+            },
+            "GCF_000016525.1": {
+              "category": "catalogued_selected",
+              "retained_pairs": 49
+            }
+          },
+          "retained_pairs": {
+            "catalogue_absent": 1319989,
+            "catalogued_not_selected": 0,
+            "catalogued_selected": 8624
+          }
+        },
+        "reasons": {
+          "cross-species-alternative": 4998,
+          "low-aligned-fraction": 1288,
+          "low-identity": 13390,
+          "mate-unmapped": 1308937,
+          "same-species-alternatives": 1852148,
+          "unique": 4819239
+        },
+        "residual_contamination": {
+          "GCF_000005845.2": 0.00259,
+          "GCF_000006765.1": 0.000563,
+          "GCF_000010245.2": 0.00378,
+          "GCF_000013425.1": 0.000968,
+          "GCF_000016525.1": 0.000612
+        },
+        "stage_seconds": {
+          "index": 0.1,
+          "map": 85.4,
+          "profile": 11.8
+        },
+        "tool_versions": {
+          "mapper": "strobealign 0.20.0",
+          "profiler": "sylph 1.0.0"
+        }
+      },
+      "gate": {
+        "discovery-grouped": {
+          "community_A": {
+            "heldout_recovery_loss_pp": {
+              "GCF_000009045.1": 0.029
+            },
+            "input_pair_reduction": 0.834,
+            "passes_recovery": true,
+            "passes_reduction": true
+          },
+          "community_B": {
+            "heldout_recovery_loss_pp": {
+              "GCF_000011065.1": 0.003
+            },
+            "input_pair_reduction": 0.8339,
+            "passes_recovery": true,
+            "passes_reduction": true
+          },
+          "end_to_end_vs_allreads_grouped": {
+            "cpu_ratio": 0.325,
+            "peak_rss_ratio": 0.414,
+            "wall_ratio": 0.368
+          },
+          "overall": {
+            "input_pair_reduction": 0.8339,
+            "passes": true
+          },
+          "passes_cost": true
+        },
+        "discovery-per-sample": {
+          "community_A": {
+            "heldout_recovery_loss_pp": {
+              "GCF_000009045.1": -0.175
+            },
+            "input_pair_reduction": 0.834,
+            "passes_recovery": true,
+            "passes_reduction": true
+          },
+          "community_B": {
+            "heldout_recovery_loss_pp": {
+              "GCF_000011065.1": -0.461
+            },
+            "input_pair_reduction": 0.8339,
+            "passes_recovery": true,
+            "passes_reduction": true
+          },
+          "end_to_end_vs_allreads_grouped": {
+            "cpu_ratio": 0.731,
+            "peak_rss_ratio": 0.414,
+            "wall_ratio": 0.818
+          },
+          "overall": {
+            "input_pair_reduction": 0.8339,
+            "passes": true
+          },
+          "passes_cost": true
+        },
+        "discovery-pooled": {
+          "community_A": {
+            "heldout_recovery_loss_pp": {
+              "GCF_000009045.1": 0.018
+            },
+            "input_pair_reduction": 0.834,
+            "passes_recovery": true,
+            "passes_reduction": true
+          },
+          "community_B": {
+            "heldout_recovery_loss_pp": {
+              "GCF_000011065.1": -0.001
+            },
+            "input_pair_reduction": 0.8339,
+            "passes_recovery": true,
+            "passes_reduction": true
+          },
+          "end_to_end_vs_allreads_grouped": {
+            "cpu_ratio": 0.316,
+            "peak_rss_ratio": 0.414,
+            "wall_ratio": 0.336
+          },
+          "overall": {
+            "input_pair_reduction": 0.8339,
+            "passes": true
+          },
+          "passes_cost": true
+        },
+        "iterate-recruitment": {
+          "community_A": {
+            "heldout_recovery_loss_pp": {
+              "GCF_000009045.1": -0.243
+            },
+            "input_pair_reduction": 0.8306,
+            "passes_recovery": true,
+            "passes_reduction": true
+          },
+          "community_B": {
+            "heldout_recovery_loss_pp": {
+              "GCF_000011065.1": -0.015
+            },
+            "input_pair_reduction": 0.8308,
+            "passes_recovery": true,
+            "passes_reduction": true
+          },
+          "end_to_end_vs_allreads_grouped": {
+            "cpu_ratio": 0.395,
+            "peak_rss_ratio": 0.663,
+            "wall_ratio": 0.514
+          },
+          "overall": {
+            "input_pair_reduction": 0.8307,
+            "passes": true
+          },
+          "passes_cost": true
+        },
+        "iterate-residual-only": {
+          "community_A": {
+            "heldout_recovery_loss_pp": {
+              "GCF_000009045.1": -0.164
+            },
+            "input_pair_reduction": 0.8319,
+            "passes_recovery": true,
+            "passes_reduction": true
+          },
+          "community_B": {
+            "heldout_recovery_loss_pp": {
+              "GCF_000011065.1": -0.094
+            },
+            "input_pair_reduction": 0.832,
+            "passes_recovery": true,
+            "passes_reduction": true
+          },
+          "end_to_end_vs_allreads_grouped": {
+            "cpu_ratio": 0.363,
+            "peak_rss_ratio": 0.651,
+            "wall_ratio": 0.45
+          },
+          "overall": {
+            "input_pair_reduction": 0.832,
+            "passes": true
+          },
+          "passes_cost": true
+        },
+        "iterate-round1": {
+          "community_A": {
+            "heldout_recovery_loss_pp": {
+              "GCF_000009045.1": 0.036
+            },
+            "input_pair_reduction": 0.834,
+            "passes_recovery": true,
+            "passes_reduction": true
+          },
+          "community_B": {
+            "heldout_recovery_loss_pp": {
+              "GCF_000011065.1": 0.003
+            },
+            "input_pair_reduction": 0.8339,
+            "passes_recovery": true,
+            "passes_reduction": true
+          },
+          "end_to_end_vs_allreads_grouped": {
+            "cpu_ratio": 0.325,
+            "peak_rss_ratio": 0.414,
+            "wall_ratio": 0.368
+          },
+          "overall": {
+            "input_pair_reduction": 0.8339,
+            "passes": true
+          },
+          "passes_cost": true
+        }
+      },
+      "origin_attributed_iterate_evaluation": {
+        "gate": {
+          "discovery-pooled": {
+            "community_A": {
+              "heldout_recovery_loss_pp": {
+                "GCF_000009045.1": 0.018
+              },
+              "input_pair_reduction": 0.834,
+              "passes_recovery": true,
+              "passes_reduction": true
+            },
+            "community_B": {
+              "heldout_recovery_loss_pp": {
+                "GCF_000011065.1": -0.001
+              },
+              "input_pair_reduction": 0.8339,
+              "passes_recovery": true,
+              "passes_reduction": true
+            },
+            "overall": {
+              "input_pair_reduction": 0.8339,
+              "passes": true
+            }
+          },
+          "iterate-recruitment": {
+            "community_A": {
+              "heldout_recovery_loss_pp": {
+                "GCF_000009045.1": -0.243
+              },
+              "input_pair_reduction": 0.8306,
+              "passes_recovery": true,
+              "passes_reduction": true
+            },
+            "community_B": {
+              "heldout_recovery_loss_pp": {
+                "GCF_000011065.1": -0.015
+              },
+              "input_pair_reduction": 0.8308,
+              "passes_recovery": true,
+              "passes_reduction": true
+            },
+            "overall": {
+              "input_pair_reduction": 0.8307,
+              "passes": true
+            }
+          },
+          "iterate-residual-only": {
+            "community_A": {
+              "heldout_recovery_loss_pp": {
+                "GCF_000009045.1": -0.164
+              },
+              "input_pair_reduction": 0.8319,
+              "passes_recovery": true,
+              "passes_reduction": true
+            },
+            "community_B": {
+              "heldout_recovery_loss_pp": {
+                "GCF_000011065.1": -0.094
+              },
+              "input_pair_reduction": 0.832,
+              "passes_recovery": true,
+              "passes_reduction": true
+            },
+            "overall": {
+              "input_pair_reduction": 0.832,
+              "passes": true
+            }
+          },
+          "iterate-round1": {
+            "community_A": {
+              "heldout_recovery_loss_pp": {
+                "GCF_000009045.1": 0.036
+              },
+              "input_pair_reduction": 0.834,
+              "passes_recovery": true,
+              "passes_reduction": true
+            },
+            "community_B": {
+              "heldout_recovery_loss_pp": {
+                "GCF_000011065.1": 0.003
+              },
+              "input_pair_reduction": 0.8339,
+              "passes_recovery": true,
+              "passes_reduction": true
+            },
+            "overall": {
+              "input_pair_reduction": 0.8339,
+              "passes": true
+            }
+          }
+        },
+        "heldout_genome_fraction_percent": {
+          "community_A": {
+            "allreads-grouped": {
+              "GCF_000009045.1": 98.809
+            },
+            "discovery-pooled": {
+              "GCF_000009045.1": 98.791
+            },
+            "iterate-recruitment": {
+              "GCF_000009045.1": 99.052
+            },
+            "iterate-residual-only": {
+              "GCF_000009045.1": 98.973
+            },
+            "iterate-round1": {
+              "GCF_000009045.1": 98.773
+            }
+          },
+          "community_B": {
+            "allreads-grouped": {
+              "GCF_000011065.1": 98.859
+            },
+            "discovery-pooled": {
+              "GCF_000011065.1": 98.86
+            },
+            "iterate-recruitment": {
+              "GCF_000011065.1": 98.874
+            },
+            "iterate-residual-only": {
+              "GCF_000011065.1": 98.953
+            },
+            "iterate-round1": {
+              "GCF_000011065.1": 98.856
+            }
+          }
+        }
+      },
+      "steps": {
+        "allreads-grouped": {
+          "cpu_seconds": 3511.7,
+          "max_single_process_rss_kib": 946628,
+          "peak_group_rss_kib": 971128,
+          "peak_scratch_bytes": 633939212,
+          "wall_seconds": 295.9
+        },
+        "allreads-per-sample": {
+          "cpu_seconds": 7066.8,
+          "max_single_process_rss_kib": 435108,
+          "peak_group_rss_kib": 292488,
+          "peak_scratch_bytes": 364933847,
+          "wall_seconds": 619.7
+        },
+        "allreads-pooled": {
+          "cpu_seconds": 3242.4,
+          "max_single_process_rss_kib": 1852864,
+          "peak_group_rss_kib": 1875704,
+          "peak_scratch_bytes": 1035275917,
+          "wall_seconds": 256.1
+        },
+        "discover": {
+          "cpu_seconds": 356.5,
+          "max_single_process_rss_kib": 391732,
+          "peak_group_rss_kib": 386720,
+          "peak_scratch_bytes": 0,
+          "wall_seconds": 26.4
+        },
+        "discovery-grouped": {
+          "cpu_seconds": 785.9,
+          "max_single_process_rss_kib": 315816,
+          "peak_group_rss_kib": 216484,
+          "peak_scratch_bytes": 121709227,
+          "wall_seconds": 82.4
+        },
+        "discovery-per-sample": {
+          "cpu_seconds": 2209.6,
+          "max_single_process_rss_kib": 315296,
+          "peak_group_rss_kib": 267920,
+          "peak_scratch_bytes": 106742419,
+          "wall_seconds": 215.6
+        },
+        "discovery-pooled": {
+          "cpu_seconds": 752.6,
+          "max_single_process_rss_kib": 347048,
+          "peak_group_rss_kib": 361764,
+          "peak_scratch_bytes": 256734208,
+          "wall_seconds": 73.1
+        },
+        "iterate-recruitment": {
+          "cpu_seconds": 246.0,
+          "max_single_process_rss_kib": 627632,
+          "peak_group_rss_kib": 252572,
+          "peak_scratch_bytes": 2715329,
+          "wall_seconds": 43.4
+        },
+        "iterate-residual-only": {
+          "cpu_seconds": 132.8,
+          "max_single_process_rss_kib": 615856,
+          "peak_group_rss_kib": 240380,
+          "peak_scratch_bytes": 1550739,
+          "wall_seconds": 24.4
+        }
+      }
+    },
+    "split": {
+      "arms": {
+        "allreads-grouped": {
+          "assemblies": 2,
+          "assembly_seconds": 301.8,
+          "assembly_statuses": [
+            "contigs"
+          ],
+          "command": "assemble-reads",
+          "end_to_end": {
+            "cpu_seconds": 3692.1,
+            "max_single_process_rss_kib": 952768,
+            "peak_group_rss_kib": 976372,
+            "peak_scratch_bytes": 663126108,
+            "wall_seconds": 305.1
+          },
+          "input_bases": 2414400000,
+          "input_pairs": 8048000,
+          "max_peak_rss_kib": 976372,
+          "max_scratch_peak_bytes": 663126108,
+          "pooled_contig_sets": 0,
+          "shared": false,
+          "source_kind": "all-reads"
+        },
+        "allreads-per-sample": {
+          "assemblies": 8,
+          "assembly_seconds": 620.7,
+          "assembly_statuses": [
+            "contigs"
+          ],
+          "command": "assemble-reads",
+          "end_to_end": {
+            "cpu_seconds": 7182.9,
+            "max_single_process_rss_kib": 443304,
+            "peak_group_rss_kib": 296352,
+            "peak_scratch_bytes": 369660099,
+            "wall_seconds": 623.5
+          },
+          "input_bases": 2414400000,
+          "input_pairs": 8048000,
+          "max_peak_rss_kib": 296352,
+          "max_scratch_peak_bytes": 369660099,
+          "pooled_contig_sets": 0,
+          "shared": false,
+          "source_kind": "all-reads"
+        },
+        "allreads-pooled": {
+          "assemblies": 1,
+          "assembly_seconds": 266.3,
+          "assembly_statuses": [
+            "contigs"
+          ],
+          "command": "assemble-reads",
+          "end_to_end": {
+            "cpu_seconds": 3388.6,
+            "max_single_process_rss_kib": 1862072,
+            "peak_group_rss_kib": 1886612,
+            "peak_scratch_bytes": 1061673724,
+            "wall_seconds": 268.5
+          },
+          "input_bases": 2414400000,
+          "input_pairs": 8048000,
+          "max_peak_rss_kib": 1886612,
+          "max_scratch_peak_bytes": 1061673724,
+          "pooled_contig_sets": 1,
+          "shared": false,
+          "source_kind": "all-reads"
+        },
+        "discovery-grouped": {
+          "assemblies": 2,
+          "assembly_seconds": 87.4,
+          "assembly_statuses": [
+            "contigs"
+          ],
+          "command": "coassemble",
+          "end_to_end": {
+            "concurrent_mapping_rss_bound_kib": 926544,
+            "cpu_seconds": 1252.2,
+            "max_single_process_rss_kib": 333220,
+            "peak_group_rss_kib": 237088,
+            "peak_scratch_bytes": 137470289,
+            "wall_seconds": 115.1
+          },
+          "input_bases": 412983900,
+          "input_pairs": 1376613,
+          "max_peak_rss_kib": 213560,
+          "max_scratch_peak_bytes": 137470289,
+          "pooled_contig_sets": 0,
+          "shared": false,
+          "source_kind": "discovery-pools"
+        },
+        "discovery-per-sample": {
+          "assemblies": 8,
+          "assembly_seconds": 221.3,
+          "assembly_statuses": [
+            "contigs"
+          ],
+          "command": "coassemble",
+          "end_to_end": {
+            "concurrent_mapping_rss_bound_kib": 926544,
+            "cpu_seconds": 2648.9,
+            "max_single_process_rss_kib": 328612,
+            "peak_group_rss_kib": 337700,
+            "peak_scratch_bytes": 108605050,
+            "wall_seconds": 249.2
+          },
+          "input_bases": 412983900,
+          "input_pairs": 1376613,
+          "max_peak_rss_kib": 337700,
+          "max_scratch_peak_bytes": 108605050,
+          "pooled_contig_sets": 0,
+          "shared": false,
+          "source_kind": "discovery-pools"
+        },
+        "discovery-pooled": {
+          "assemblies": 1,
+          "assembly_seconds": 75.0,
+          "assembly_statuses": [
+            "contigs"
+          ],
+          "command": "coassemble",
+          "end_to_end": {
+            "concurrent_mapping_rss_bound_kib": 926544,
+            "cpu_seconds": 1163.5,
+            "max_single_process_rss_kib": 359848,
+            "peak_group_rss_kib": 372940,
+            "peak_scratch_bytes": 268647469,
+            "wall_seconds": 102.9
+          },
+          "input_bases": 412983900,
+          "input_pairs": 1376613,
+          "max_peak_rss_kib": 372940,
+          "max_scratch_peak_bytes": 268647469,
+          "pooled_contig_sets": 1,
+          "shared": false,
+          "source_kind": "discovery-pools"
+        },
+        "iterate-recruitment": {
+          "assemblies": 4,
+          "assembly_seconds": 103.7,
+          "assembly_statuses": [
+            "contigs"
+          ],
+          "check_and_accept_seconds": 32.2,
+          "command": "iterate",
+          "end_to_end": {
+            "concurrent_mapping_rss_bound_kib": 926544,
+            "cpu_seconds": 1600.2,
+            "max_single_process_rss_kib": 691932,
+            "peak_group_rss_kib": 271344,
+            "peak_scratch_bytes": 137470289,
+            "wall_seconds": 165.1
+          },
+          "input_bases": 431834400,
+          "input_pairs": 1439448,
+          "max_peak_rss_kib": 213560,
+          "max_scratch_peak_bytes": 137470289,
+          "pooled_contig_sets": 3,
+          "rounds_evaluated": 3,
+          "shared": true,
+          "source_kind": "discovery-pools"
+        },
+        "iterate-residual-only": {
+          "assemblies": 4,
+          "assembly_seconds": 95.5,
+          "assembly_statuses": [
+            "contigs"
+          ],
+          "check_and_accept_seconds": 19.5,
+          "command": "iterate",
+          "end_to_end": {
+            "concurrent_mapping_rss_bound_kib": 926544,
+            "cpu_seconds": 1414.1,
+            "max_single_process_rss_kib": 685796,
+            "peak_group_rss_kib": 270916,
+            "peak_scratch_bytes": 137470289,
+            "wall_seconds": 144.2
+          },
+          "input_bases": 419408100,
+          "input_pairs": 1398027,
+          "max_peak_rss_kib": 213560,
+          "max_scratch_peak_bytes": 137470289,
+          "pooled_contig_sets": 3,
+          "rounds_evaluated": 3,
+          "shared": true,
+          "source_kind": "discovery-pools"
+        },
+        "iterate-round1": {
+          "assemblies": 2,
+          "assembly_seconds": 87.4,
+          "assembly_statuses": [
+            "contigs"
+          ],
+          "check_and_accept_seconds": 1.0,
+          "command": "iterate",
+          "end_to_end": {
+            "concurrent_mapping_rss_bound_kib": 926544,
+            "cpu_seconds": 1252.2,
+            "max_single_process_rss_kib": 333220,
+            "peak_group_rss_kib": 237088,
+            "peak_scratch_bytes": 137470289,
+            "wall_seconds": 115.1
+          },
+          "input_bases": 412983900,
+          "input_pairs": 1376613,
+          "max_peak_rss_kib": 213560,
+          "max_scratch_peak_bytes": 137470289,
+          "pooled_contig_sets": 2,
+          "rounds_evaluated": 1,
+          "shared": true,
+          "source_kind": "discovery-pools"
+        }
+      },
+      "communities": {
+        "community_A": {
+          "heldout": {
+            "GCF_000008645.1": "distractor",
+            "GCF_000009045.1": "species_holdout_A"
+          },
+          "heldout_genome_fraction_percent": {
+            "allreads-grouped": {
+              "GCF_000008645.1": 76.205,
+              "GCF_000009045.1": 98.809
+            },
+            "allreads-per-sample": {
+              "GCF_000008645.1": 2.009,
+              "GCF_000009045.1": 99.102
+            },
+            "allreads-pooled": {
+              "GCF_000008645.1": 98.48,
+              "GCF_000009045.1": 98.827
+            },
+            "discovery-grouped": {
+              "GCF_000008645.1": 76.165,
+              "GCF_000009045.1": 98.78
+            },
+            "discovery-per-sample": {
+              "GCF_000008645.1": 1.96,
+              "GCF_000009045.1": 98.984
+            },
+            "discovery-pooled": {
+              "GCF_000008645.1": 98.477,
+              "GCF_000009045.1": 98.791
+            },
+            "iterate-recruitment": {
+              "GCF_000008645.1": 97.251,
+              "GCF_000009045.1": 99.021
+            },
+            "iterate-residual-only": {
+              "GCF_000008645.1": 96.428,
+              "GCF_000009045.1": 98.979
+            },
+            "iterate-round1": {
+              "GCF_000008645.1": 93.142,
+              "GCF_000009045.1": 98.78
+            }
+          },
+          "report": {
+            "allreads-grouped": {
+              "bases_at_least_1000": 20855665,
+              "combined_genome_fraction_percent": 91.911,
+              "contigs_at_least_1000": 1023,
+              "indels_per_100kbp": 1.08,
+              "largest_contig": 925379,
+              "local_misassemblies": 7,
+              "misassemblies": 8,
+              "mismatches_per_100kbp": 7.49,
+              "n50": 182347,
+              "unaligned_length": 0
+            },
+            "allreads-per-sample": {
+              "bases_at_least_1000": 71383543,
+              "combined_genome_fraction_percent": 82.386,
+              "contigs_at_least_1000": 1229,
+              "indels_per_100kbp": 1.02,
+              "largest_contig": 809478,
+              "local_misassemblies": 15,
+              "misassemblies": 37,
+              "mismatches_per_100kbp": 5.86,
+              "n50": 203182,
+              "unaligned_length": 0
+            },
+            "allreads-pooled": {
+              "bases_at_least_1000": 27516617,
+              "combined_genome_fraction_percent": 93.96,
+              "contigs_at_least_1000": 404,
+              "indels_per_100kbp": 0.83,
+              "largest_contig": 925379,
+              "local_misassemblies": 8,
+              "misassemblies": 12,
+              "mismatches_per_100kbp": 3.99,
+              "n50": 192135,
+              "unaligned_length": 6224016
+            },
+            "discovery-grouped": {
+              "bases_at_least_1000": 5500613,
+              "combined_genome_fraction_percent": 21.019,
+              "contigs_at_least_1000": 590,
+              "indels_per_100kbp": 0.95,
+              "largest_contig": 925379,
+              "local_misassemblies": 5,
+              "misassemblies": 1,
+              "mismatches_per_100kbp": 11.33,
+              "n50": 488338,
+              "unaligned_length": 0
+            },
+            "discovery-per-sample": {
+              "bases_at_least_1000": 16697645,
+              "combined_genome_fraction_percent": 16.174,
+              "contigs_at_least_1000": 176,
+              "indels_per_100kbp": 0.24,
+              "largest_contig": 809449,
+              "local_misassemblies": 3,
+              "misassemblies": 2,
+              "mismatches_per_100kbp": 2.22,
+              "n50": 306625,
+              "unaligned_length": 0
+            },
+            "discovery-pooled": {
+              "bases_at_least_1000": 12116730,
+              "combined_genome_fraction_percent": 22.499,
+              "contigs_at_least_1000": 179,
+              "indels_per_100kbp": 0.9,
+              "largest_contig": 925379,
+              "local_misassemblies": 4,
+              "misassemblies": 2,
+              "mismatches_per_100kbp": 4.6,
+              "n50": 203452,
+              "unaligned_length": 6223857
+            },
+            "iterate-recruitment": {
+              "bases_at_least_1000": 12714993,
+              "combined_genome_fraction_percent": 22.541,
+              "contigs_at_least_1000": 1009,
+              "indels_per_100kbp": 2.99,
+              "largest_contig": 925379,
+              "local_misassemblies": 9,
+              "misassemblies": 11,
+              "mismatches_per_100kbp": 20.42,
+              "n50": 194526,
+              "unaligned_length": 6229475
+            },
+            "iterate-residual-only": {
+              "bases_at_least_1000": 12684396,
+              "combined_genome_fraction_percent": 22.446,
+              "contigs_at_least_1000": 1035,
+              "indels_per_100kbp": 2.51,
+              "largest_contig": 925379,
+              "local_misassemblies": 8,
+              "misassemblies": 6,
+              "mismatches_per_100kbp": 22.75,
+              "n50": 194526,
+              "unaligned_length": 6234107
+            },
+            "iterate-round1": {
+              "bases_at_least_1000": 12586589,
+              "combined_genome_fraction_percent": 22.151,
+              "contigs_at_least_1000": 970,
+              "indels_per_100kbp": 1.24,
+              "largest_contig": 925379,
+              "local_misassemblies": 7,
+              "misassemblies": 5,
+              "mismatches_per_100kbp": 16.8,
+              "n50": 197068,
+              "unaligned_length": 6223856
+            }
+          },
+          "represented_by_relative": []
+        },
+        "community_B": {
+          "heldout": {
+            "GCF_000008645.1": "distractor",
+            "GCF_000011065.1": "species_holdout_B"
+          },
+          "heldout_genome_fraction_percent": {
+            "allreads-grouped": {
+              "GCF_000008645.1": 74.696,
+              "GCF_000011065.1": 98.859
+            },
+            "allreads-per-sample": {
+              "GCF_000008645.1": 1.893,
+              "GCF_000011065.1": 99.421
+            },
+            "allreads-pooled": {
+              "GCF_000008645.1": 98.48,
+              "GCF_000011065.1": 98.858
+            },
+            "discovery-grouped": {
+              "GCF_000008645.1": 74.652,
+              "GCF_000011065.1": 98.856
+            },
+            "discovery-per-sample": {
+              "GCF_000008645.1": 1.916,
+              "GCF_000011065.1": 99.351
+            },
+            "discovery-pooled": {
+              "GCF_000008645.1": 98.477,
+              "GCF_000011065.1": 98.854
+            },
+            "iterate-recruitment": {
+              "GCF_000008645.1": 97.251,
+              "GCF_000011065.1": 98.875
+            },
+            "iterate-residual-only": {
+              "GCF_000008645.1": 96.428,
+              "GCF_000011065.1": 98.954
+            },
+            "iterate-round1": {
+              "GCF_000008645.1": 93.142,
+              "GCF_000011065.1": 98.857
+            }
+          },
+          "report": {
+            "allreads-grouped": {
+              "bases_at_least_1000": 22886567,
+              "combined_genome_fraction_percent": 93.305,
+              "contigs_at_least_1000": 1116,
+              "indels_per_100kbp": 0.82,
+              "largest_contig": 550303,
+              "local_misassemblies": 6,
+              "misassemblies": 11,
+              "mismatches_per_100kbp": 7.65,
+              "n50": 174256,
+              "unaligned_length": 0
+            },
+            "allreads-per-sample": {
+              "bases_at_least_1000": 79446990,
+              "combined_genome_fraction_percent": 84.868,
+              "contigs_at_least_1000": 3048,
+              "indels_per_100kbp": 0.78,
+              "largest_contig": 475059,
+              "local_misassemblies": 12,
+              "misassemblies": 36,
+              "mismatches_per_100kbp": 8.08,
+              "n50": 61439,
+              "unaligned_length": 0
+            },
+            "allreads-pooled": {
+              "bases_at_least_1000": 27516617,
+              "combined_genome_fraction_percent": 94.382,
+              "contigs_at_least_1000": 404,
+              "indels_per_100kbp": 1.67,
+              "largest_contig": 925379,
+              "local_misassemblies": 7,
+              "misassemblies": 11,
+              "mismatches_per_100kbp": 12.09,
+              "n50": 192135,
+              "unaligned_length": 4160607
+            },
+            "discovery-grouped": {
+              "bases_at_least_1000": 7534683,
+              "combined_genome_fraction_percent": 26.772,
+              "contigs_at_least_1000": 648,
+              "indels_per_100kbp": 0.44,
+              "largest_contig": 468171,
+              "local_misassemblies": 3,
+              "misassemblies": 5,
+              "mismatches_per_100kbp": 9.24,
+              "n50": 150128,
+              "unaligned_length": 0
+            },
+            "discovery-per-sample": {
+              "bases_at_least_1000": 24801546,
+              "combined_genome_fraction_percent": 22.377,
+              "contigs_at_least_1000": 1640,
+              "indels_per_100kbp": 0.4,
+              "largest_contig": 128250,
+              "local_misassemblies": 2,
+              "misassemblies": 4,
+              "mismatches_per_100kbp": 8.78,
+              "n50": 25966,
+              "unaligned_length": 0
+            },
+            "discovery-pooled": {
+              "bases_at_least_1000": 12116730,
+              "combined_genome_fraction_percent": 28.273,
+              "contigs_at_least_1000": 179,
+              "indels_per_100kbp": 1.99,
+              "largest_contig": 925379,
+              "local_misassemblies": 3,
+              "misassemblies": 3,
+              "mismatches_per_100kbp": 11.66,
+              "n50": 203452,
+              "unaligned_length": 4159301
+            },
+            "iterate-recruitment": {
+              "bases_at_least_1000": 12714993,
+              "combined_genome_fraction_percent": 28.235,
+              "contigs_at_least_1000": 1009,
+              "indels_per_100kbp": 4.75,
+              "largest_contig": 925379,
+              "local_misassemblies": 7,
+              "misassemblies": 9,
+              "mismatches_per_100kbp": 33.73,
+              "n50": 194526,
+              "unaligned_length": 4172603
+            },
+            "iterate-residual-only": {
+              "bases_at_least_1000": 12684396,
+              "combined_genome_fraction_percent": 28.186,
+              "contigs_at_least_1000": 1035,
+              "indels_per_100kbp": 3.75,
+              "largest_contig": 925379,
+              "local_misassemblies": 7,
+              "misassemblies": 7,
+              "mismatches_per_100kbp": 30.4,
+              "n50": 194526,
+              "unaligned_length": 4164975
+            },
+            "iterate-round1": {
+              "bases_at_least_1000": 12586589,
+              "combined_genome_fraction_percent": 27.938,
+              "contigs_at_least_1000": 970,
+              "indels_per_100kbp": 2.24,
+              "largest_contig": 925379,
+              "local_misassemblies": 6,
+              "misassemblies": 6,
+              "mismatches_per_100kbp": 20.91,
+              "n50": 197068,
+              "unaligned_length": 4158387
+            }
+          },
+          "represented_by_relative": []
+        }
+      },
+      "correctness_all_genomes": {
+        "allreads-grouped": {
+          "bases_at_least_1000": 43742232,
+          "combined_genome_fraction_percent": 95.371,
+          "contigs_at_least_1000": 2139,
+          "indels_per_100kbp": 0.95,
+          "largest_contig": 925379,
+          "local_misassemblies": 13,
+          "misassemblies": 19,
+          "mismatches_per_100kbp": 7.57,
+          "n50": 178079,
+          "unaligned_length": 0
+        },
+        "allreads-per-sample": {
+          "bases_at_least_1000": 150830533,
+          "combined_genome_fraction_percent": 88.105,
+          "contigs_at_least_1000": 4277,
+          "indels_per_100kbp": 0.89,
+          "largest_contig": 809478,
+          "local_misassemblies": 27,
+          "misassemblies": 73,
+          "mismatches_per_100kbp": 7.03,
+          "n50": 113612,
+          "unaligned_length": 0
+        },
+        "allreads-pooled": {
+          "bases_at_least_1000": 27516617,
+          "combined_genome_fraction_percent": 95.025,
+          "contigs_at_least_1000": 404,
+          "indels_per_100kbp": 0.65,
+          "largest_contig": 925379,
+          "local_misassemblies": 8,
+          "misassemblies": 13,
+          "mismatches_per_100kbp": 3.23,
+          "n50": 192135,
+          "unaligned_length": 0
+        },
+        "discovery-grouped": {
+          "bases_at_least_1000": 13035296,
+          "combined_genome_fraction_percent": 37.131,
+          "contigs_at_least_1000": 1238,
+          "indels_per_100kbp": 0.65,
+          "largest_contig": 925379,
+          "local_misassemblies": 8,
+          "misassemblies": 6,
+          "mismatches_per_100kbp": 10.12,
+          "n50": 192135,
+          "unaligned_length": 0
+        },
+        "discovery-per-sample": {
+          "bases_at_least_1000": 41499191,
+          "combined_genome_fraction_percent": 32.497,
+          "contigs_at_least_1000": 1816,
+          "indels_per_100kbp": 0.33,
+          "largest_contig": 809449,
+          "local_misassemblies": 5,
+          "misassemblies": 6,
+          "mismatches_per_100kbp": 6.14,
+          "n50": 50949,
+          "unaligned_length": 0
+        },
+        "discovery-pooled": {
+          "bases_at_least_1000": 12116730,
+          "combined_genome_fraction_percent": 37.406,
+          "contigs_at_least_1000": 179,
+          "indels_per_100kbp": 0.47,
+          "largest_contig": 925379,
+          "local_misassemblies": 4,
+          "misassemblies": 3,
+          "mismatches_per_100kbp": 2.57,
+          "n50": 203452,
+          "unaligned_length": 0
+        },
+        "iterate-recruitment": {
+          "bases_at_least_1000": 12714993,
+          "combined_genome_fraction_percent": 37.448,
+          "contigs_at_least_1000": 1009,
+          "indels_per_100kbp": 1.64,
+          "largest_contig": 925379,
+          "local_misassemblies": 9,
+          "misassemblies": 12,
+          "mismatches_per_100kbp": 11.33,
+          "n50": 194526,
+          "unaligned_length": 0
+        },
+        "iterate-residual-only": {
+          "bases_at_least_1000": 12684396,
+          "combined_genome_fraction_percent": 37.376,
+          "contigs_at_least_1000": 1035,
+          "indels_per_100kbp": 1.25,
+          "largest_contig": 925379,
+          "local_misassemblies": 8,
+          "misassemblies": 7,
+          "mismatches_per_100kbp": 11.38,
+          "n50": 194526,
+          "unaligned_length": 0
+        }
+      },
+      "description": "Pilot plus a novel genome at ~1x in all 8 samples (M6 split-genome scenario)",
+      "discovery": {
+        "false_removal": {
+          "GCF_000008645.1": 0.0,
+          "GCF_000009045.1": 1.7e-05,
+          "GCF_000011065.1": 0.0
+        },
+        "input_pair_reduction": 0.82895,
+        "pool_composition": {
+          "by_genome": {
+            "GCF_000005845.2": {
+              "category": "catalogued_selected",
+              "retained_pairs": 4144
+            },
+            "GCF_000006765.1": {
+              "category": "catalogued_selected",
+              "retained_pairs": 1352
+            },
+            "GCF_000008645.1": {
+              "category": "catalogue_absent",
+              "retained_pairs": 48000
+            },
+            "GCF_000009045.1": {
+              "category": "catalogue_absent",
+              "retained_pairs": 659989
+            },
+            "GCF_000010245.2": {
+              "category": "catalogued_selected",
+              "retained_pairs": 756
+            },
+            "GCF_000011065.1": {
+              "category": "catalogue_absent",
+              "retained_pairs": 660000
+            },
+            "GCF_000013425.1": {
+              "category": "catalogued_selected",
+              "retained_pairs": 2323
+            },
+            "GCF_000016525.1": {
+              "category": "catalogued_selected",
+              "retained_pairs": 49
+            }
+          },
+          "retained_pairs": {
+            "catalogue_absent": 1367989,
+            "catalogued_not_selected": 0,
+            "catalogued_selected": 8624
+          }
+        },
+        "reasons": {
+          "cross-species-alternative": 4998,
+          "low-aligned-fraction": 1329,
+          "low-identity": 13625,
+          "mate-unmapped": 1356661,
+          "same-species-alternatives": 1852148,
+          "unique": 4819239
+        },
+        "residual_contamination": {
+          "GCF_000005845.2": 0.00259,
+          "GCF_000006765.1": 0.000563,
+          "GCF_000010245.2": 0.00378,
+          "GCF_000013425.1": 0.000968,
+          "GCF_000016525.1": 0.000612
+        },
+        "stage_seconds": {
+          "index": 0.1,
+          "map": 91.9,
+          "profile": 11.7
+        },
+        "tool_versions": {
+          "mapper": "strobealign 0.20.0",
+          "profiler": "sylph 1.0.0"
+        }
+      },
+      "gate": {
+        "discovery-grouped": {
+          "community_A": {
+            "heldout_recovery_loss_pp": {
+              "GCF_000008645.1": 0.04,
+              "GCF_000009045.1": 0.029
+            },
+            "input_pair_reduction": 0.829,
+            "passes_recovery": true,
+            "passes_reduction": true
+          },
+          "community_B": {
+            "heldout_recovery_loss_pp": {
+              "GCF_000008645.1": 0.044,
+              "GCF_000011065.1": 0.003
+            },
+            "input_pair_reduction": 0.8289,
+            "passes_recovery": true,
+            "passes_reduction": true
+          },
+          "end_to_end_vs_allreads_grouped": {
+            "cpu_ratio": 0.339,
+            "peak_rss_ratio": 0.35,
+            "wall_ratio": 0.377
+          },
+          "overall": {
+            "input_pair_reduction": 0.8289,
+            "passes": true
+          },
+          "passes_cost": true
+        },
+        "discovery-per-sample": {
+          "community_A": {
+            "heldout_recovery_loss_pp": {
+              "GCF_000008645.1": 74.245,
+              "GCF_000009045.1": -0.175
+            },
+            "input_pair_reduction": 0.829,
+            "passes_recovery": false,
+            "passes_reduction": true
+          },
+          "community_B": {
+            "heldout_recovery_loss_pp": {
+              "GCF_000008645.1": 72.78,
+              "GCF_000011065.1": -0.492
+            },
+            "input_pair_reduction": 0.8289,
+            "passes_recovery": false,
+            "passes_reduction": true
+          },
+          "end_to_end_vs_allreads_grouped": {
+            "cpu_ratio": 0.717,
+            "peak_rss_ratio": 0.345,
+            "wall_ratio": 0.817
+          },
+          "overall": {
+            "input_pair_reduction": 0.8289,
+            "passes": false
+          },
+          "passes_cost": true
+        },
+        "discovery-pooled": {
+          "community_A": {
+            "heldout_recovery_loss_pp": {
+              "GCF_000008645.1": -22.272,
+              "GCF_000009045.1": 0.018
+            },
+            "input_pair_reduction": 0.829,
+            "passes_recovery": true,
+            "passes_reduction": true
+          },
+          "community_B": {
+            "heldout_recovery_loss_pp": {
+              "GCF_000008645.1": -23.781,
+              "GCF_000011065.1": 0.005
+            },
+            "input_pair_reduction": 0.8289,
+            "passes_recovery": true,
+            "passes_reduction": true
+          },
+          "end_to_end_vs_allreads_grouped": {
+            "cpu_ratio": 0.315,
+            "peak_rss_ratio": 0.378,
+            "wall_ratio": 0.337
+          },
+          "overall": {
+            "input_pair_reduction": 0.8289,
+            "passes": true
+          },
+          "passes_cost": true
+        },
+        "iterate-recruitment": {
+          "community_A": {
+            "heldout_recovery_loss_pp": {
+              "GCF_000008645.1": -21.046,
+              "GCF_000009045.1": -0.212
+            },
+            "input_pair_reduction": 0.8211,
+            "passes_recovery": true,
+            "passes_reduction": true
+          },
+          "community_B": {
+            "heldout_recovery_loss_pp": {
+              "GCF_000008645.1": -22.555,
+              "GCF_000011065.1": -0.016
+            },
+            "input_pair_reduction": 0.8212,
+            "passes_recovery": true,
+            "passes_reduction": true
+          },
+          "end_to_end_vs_allreads_grouped": {
+            "cpu_ratio": 0.433,
+            "peak_rss_ratio": 0.726,
+            "wall_ratio": 0.541
+          },
+          "overall": {
+            "input_pair_reduction": 0.8211,
+            "passes": true
+          },
+          "passes_cost": true
+        },
+        "iterate-residual-only": {
+          "community_A": {
+            "heldout_recovery_loss_pp": {
+              "GCF_000008645.1": -20.223,
+              "GCF_000009045.1": -0.17
+            },
+            "input_pair_reduction": 0.8263,
+            "passes_recovery": true,
+            "passes_reduction": true
+          },
+          "community_B": {
+            "heldout_recovery_loss_pp": {
+              "GCF_000008645.1": -21.732,
+              "GCF_000011065.1": -0.095
+            },
+            "input_pair_reduction": 0.8263,
+            "passes_recovery": true,
+            "passes_reduction": true
+          },
+          "end_to_end_vs_allreads_grouped": {
+            "cpu_ratio": 0.383,
+            "peak_rss_ratio": 0.72,
+            "wall_ratio": 0.473
+          },
+          "overall": {
+            "input_pair_reduction": 0.8263,
+            "passes": true
+          },
+          "passes_cost": true
+        },
+        "iterate-round1": {
+          "community_A": {
+            "heldout_recovery_loss_pp": {
+              "GCF_000008645.1": -16.937,
+              "GCF_000009045.1": 0.029
+            },
+            "input_pair_reduction": 0.829,
+            "passes_recovery": true,
+            "passes_reduction": true
+          },
+          "community_B": {
+            "heldout_recovery_loss_pp": {
+              "GCF_000008645.1": -18.446,
+              "GCF_000011065.1": 0.002
+            },
+            "input_pair_reduction": 0.8289,
+            "passes_recovery": true,
+            "passes_reduction": true
+          },
+          "end_to_end_vs_allreads_grouped": {
+            "cpu_ratio": 0.339,
+            "peak_rss_ratio": 0.35,
+            "wall_ratio": 0.377
+          },
+          "overall": {
+            "input_pair_reduction": 0.8289,
+            "passes": true
+          },
+          "passes_cost": true
+        }
+      },
+      "origin_attributed_iterate_evaluation": {
+        "gate": {
+          "discovery-pooled": {
+            "community_A": {
+              "heldout_recovery_loss_pp": {
+                "GCF_000008645.1": -22.272,
+                "GCF_000009045.1": 0.018
+              },
+              "input_pair_reduction": 0.829,
+              "passes_recovery": true,
+              "passes_reduction": true
+            },
+            "community_B": {
+              "heldout_recovery_loss_pp": {
+                "GCF_000008645.1": -23.781,
+                "GCF_000011065.1": 0.005
+              },
+              "input_pair_reduction": 0.8289,
+              "passes_recovery": true,
+              "passes_reduction": true
+            },
+            "overall": {
+              "input_pair_reduction": 0.8289,
+              "passes": true
+            }
+          },
+          "iterate-recruitment": {
+            "community_A": {
+              "heldout_recovery_loss_pp": {
+                "GCF_000008645.1": 5.164,
+                "GCF_000009045.1": -0.212
+              },
+              "input_pair_reduction": 0.8211,
+              "passes_recovery": false,
+              "passes_reduction": true
+            },
+            "community_B": {
+              "heldout_recovery_loss_pp": {
+                "GCF_000008645.1": 8.083,
+                "GCF_000011065.1": -0.016
+              },
+              "input_pair_reduction": 0.8212,
+              "passes_recovery": false,
+              "passes_reduction": true
+            },
+            "overall": {
+              "input_pair_reduction": 0.8211,
+              "passes": false
+            }
+          },
+          "iterate-residual-only": {
+            "community_A": {
+              "heldout_recovery_loss_pp": {
+                "GCF_000008645.1": 7.516,
+                "GCF_000009045.1": -0.17
+              },
+              "input_pair_reduction": 0.8263,
+              "passes_recovery": false,
+              "passes_reduction": true
+            },
+            "community_B": {
+              "heldout_recovery_loss_pp": {
+                "GCF_000008645.1": 10.432,
+                "GCF_000011065.1": -0.095
+              },
+              "input_pair_reduction": 0.8263,
+              "passes_recovery": false,
+              "passes_reduction": true
+            },
+            "overall": {
+              "input_pair_reduction": 0.8263,
+              "passes": false
+            }
+          },
+          "iterate-round1": {
+            "community_A": {
+              "heldout_recovery_loss_pp": {
+                "GCF_000008645.1": 11.357,
+                "GCF_000009045.1": 0.029
+              },
+              "input_pair_reduction": 0.829,
+              "passes_recovery": false,
+              "passes_reduction": true
+            },
+            "community_B": {
+              "heldout_recovery_loss_pp": {
+                "GCF_000008645.1": 14.223,
+                "GCF_000011065.1": 0.002
+              },
+              "input_pair_reduction": 0.8289,
+              "passes_recovery": false,
+              "passes_reduction": true
+            },
+            "overall": {
+              "input_pair_reduction": 0.8289,
+              "passes": false
+            }
+          }
+        },
+        "heldout_genome_fraction_percent": {
+          "community_A": {
+            "allreads-grouped": {
+              "GCF_000008645.1": 76.205,
+              "GCF_000009045.1": 98.809
+            },
+            "discovery-pooled": {
+              "GCF_000008645.1": 98.477,
+              "GCF_000009045.1": 98.791
+            },
+            "iterate-recruitment": {
+              "GCF_000008645.1": 71.041,
+              "GCF_000009045.1": 99.021
+            },
+            "iterate-residual-only": {
+              "GCF_000008645.1": 68.689,
+              "GCF_000009045.1": 98.979
+            },
+            "iterate-round1": {
+              "GCF_000008645.1": 64.848,
+              "GCF_000009045.1": 98.78
+            }
+          },
+          "community_B": {
+            "allreads-grouped": {
+              "GCF_000008645.1": 74.696,
+              "GCF_000011065.1": 98.859
+            },
+            "discovery-pooled": {
+              "GCF_000008645.1": 98.477,
+              "GCF_000011065.1": 98.854
+            },
+            "iterate-recruitment": {
+              "GCF_000008645.1": 66.613,
+              "GCF_000011065.1": 98.875
+            },
+            "iterate-residual-only": {
+              "GCF_000008645.1": 64.264,
+              "GCF_000011065.1": 98.954
+            },
+            "iterate-round1": {
+              "GCF_000008645.1": 60.473,
+              "GCF_000011065.1": 98.857
+            }
+          }
+        }
+      },
+      "steps": {
+        "allreads-grouped": {
+          "cpu_seconds": 3692.1,
+          "max_single_process_rss_kib": 952768,
+          "peak_group_rss_kib": 976372,
+          "peak_scratch_bytes": 663126108,
+          "wall_seconds": 305.1
+        },
+        "allreads-per-sample": {
+          "cpu_seconds": 7182.9,
+          "max_single_process_rss_kib": 443304,
+          "peak_group_rss_kib": 296352,
+          "peak_scratch_bytes": 369660099,
+          "wall_seconds": 623.5
+        },
+        "allreads-pooled": {
+          "cpu_seconds": 3388.6,
+          "max_single_process_rss_kib": 1862072,
+          "peak_group_rss_kib": 1886612,
+          "peak_scratch_bytes": 1061673724,
+          "wall_seconds": 268.5
+        },
+        "discover": {
+          "cpu_seconds": 362.8,
+          "max_single_process_rss_kib": 237740,
+          "peak_group_rss_kib": 237088,
+          "peak_scratch_bytes": 0,
+          "wall_seconds": 26.5
+        },
+        "discovery-grouped": {
+          "cpu_seconds": 889.4,
+          "max_single_process_rss_kib": 333220,
+          "peak_group_rss_kib": 213560,
+          "peak_scratch_bytes": 137470289,
+          "wall_seconds": 88.6
+        },
+        "discovery-per-sample": {
+          "cpu_seconds": 2286.1,
+          "max_single_process_rss_kib": 328612,
+          "peak_group_rss_kib": 337700,
+          "peak_scratch_bytes": 108605050,
+          "wall_seconds": 222.7
+        },
+        "discovery-pooled": {
+          "cpu_seconds": 800.7,
+          "max_single_process_rss_kib": 359848,
+          "peak_group_rss_kib": 372940,
+          "peak_scratch_bytes": 268647469,
+          "wall_seconds": 76.4
+        },
+        "iterate-recruitment": {
+          "cpu_seconds": 348.0,
+          "max_single_process_rss_kib": 691932,
+          "peak_group_rss_kib": 271344,
+          "peak_scratch_bytes": 20244238,
+          "wall_seconds": 50.0
+        },
+        "iterate-residual-only": {
+          "cpu_seconds": 161.9,
+          "max_single_process_rss_kib": 685796,
+          "peak_group_rss_kib": 270916,
+          "peak_scratch_bytes": 3692186,
+          "wall_seconds": 29.1
+        }
+      }
+    }
+  },
+  "design": "Factorial per dataset: input {all reads, discovery pools} x grouping {per sample, metadata communities, all samples pooled}, plus pooled iteration (residual-only, recruitment; 3 rounds) on the grouped discovery coassembly. Every command at 16 threads / 64 GiB, serially, under /usr/bin/time. Discovery arms' end-to-end cost includes profiling, catalogue indexing, and mapping.",
+  "evaluation_notes": "communities: per-community MetaQUAST (each arm's contigs from groups containing that community's samples; gate per held-out genome). Iterate arms are shared sets, evaluated whole with every community (evaluator default since M7, owner decision): every pool maps to one set, and round-1 acceptance drops contigs contained in another group's contig; iterate-round1 is the accepted union of the grouped coassemblies. origin_attributed_iterate_evaluation: iterate contigs attributed to the group that assembled them (--origin-arm, the M6 lens), kept to document that artifact. correctness_all_genomes: every contig of an arm against all source genomes of the dataset, so contigs of a genome confined to one community are not scored against another community's congeners. Peak RSS for the cost check is /usr/bin/time's maximum resident set size (largest single process); concurrent_mapping_rss_bound_kib sums the four largest mapping stages (discover ran with --jobs 4).",
+  "hardware": {
+    "cpu_model": "Intel(R) Xeon(R) Gold 5416S",
+    "kernel": "6.8.0-147-generic",
+    "logical_cpus": 64,
+    "memory_gib": 503
+  },
+  "milestone": "M7",
+  "schema_version": 1,
+  "settings": {
+    "acceptance": {
+      "containment": {
+        "min_coverage_of_contained": 0.95,
+        "min_identity": 0.95,
+        "preset": "asm5",
+        "tool": "minimap2"
+      },
+      "min_contig_length": 1000
+    },
+    "max_rounds": 3,
+    "min_progress": 0.01,
+    "thresholds": {
+      "min_aligned_fraction": 0.9,
+      "min_identity": 0.98,
+      "min_mapq": 20,
+      "min_mapq_applies_to": "certain (recruitment) only",
+      "secondary_alignments": 50
+    }
+  },
+  "tools": {
+    "assembler": "MEGAHIT v1.2.9",
+    "containment": "2.31-r1302",
+    "mapper": "strobealign 0.20.0"
+  }
+}
