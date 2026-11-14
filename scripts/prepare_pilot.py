@@ -114,7 +114,8 @@ def load_design(config_path):
         if not ID.fullmatch(name) or not set(excluded) <= set(ids):
             raise ValueError("invalid catalogue case")
     resources = config["resources"]
-    if any(resources[k] <= 0 for k in ["threads", "memory_gib", "scratch_gib", "simulation_jobs"]):
+    limits = ["threads", "memory_gib", "scratch_gib", "genome_download_limit_mib", "simulation_jobs", "sample_jobs"]
+    if any(resources[k] <= 0 for k in limits):
         raise ValueError("resource limits must be positive")
     if resources["simulation_jobs"] > resources["threads"]:
         raise ValueError("simulation jobs exceed thread budget")
@@ -158,7 +159,13 @@ def fasta_records(path):
             if line.startswith(">"):
                 if name is not None:
                     yield name, "".join(sequence)
-                name, sequence = line[1:].split()[0], []
+                fields = line[1:].split()
+                if not fields:
+                    raise ValueError(f"{path}: FASTA record without a name")
+                name, sequence = fields[0], []
+            elif name is None:
+                if line.strip():
+                    raise ValueError(f"{path}: FASTA sequence before the first header")
             else:
                 sequence.append("".join(line.split()).upper())
         if name is not None:
@@ -175,7 +182,10 @@ def fastq_records(path):
             sequence, quality = sequence.rstrip("\r\n"), quality.rstrip("\r\n")
             if not sequence or len(sequence) != len(quality):
                 raise ValueError(f"{path}: sequence/quality length mismatch")
-            yield header[1:].split()[0], sequence, quality
+            fields = header[1:].split()
+            if not fields:
+                raise ValueError(f"{path}: FASTQ record without a name")
+            yield fields[0], sequence, quality
 
 
 def pair_name(name):
@@ -327,15 +337,14 @@ def prepare(config_path, destination):
         source_manifest.append({**genome, "url": source_url(genome), "source_sha256": digest(archive), "fasta_sha256": digest(normalized)})
         time.sleep(1)
     write_table(destination / "record-map.tsv", ["genome_id", "record_id", "source_record_id", "length"], reference_rows)
-    for case, excluded in config["catalogues"].items():
+    fasta_digests = {g["genome_id"]: g["fasta_sha256"] for g in source_manifest}
+    for case in config["catalogues"]:
         directory = destination / "catalogues" / case
         directory.mkdir()
-        included = [g for g in source_manifest if g["genome_id"] not in excluded]
+        rows = catalogue_rows(config, genomes, fasta_digests, case)
         write_table(directory / "catalogue.tsv",
-                    ["reference_id", "fasta", "taxid", "species_taxid", "sha256"],
-                    [{"reference_id": g["genome_id"], "fasta": f'../../references/{g["genome_id"]}.fna',
-                      "taxid": g["taxid"], "species_taxid": g["species_taxid"], "sha256": g["fasta_sha256"]} for g in included])
-        (directory / "references.txt").write_text("".join(f'../../references/{g["genome_id"]}.fna\n' for g in included))
+                    ["reference_id", "fasta", "taxid", "species_taxid", "sha256"], rows)
+        (directory / "references.txt").write_text("".join(row["fasta"] + "\n" for row in rows))
     simulation = config["simulation"]
     with ThreadPoolExecutor(max_workers=config["resources"]["sample_jobs"]) as pool:
         reports = list(pool.map(
@@ -364,15 +373,50 @@ def prepare(config_path, destination):
     print(f"Prepared {len(samples)} samples, {total_pairs:,} pairs at {destination}", flush=True)
 
 
+def catalogue_rows(config, genomes, fasta_digests, case):
+    """The exact catalogue prepare() writes for one case, derived from the design."""
+    excluded = set(config["catalogues"][case])
+    return [{"reference_id": g["genome_id"], "fasta": f'../../references/{g["genome_id"]}.fna',
+             "taxid": g["taxid"], "species_taxid": g["species_taxid"], "sha256": fasta_digests[g["genome_id"]]}
+            for g in genomes if g["genome_id"] not in excluded]
+
+
+def verify_catalogues(config, genomes, fasta_digests, destination):
+    """Holdouts must be physically absent from every index input set."""
+    root = destination / "catalogues"
+    present = sorted(path.name for path in root.iterdir())
+    if present != sorted(config["catalogues"]):
+        raise ValueError(f"catalogue cases {present} differ from the design {sorted(config['catalogues'])}")
+    for case, excluded in config["catalogues"].items():
+        expected = catalogue_rows(config, genomes, fasta_digests, case)
+        actual = read_table(root / case / "catalogue.tsv")
+        leaked = sorted({row.get("reference_id") for row in actual} & set(excluded))
+        if leaked:
+            raise ValueError(f"{case}: held-out references {leaked} are present in the catalogue")
+        if actual != expected:
+            raise ValueError(f"{case}: catalogue.tsv differs from the frozen design")
+        listed = (root / case / "references.txt").read_text().splitlines()
+        if listed != [row["fasta"] for row in expected]:
+            raise ValueError(f"{case}: references.txt differs from catalogue.tsv")
+
+
 def verify(config_path, destination):
-    config, _, samples = load_design(config_path)
+    config, genomes, samples = load_design(config_path)
     destination = Path(destination)
     manifest = json.loads((destination / "dataset.json").read_text())
-    if (destination / "PREPARING").exists() or manifest["status"] != "complete" or manifest["config_sha256"] != digest(config_path):
+    if (destination / "PREPARING").exists() or manifest.get("status") != "complete" or manifest.get("config_sha256") != digest(config_path):
         raise ValueError("dataset is incomplete or uses another configuration")
     for key, filename in [("genomes_table_sha256", config["genomes"]), ("composition_sha256", config["composition"])]:
-        if manifest[key] != digest(Path(config_path).resolve().parent / filename):
+        if manifest.get(key) != digest(Path(config_path).resolve().parent / filename):
             raise ValueError("frozen genome registry or composition has changed")
+    # Check against the design, not the manifest's own lists, so omissions are detected.
+    reported = sorted(report["sample_id"] for report in manifest["samples"])
+    if reported != sorted(samples):
+        raise ValueError(f"manifest samples {reported} differ from the design {sorted(samples)}")
+    genome_ids = [g["genome_id"] for g in genomes]
+    references = {genome["genome_id"]: genome for genome in manifest["references"]}
+    if sorted(references) != sorted(genome_ids) or len(references) != len(manifest["references"]):
+        raise ValueError("manifest references differ from the frozen genome registry")
     for report in manifest["samples"]:
         sample = report["sample_id"]
         read1, read2 = [destination / "reads" / f"{sample}_R{mate}.fastq.gz" for mate in [1, 2]]
@@ -389,10 +433,14 @@ def verify(config_path, destination):
         if counts != samples[sample]["counts"]:
             raise ValueError(f"{sample}: source pair counts differ from truth")
         print(f"Verified {sample}: {sum(counts.values()):,} synchronized pairs", flush=True)
-    for genome in manifest["references"]:
-        path = destination / "references" / f'{genome["genome_id"]}.fna'
-        if digest(path) != genome["fasta_sha256"]:
+    fasta_digests = {}
+    for genome_id in genome_ids:
+        fasta_digests[genome_id] = digest(destination / "references" / f"{genome_id}.fna")
+        if fasta_digests[genome_id] != references[genome_id]["fasta_sha256"]:
             raise ValueError("reference checksum mismatch")
+    verify_catalogues(config, genomes, fasta_digests, destination)
+    print(f"Verified {len(genome_ids)} references and {len(config['catalogues'])} catalogue cases; "
+          "held-out references are absent", flush=True)
 
 
 def main():
