@@ -171,6 +171,13 @@ failed assembler or malformed contig FASTA fails the stage. `--all-samples`
 puts every sample in one group, still split at the caps. Exit codes follow
 `profile`.
 
+The recommended flow is `discover` followed by `coassemble --all-samples`
+([M7 decision](decisions/0007-research-decision.md)). Pooling every
+sample's discovery pool recovered genomes spread thinly over samples that
+metadata groups missed, at about the cost of grouped discovery. Metadata
+grouping followed by `iterate --all-samples` is the fallback when one pooled
+assembly is too large.
+
 ## Iterate
 
 `iterate` continues one or more succeeded `coassemble` runs for at most

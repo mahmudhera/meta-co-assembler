@@ -170,6 +170,22 @@ spread thinly across groups when leftovers are pooled. Recovering such a
 genome fully needs its reads assembled together, which accepting
 fragmented round-1 contigs prevents; this is an M7 question.
 
+### Correction (M7)
+
+[The M7 record](0007-research-decision.md#iteration-and-a-correction-to-m6)
+found that the split-scenario conclusions above are artifacts of the
+evaluation lens. They are "fragmented round-1 contigs absorb its reads", and
+"round 1 recovers 11–14 points less than all-read coassembly". The evaluator
+credits each round-1 contig only to the community that assembled it. But
+acceptance drops a contig contained in another group's contig, and every
+pool is mapped to the one shared set. Scored as shared sets (the
+evaluator default since M7; `--origin-arm` restores the lens used above),
+the split runs recover the thin genome at 93.1% (round 1),
+96.4% (residual-only), and 97.3% (recruitment), against 98.5% for pooled
+all-read assembly. Grouped discovery coassembly matches grouped all-read
+coassembly (76.2% / 74.7%). The pilot species-holdout figures are
+unaffected: each held-out species lives in one community.
+
 ## Alternatives considered
 
 - Extending `coassemble` with the existing flags: simpler, but cannot combine
