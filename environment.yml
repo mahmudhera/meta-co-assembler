@@ -9,15 +9,22 @@ dependencies:
   # Provides the native compiler/linker used by Rust.
   - c-compiler=2.0.0
   # Pilot preparation and selectable biological backends; no databases included.
-  - python=3.13.18
-  # QUAST 5.3.0 imports distutils, which Python 3.13 provides only through setuptools.
+  # 3.12, not 3.13: CheckM2 needs TensorFlow, which has no CPU build for 3.13 (M9).
+  - python=3.12.15
+  # QUAST 5.3.0 imports distutils, which Python 3.12+ provides only through setuptools.
   - setuptools=84.2.1
   - sylph=1.0.0
   - kraken2=2.17.2
   - strobealign=0.20.0
   - minimap2=2.31
-  - samtools=1.25
+  # 1.24, not 1.25: MetaBAT 2.18 needs htslib < 1.25 (M9).
+  - samtools=1.24
   - megahit=1.2.9
   - spades=4.3.0
   - art=2016.06.05
   - quast=5.3.0
+  # M9 MAG recovery: binners, bin quality (TensorFlow, CPU), ANI. Databases are not included.
+  - metabat2==2.18
+  - semibin=2.6.0
+  - checkm2=1.1.0
+  - skani=0.4.0

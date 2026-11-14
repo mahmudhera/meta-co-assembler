@@ -11,8 +11,8 @@
       "build": "ha29393d_1"
     },
     "python": {
-      "version": "3.13.18",
-      "build": "hf47f18c_100_cp313"
+      "version": "3.12.15",
+      "build": "h5f976f7_1_cpython"
     },
     "setuptools": {
       "version": "84.2.1",
@@ -35,8 +35,8 @@
       "build": "h118bc1c_0"
     },
     "samtools": {
-      "version": "1.25",
-      "build": "h9dcdb79_0"
+      "version": "1.24",
+      "build": "h9dcdb79_1"
     },
     "megahit": {
       "version": "1.2.9",
@@ -52,7 +52,23 @@
     },
     "quast": {
       "version": "5.3.0",
-      "build": "py313pl5321h5ca1c30_2"
+      "build": "py312pl5321hdcc493e_1"
+    },
+    "metabat2": {
+      "version": "2.18",
+      "build": "h38e344b_2"
+    },
+    "semibin": {
+      "version": "2.6.0",
+      "build": "pyhdfd78af_0"
+    },
+    "checkm2": {
+      "version": "1.1.0",
+      "build": "pyhdfd78af_2"
+    },
+    "skani": {
+      "version": "0.4.0",
+      "build": "hec9b1f2_0"
     },
     "locove": {
       "version": "0.1.0",

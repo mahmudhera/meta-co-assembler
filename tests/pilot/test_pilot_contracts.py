@@ -48,7 +48,7 @@ def table(relative):
 def environment_pins():
     pins = {}
     for line in text("environment.yml").splitlines():
-        match = re.fullmatch(r"\s*-\s*([A-Za-z0-9_.-]+)=([^\s#=]+)\s*", line)
+        match = re.fullmatch(r"\s*-\s*([A-Za-z0-9_.-]+)==?([^\s#=]+)\s*", line)
         if match:
             pins[match.group(1)] = match.group(2)
     return pins
