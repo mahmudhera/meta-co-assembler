@@ -1,0 +1,4178 @@
+{
+ "schema_version": 1,
+ "milestone": "M8",
+ "design": "Part 1, grouping only (`group`, no assembly) on the three M7 datasets at a 4-sample cap: sketches of the discovery pools and of the original reads with the merge and seeded policies, threshold sensitivity on the pools, and the per-sample hash cap on the hard benchmark's reads. Part 2, hard benchmark coassemblies of the M7 discovery pools at a 4-sample cap: sketch grouping (merge) and three seeded random groupings, against community metadata grouping and one pooled assembly (the M7 runs) and grouped all-read assembly (the M7 gate baseline). 16 threads / 64 GiB, serially, under /usr/bin/time; end-to-end cost includes discovery.",
+ "sketch_settings": {
+  "hash": "MurmurHash3 fmix64 of the 2-bit canonical k-mer XOR fmix64(seed); keep hashes <= floor((2^64 - 1) / scaled)",
+  "k": 31,
+  "linkage": "average over the neighbour graph (missing links count as 0)",
+  "max_hashes_per_sample": 1000000,
+  "method": "FracMinHash",
+  "neighbors": 10,
+  "policy": "merge",
+  "scaled": 1000,
+  "seed": 42,
+  "similarity": "Jaccard index of the sketch hashes each sample shares with at least one other sample"
+ },
+ "hardware": {
+  "cpu_model": "Intel(R) Xeon(R) Gold 5416S",
+  "logical_cpus": 64,
+  "memory_gib": 503,
+  "kernel": "6.8.0-147-generic"
+ },
+ "assembler": "MEGAHIT v1.2.9",
+ "evaluation_notes": "communities: per-community MetaQUAST as in M7: each arm's contigs from groups containing that community's samples, against the community's source genomes; the gate is per held-out genome against grouped all-read assembly. A grouping that spreads a community over several groups is credited there with several assemblies of a genome shared by all communities, so thin genomes are compared under global_lens: each arm's whole contig output against every source genome. Community and pooled arms and all-read assembly are the M7 runs (same discovery pools, same machine, same settings); their costs are from M7. The adjusted Rand index compares groups with the simulated communities (1 = identical, about 0 = chance).",
+ "grouping_only": {
+  "pilot": {
+   "pools-merge": {
+    "represents": "discovery-pools",
+    "policy": "merge",
+    "min_similarity": null,
+    "groups": [
+     [
+      "A01",
+      "A02",
+      "A03",
+      "A04"
+     ],
+     [
+      "B01",
+      "B02",
+      "B03",
+      "B04"
+     ]
+    ],
+    "adjusted_rand_index_vs_community": 1.0,
+    "similarity": {
+     "within_community": [
+      0.978,
+      0.987
+     ],
+     "between_communities": [
+      0.0,
+      0.001
+     ],
+     "edges_within": 12,
+     "edges_between": 16,
+     "links": {
+      "within_community": [
+       0.9776,
+       0.9778,
+       0.9786,
+       0.9797,
+       0.98,
+       0.9802,
+       0.9824,
+       0.9833,
+       0.9847,
+       0.9849,
+       0.9873,
+       0.9873
+      ],
+      "between_communities": [
+       0.0003,
+       0.0003,
+       0.0004,
+       0.0005,
+       0.0005,
+       0.0005,
+       0.0005,
+       0.0005,
+       0.0005,
+       0.0006,
+       0.0006,
+       0.0006,
+       0.0006,
+       0.0007,
+       0.0008,
+       0.0009
+      ]
+     }
+    },
+    "max_hashes_per_sample": 1000000,
+    "compared_at_scaled": 1000,
+    "hashes_per_sample": [
+     6400,
+     8854
+    ],
+    "sketch_seconds": 1.425,
+    "sketch_workers": 8,
+    "memory_bound_bytes": 384000000,
+    "command": {
+     "wall_seconds": 2.5,
+     "cpu_seconds": 14.4,
+     "max_single_process_rss_kib": 36864
+    }
+   },
+   "pools-seeded": {
+    "represents": "discovery-pools",
+    "policy": "seeded",
+    "min_similarity": null,
+    "groups": [
+     [
+      "A01",
+      "A02",
+      "A03",
+      "A04"
+     ],
+     [
+      "B01",
+      "B02",
+      "B03",
+      "B04"
+     ]
+    ],
+    "adjusted_rand_index_vs_community": 1.0,
+    "similarity": {
+     "within_community": [
+      0.978,
+      0.987
+     ],
+     "between_communities": [
+      0.0,
+      0.001
+     ],
+     "edges_within": 12,
+     "edges_between": 16,
+     "links": {
+      "within_community": [
+       0.9776,
+       0.9778,
+       0.9786,
+       0.9797,
+       0.98,
+       0.9802,
+       0.9824,
+       0.9833,
+       0.9847,
+       0.9849,
+       0.9873,
+       0.9873
+      ],
+      "between_communities": [
+       0.0003,
+       0.0003,
+       0.0004,
+       0.0005,
+       0.0005,
+       0.0005,
+       0.0005,
+       0.0005,
+       0.0005,
+       0.0006,
+       0.0006,
+       0.0006,
+       0.0006,
+       0.0007,
+       0.0008,
+       0.0009
+      ]
+     }
+    },
+    "max_hashes_per_sample": 1000000,
+    "compared_at_scaled": 1000,
+    "hashes_per_sample": [
+     6400,
+     8854
+    ],
+    "sketch_seconds": 1.257,
+    "sketch_workers": 8,
+    "memory_bound_bytes": 384000000,
+    "command": {
+     "wall_seconds": 2.0,
+     "cpu_seconds": 11.8,
+     "max_single_process_rss_kib": 37376
+    }
+   },
+   "pools-threshold-0.05": {
+    "represents": "discovery-pools",
+    "policy": "threshold",
+    "min_similarity": 0.05,
+    "groups": [
+     [
+      "A01",
+      "A02",
+      "A03",
+      "A04"
+     ],
+     [
+      "B01",
+      "B02",
+      "B03",
+      "B04"
+     ]
+    ],
+    "adjusted_rand_index_vs_community": 1.0,
+    "similarity": {
+     "within_community": [
+      0.978,
+      0.987
+     ],
+     "between_communities": [
+      0.0,
+      0.001
+     ],
+     "edges_within": 12,
+     "edges_between": 16,
+     "links": {
+      "within_community": [
+       0.9776,
+       0.9778,
+       0.9786,
+       0.9797,
+       0.98,
+       0.9802,
+       0.9824,
+       0.9833,
+       0.9847,
+       0.9849,
+       0.9873,
+       0.9873
+      ],
+      "between_communities": [
+       0.0003,
+       0.0003,
+       0.0004,
+       0.0005,
+       0.0005,
+       0.0005,
+       0.0005,
+       0.0005,
+       0.0005,
+       0.0006,
+       0.0006,
+       0.0006,
+       0.0006,
+       0.0007,
+       0.0008,
+       0.0009
+      ]
+     }
+    },
+    "max_hashes_per_sample": 1000000,
+    "compared_at_scaled": 1000,
+    "hashes_per_sample": [
+     6400,
+     8854
+    ],
+    "sketch_seconds": 1.09,
+    "sketch_workers": 8,
+    "memory_bound_bytes": 384000000,
+    "command": {
+     "wall_seconds": 1.9,
+     "cpu_seconds": 11.7,
+     "max_single_process_rss_kib": 37376
+    }
+   },
+   "pools-threshold-0.1": {
+    "represents": "discovery-pools",
+    "policy": "threshold",
+    "min_similarity": 0.1,
+    "groups": [
+     [
+      "A01",
+      "A02",
+      "A03",
+      "A04"
+     ],
+     [
+      "B01",
+      "B02",
+      "B03",
+      "B04"
+     ]
+    ],
+    "adjusted_rand_index_vs_community": 1.0,
+    "similarity": {
+     "within_community": [
+      0.978,
+      0.987
+     ],
+     "between_communities": [
+      0.0,
+      0.001
+     ],
+     "edges_within": 12,
+     "edges_between": 16,
+     "links": {
+      "within_community": [
+       0.9776,
+       0.9778,
+       0.9786,
+       0.9797,
+       0.98,
+       0.9802,
+       0.9824,
+       0.9833,
+       0.9847,
+       0.9849,
+       0.9873,
+       0.9873
+      ],
+      "between_communities": [
+       0.0003,
+       0.0003,
+       0.0004,
+       0.0005,
+       0.0005,
+       0.0005,
+       0.0005,
+       0.0005,
+       0.0005,
+       0.0006,
+       0.0006,
+       0.0006,
+       0.0006,
+       0.0007,
+       0.0008,
+       0.0009
+      ]
+     }
+    },
+    "max_hashes_per_sample": 1000000,
+    "compared_at_scaled": 1000,
+    "hashes_per_sample": [
+     6400,
+     8854
+    ],
+    "sketch_seconds": 1.057,
+    "sketch_workers": 8,
+    "memory_bound_bytes": 384000000,
+    "command": {
+     "wall_seconds": 1.6,
+     "cpu_seconds": 11.5,
+     "max_single_process_rss_kib": 37376
+    }
+   },
+   "pools-threshold-0.5": {
+    "represents": "discovery-pools",
+    "policy": "threshold",
+    "min_similarity": 0.5,
+    "groups": [
+     [
+      "A01",
+      "A02",
+      "A03",
+      "A04"
+     ],
+     [
+      "B01",
+      "B02",
+      "B03",
+      "B04"
+     ]
+    ],
+    "adjusted_rand_index_vs_community": 1.0,
+    "similarity": {
+     "within_community": [
+      0.978,
+      0.987
+     ],
+     "between_communities": [
+      0.0,
+      0.001
+     ],
+     "edges_within": 12,
+     "edges_between": 16,
+     "links": {
+      "within_community": [
+       0.9776,
+       0.9778,
+       0.9786,
+       0.9797,
+       0.98,
+       0.9802,
+       0.9824,
+       0.9833,
+       0.9847,
+       0.9849,
+       0.9873,
+       0.9873
+      ],
+      "between_communities": [
+       0.0003,
+       0.0003,
+       0.0004,
+       0.0005,
+       0.0005,
+       0.0005,
+       0.0005,
+       0.0005,
+       0.0005,
+       0.0006,
+       0.0006,
+       0.0006,
+       0.0006,
+       0.0007,
+       0.0008,
+       0.0009
+      ]
+     }
+    },
+    "max_hashes_per_sample": 1000000,
+    "compared_at_scaled": 1000,
+    "hashes_per_sample": [
+     6400,
+     8854
+    ],
+    "sketch_seconds": 1.321,
+    "sketch_workers": 8,
+    "memory_bound_bytes": 384000000,
+    "command": {
+     "wall_seconds": 1.9,
+     "cpu_seconds": 12.2,
+     "max_single_process_rss_kib": 37376
+    }
+   },
+   "pools-threshold-0.8": {
+    "represents": "discovery-pools",
+    "policy": "threshold",
+    "min_similarity": 0.8,
+    "groups": [
+     [
+      "A01",
+      "A02",
+      "A03",
+      "A04"
+     ],
+     [
+      "B01",
+      "B02",
+      "B03",
+      "B04"
+     ]
+    ],
+    "adjusted_rand_index_vs_community": 1.0,
+    "similarity": {
+     "within_community": [
+      0.978,
+      0.987
+     ],
+     "between_communities": [
+      0.0,
+      0.001
+     ],
+     "edges_within": 12,
+     "edges_between": 16,
+     "links": {
+      "within_community": [
+       0.9776,
+       0.9778,
+       0.9786,
+       0.9797,
+       0.98,
+       0.9802,
+       0.9824,
+       0.9833,
+       0.9847,
+       0.9849,
+       0.9873,
+       0.9873
+      ],
+      "between_communities": [
+       0.0003,
+       0.0003,
+       0.0004,
+       0.0005,
+       0.0005,
+       0.0005,
+       0.0005,
+       0.0005,
+       0.0005,
+       0.0006,
+       0.0006,
+       0.0006,
+       0.0006,
+       0.0007,
+       0.0008,
+       0.0009
+      ]
+     }
+    },
+    "max_hashes_per_sample": 1000000,
+    "compared_at_scaled": 1000,
+    "hashes_per_sample": [
+     6400,
+     8854
+    ],
+    "sketch_seconds": 1.69,
+    "sketch_workers": 8,
+    "memory_bound_bytes": 384000000,
+    "command": {
+     "wall_seconds": 2.4,
+     "cpu_seconds": 12.4,
+     "max_single_process_rss_kib": 37376
+    }
+   },
+   "reads-merge": {
+    "represents": "original-reads",
+    "policy": "merge",
+    "min_similarity": null,
+    "groups": [
+     [
+      "A01",
+      "A02",
+      "A03",
+      "A04"
+     ],
+     [
+      "B01",
+      "B02",
+      "B03",
+      "B04"
+     ]
+    ],
+    "adjusted_rand_index_vs_community": 1.0,
+    "similarity": {
+     "within_community": [
+      0.894,
+      0.9
+     ],
+     "between_communities": [
+      0.533,
+      0.536
+     ],
+     "edges_within": 12,
+     "edges_between": 16,
+     "links": {
+      "within_community": [
+       0.8938,
+       0.8948,
+       0.8955,
+       0.8959,
+       0.8967,
+       0.8968,
+       0.897,
+       0.8974,
+       0.8974,
+       0.8979,
+       0.898,
+       0.9002
+      ],
+      "between_communities": [
+       0.5325,
+       0.5327,
+       0.533,
+       0.5334,
+       0.5335,
+       0.5337,
+       0.5339,
+       0.534,
+       0.5342,
+       0.5342,
+       0.5345,
+       0.5351,
+       0.5352,
+       0.5355,
+       0.5359,
+       0.536
+      ]
+     }
+    },
+    "max_hashes_per_sample": 1000000,
+    "compared_at_scaled": 1000,
+    "hashes_per_sample": [
+     33359,
+     35561
+    ],
+    "sketch_seconds": 5.266,
+    "sketch_workers": 8,
+    "memory_bound_bytes": 384000000,
+    "command": {
+     "wall_seconds": 7.5,
+     "cpu_seconds": 55.6,
+     "max_single_process_rss_kib": 41800
+    }
+   },
+   "reads-seeded": {
+    "represents": "original-reads",
+    "policy": "seeded",
+    "min_similarity": null,
+    "groups": [
+     [
+      "A01",
+      "A02",
+      "A03",
+      "A04"
+     ],
+     [
+      "B01",
+      "B02",
+      "B03",
+      "B04"
+     ]
+    ],
+    "adjusted_rand_index_vs_community": 1.0,
+    "similarity": {
+     "within_community": [
+      0.894,
+      0.9
+     ],
+     "between_communities": [
+      0.533,
+      0.536
+     ],
+     "edges_within": 12,
+     "edges_between": 16,
+     "links": {
+      "within_community": [
+       0.8938,
+       0.8948,
+       0.8955,
+       0.8959,
+       0.8967,
+       0.8968,
+       0.897,
+       0.8974,
+       0.8974,
+       0.8979,
+       0.898,
+       0.9002
+      ],
+      "between_communities": [
+       0.5325,
+       0.5327,
+       0.533,
+       0.5334,
+       0.5335,
+       0.5337,
+       0.5339,
+       0.534,
+       0.5342,
+       0.5342,
+       0.5345,
+       0.5351,
+       0.5352,
+       0.5355,
+       0.5359,
+       0.536
+      ]
+     }
+    },
+    "max_hashes_per_sample": 1000000,
+    "compared_at_scaled": 1000,
+    "hashes_per_sample": [
+     33359,
+     35561
+    ],
+    "sketch_seconds": 5.021,
+    "sketch_workers": 8,
+    "memory_bound_bytes": 384000000,
+    "command": {
+     "wall_seconds": 7.3,
+     "cpu_seconds": 53.9,
+     "max_single_process_rss_kib": 41924
+    }
+   }
+  },
+  "split": {
+   "pools-merge": {
+    "represents": "discovery-pools",
+    "policy": "merge",
+    "min_similarity": null,
+    "groups": [
+     [
+      "A01",
+      "A02",
+      "A03",
+      "A04"
+     ],
+     [
+      "B01",
+      "B02",
+      "B03",
+      "B04"
+     ]
+    ],
+    "adjusted_rand_index_vs_community": 1.0,
+    "similarity": {
+     "within_community": [
+      0.829,
+      0.88
+     ],
+     "between_communities": [
+      0.039,
+      0.045
+     ],
+     "edges_within": 12,
+     "edges_between": 16,
+     "links": {
+      "within_community": [
+       0.8285,
+       0.8298,
+       0.8308,
+       0.8309,
+       0.8338,
+       0.8382,
+       0.873,
+       0.8752,
+       0.8758,
+       0.8771,
+       0.8795,
+       0.8804
+      ],
+      "between_communities": [
+       0.0387,
+       0.0408,
+       0.0414,
+       0.0415,
+       0.0418,
+       0.0424,
+       0.0425,
+       0.0428,
+       0.0428,
+       0.043,
+       0.0432,
+       0.0432,
+       0.0434,
+       0.0437,
+       0.0437,
+       0.0446
+      ]
+     }
+    },
+    "max_hashes_per_sample": 1000000,
+    "compared_at_scaled": 1000,
+    "hashes_per_sample": [
+     7431,
+     9830
+    ],
+    "sketch_seconds": 1.018,
+    "sketch_workers": 8,
+    "memory_bound_bytes": 384000000,
+    "command": {
+     "wall_seconds": 1.6,
+     "cpu_seconds": 11.7,
+     "max_single_process_rss_kib": 37376
+    }
+   },
+   "pools-seeded": {
+    "represents": "discovery-pools",
+    "policy": "seeded",
+    "min_similarity": null,
+    "groups": [
+     [
+      "A01",
+      "A02",
+      "A03",
+      "A04"
+     ],
+     [
+      "B01",
+      "B02",
+      "B03",
+      "B04"
+     ]
+    ],
+    "adjusted_rand_index_vs_community": 1.0,
+    "similarity": {
+     "within_community": [
+      0.829,
+      0.88
+     ],
+     "between_communities": [
+      0.039,
+      0.045
+     ],
+     "edges_within": 12,
+     "edges_between": 16,
+     "links": {
+      "within_community": [
+       0.8285,
+       0.8298,
+       0.8308,
+       0.8309,
+       0.8338,
+       0.8382,
+       0.873,
+       0.8752,
+       0.8758,
+       0.8771,
+       0.8795,
+       0.8804
+      ],
+      "between_communities": [
+       0.0387,
+       0.0408,
+       0.0414,
+       0.0415,
+       0.0418,
+       0.0424,
+       0.0425,
+       0.0428,
+       0.0428,
+       0.043,
+       0.0432,
+       0.0432,
+       0.0434,
+       0.0437,
+       0.0437,
+       0.0446
+      ]
+     }
+    },
+    "max_hashes_per_sample": 1000000,
+    "compared_at_scaled": 1000,
+    "hashes_per_sample": [
+     7431,
+     9830
+    ],
+    "sketch_seconds": 1.516,
+    "sketch_workers": 8,
+    "memory_bound_bytes": 384000000,
+    "command": {
+     "wall_seconds": 2.5,
+     "cpu_seconds": 13.8,
+     "max_single_process_rss_kib": 37376
+    }
+   },
+   "pools-threshold-0.05": {
+    "represents": "discovery-pools",
+    "policy": "threshold",
+    "min_similarity": 0.05,
+    "groups": [
+     [
+      "A01",
+      "A02",
+      "A03",
+      "A04"
+     ],
+     [
+      "B01",
+      "B02",
+      "B03",
+      "B04"
+     ]
+    ],
+    "adjusted_rand_index_vs_community": 1.0,
+    "similarity": {
+     "within_community": [
+      0.829,
+      0.88
+     ],
+     "between_communities": [
+      0.039,
+      0.045
+     ],
+     "edges_within": 12,
+     "edges_between": 16,
+     "links": {
+      "within_community": [
+       0.8285,
+       0.8298,
+       0.8308,
+       0.8309,
+       0.8338,
+       0.8382,
+       0.873,
+       0.8752,
+       0.8758,
+       0.8771,
+       0.8795,
+       0.8804
+      ],
+      "between_communities": [
+       0.0387,
+       0.0408,
+       0.0414,
+       0.0415,
+       0.0418,
+       0.0424,
+       0.0425,
+       0.0428,
+       0.0428,
+       0.043,
+       0.0432,
+       0.0432,
+       0.0434,
+       0.0437,
+       0.0437,
+       0.0446
+      ]
+     }
+    },
+    "max_hashes_per_sample": 1000000,
+    "compared_at_scaled": 1000,
+    "hashes_per_sample": [
+     7431,
+     9830
+    ],
+    "sketch_seconds": 1.314,
+    "sketch_workers": 8,
+    "memory_bound_bytes": 384000000,
+    "command": {
+     "wall_seconds": 1.9,
+     "cpu_seconds": 12.1,
+     "max_single_process_rss_kib": 37376
+    }
+   },
+   "pools-threshold-0.1": {
+    "represents": "discovery-pools",
+    "policy": "threshold",
+    "min_similarity": 0.1,
+    "groups": [
+     [
+      "A01",
+      "A02",
+      "A03",
+      "A04"
+     ],
+     [
+      "B01",
+      "B02",
+      "B03",
+      "B04"
+     ]
+    ],
+    "adjusted_rand_index_vs_community": 1.0,
+    "similarity": {
+     "within_community": [
+      0.829,
+      0.88
+     ],
+     "between_communities": [
+      0.039,
+      0.045
+     ],
+     "edges_within": 12,
+     "edges_between": 16,
+     "links": {
+      "within_community": [
+       0.8285,
+       0.8298,
+       0.8308,
+       0.8309,
+       0.8338,
+       0.8382,
+       0.873,
+       0.8752,
+       0.8758,
+       0.8771,
+       0.8795,
+       0.8804
+      ],
+      "between_communities": [
+       0.0387,
+       0.0408,
+       0.0414,
+       0.0415,
+       0.0418,
+       0.0424,
+       0.0425,
+       0.0428,
+       0.0428,
+       0.043,
+       0.0432,
+       0.0432,
+       0.0434,
+       0.0437,
+       0.0437,
+       0.0446
+      ]
+     }
+    },
+    "max_hashes_per_sample": 1000000,
+    "compared_at_scaled": 1000,
+    "hashes_per_sample": [
+     7431,
+     9830
+    ],
+    "sketch_seconds": 1.642,
+    "sketch_workers": 8,
+    "memory_bound_bytes": 384000000,
+    "command": {
+     "wall_seconds": 2.7,
+     "cpu_seconds": 13.5,
+     "max_single_process_rss_kib": 37376
+    }
+   },
+   "pools-threshold-0.5": {
+    "represents": "discovery-pools",
+    "policy": "threshold",
+    "min_similarity": 0.5,
+    "groups": [
+     [
+      "A01",
+      "A02",
+      "A03",
+      "A04"
+     ],
+     [
+      "B01",
+      "B02",
+      "B03",
+      "B04"
+     ]
+    ],
+    "adjusted_rand_index_vs_community": 1.0,
+    "similarity": {
+     "within_community": [
+      0.829,
+      0.88
+     ],
+     "between_communities": [
+      0.039,
+      0.045
+     ],
+     "edges_within": 12,
+     "edges_between": 16,
+     "links": {
+      "within_community": [
+       0.8285,
+       0.8298,
+       0.8308,
+       0.8309,
+       0.8338,
+       0.8382,
+       0.873,
+       0.8752,
+       0.8758,
+       0.8771,
+       0.8795,
+       0.8804
+      ],
+      "between_communities": [
+       0.0387,
+       0.0408,
+       0.0414,
+       0.0415,
+       0.0418,
+       0.0424,
+       0.0425,
+       0.0428,
+       0.0428,
+       0.043,
+       0.0432,
+       0.0432,
+       0.0434,
+       0.0437,
+       0.0437,
+       0.0446
+      ]
+     }
+    },
+    "max_hashes_per_sample": 1000000,
+    "compared_at_scaled": 1000,
+    "hashes_per_sample": [
+     7431,
+     9830
+    ],
+    "sketch_seconds": 1.213,
+    "sketch_workers": 8,
+    "memory_bound_bytes": 384000000,
+    "command": {
+     "wall_seconds": 2.1,
+     "cpu_seconds": 12.6,
+     "max_single_process_rss_kib": 37376
+    }
+   },
+   "pools-threshold-0.8": {
+    "represents": "discovery-pools",
+    "policy": "threshold",
+    "min_similarity": 0.8,
+    "groups": [
+     [
+      "A01",
+      "A02",
+      "A03",
+      "A04"
+     ],
+     [
+      "B01",
+      "B02",
+      "B03",
+      "B04"
+     ]
+    ],
+    "adjusted_rand_index_vs_community": 1.0,
+    "similarity": {
+     "within_community": [
+      0.829,
+      0.88
+     ],
+     "between_communities": [
+      0.039,
+      0.045
+     ],
+     "edges_within": 12,
+     "edges_between": 16,
+     "links": {
+      "within_community": [
+       0.8285,
+       0.8298,
+       0.8308,
+       0.8309,
+       0.8338,
+       0.8382,
+       0.873,
+       0.8752,
+       0.8758,
+       0.8771,
+       0.8795,
+       0.8804
+      ],
+      "between_communities": [
+       0.0387,
+       0.0408,
+       0.0414,
+       0.0415,
+       0.0418,
+       0.0424,
+       0.0425,
+       0.0428,
+       0.0428,
+       0.043,
+       0.0432,
+       0.0432,
+       0.0434,
+       0.0437,
+       0.0437,
+       0.0446
+      ]
+     }
+    },
+    "max_hashes_per_sample": 1000000,
+    "compared_at_scaled": 1000,
+    "hashes_per_sample": [
+     7431,
+     9830
+    ],
+    "sketch_seconds": 1.016,
+    "sketch_workers": 8,
+    "memory_bound_bytes": 384000000,
+    "command": {
+     "wall_seconds": 1.7,
+     "cpu_seconds": 11.8,
+     "max_single_process_rss_kib": 37376
+    }
+   },
+   "reads-merge": {
+    "represents": "original-reads",
+    "policy": "merge",
+    "min_similarity": null,
+    "groups": [
+     [
+      "A01",
+      "A02",
+      "A03",
+      "A04"
+     ],
+     [
+      "B01",
+      "B02",
+      "B03",
+      "B04"
+     ]
+    ],
+    "adjusted_rand_index_vs_community": 1.0,
+    "similarity": {
+     "within_community": [
+      0.862,
+      0.871
+     ],
+     "between_communities": [
+      0.524,
+      0.529
+     ],
+     "edges_within": 12,
+     "edges_between": 16,
+     "links": {
+      "within_community": [
+       0.8625,
+       0.8633,
+       0.8633,
+       0.8644,
+       0.8646,
+       0.8656,
+       0.866,
+       0.8677,
+       0.8677,
+       0.8694,
+       0.8705,
+       0.8707
+      ],
+      "between_communities": [
+       0.5244,
+       0.5245,
+       0.525,
+       0.5257,
+       0.5261,
+       0.5261,
+       0.5262,
+       0.5264,
+       0.5267,
+       0.5268,
+       0.5269,
+       0.527,
+       0.5277,
+       0.5281,
+       0.5283,
+       0.5287
+      ]
+     }
+    },
+    "max_hashes_per_sample": 1000000,
+    "compared_at_scaled": 1000,
+    "hashes_per_sample": [
+     34390,
+     36550
+    ],
+    "sketch_seconds": 5.546,
+    "sketch_workers": 8,
+    "memory_bound_bytes": 384000000,
+    "command": {
+     "wall_seconds": 7.6,
+     "cpu_seconds": 56.8,
+     "max_single_process_rss_kib": 40804
+    }
+   },
+   "reads-seeded": {
+    "represents": "original-reads",
+    "policy": "seeded",
+    "min_similarity": null,
+    "groups": [
+     [
+      "A01",
+      "A02",
+      "A03",
+      "A04"
+     ],
+     [
+      "B01",
+      "B02",
+      "B03",
+      "B04"
+     ]
+    ],
+    "adjusted_rand_index_vs_community": 1.0,
+    "similarity": {
+     "within_community": [
+      0.862,
+      0.871
+     ],
+     "between_communities": [
+      0.524,
+      0.529
+     ],
+     "edges_within": 12,
+     "edges_between": 16,
+     "links": {
+      "within_community": [
+       0.8625,
+       0.8633,
+       0.8633,
+       0.8644,
+       0.8646,
+       0.8656,
+       0.866,
+       0.8677,
+       0.8677,
+       0.8694,
+       0.8705,
+       0.8707
+      ],
+      "between_communities": [
+       0.5244,
+       0.5245,
+       0.525,
+       0.5257,
+       0.5261,
+       0.5261,
+       0.5262,
+       0.5264,
+       0.5267,
+       0.5268,
+       0.5269,
+       0.527,
+       0.5277,
+       0.5281,
+       0.5283,
+       0.5287
+      ]
+     }
+    },
+    "max_hashes_per_sample": 1000000,
+    "compared_at_scaled": 1000,
+    "hashes_per_sample": [
+     34390,
+     36550
+    ],
+    "sketch_seconds": 5.523,
+    "sketch_workers": 8,
+    "memory_bound_bytes": 384000000,
+    "command": {
+     "wall_seconds": 7.7,
+     "cpu_seconds": 57.4,
+     "max_single_process_rss_kib": 39260
+    }
+   }
+  },
+  "hard": {
+   "pools-merge": {
+    "represents": "discovery-pools",
+    "policy": "merge",
+    "min_similarity": null,
+    "groups": [
+     [
+      "A01",
+      "A02",
+      "A03",
+      "A04"
+     ],
+     [
+      "B01",
+      "B02",
+      "B03",
+      "B04"
+     ],
+     [
+      "C01",
+      "C02",
+      "C03",
+      "C04"
+     ]
+    ],
+    "adjusted_rand_index_vs_community": 1.0,
+    "similarity": {
+     "within_community": [
+      0.661,
+      0.7
+     ],
+     "between_communities": [
+      0.059,
+      0.075
+     ],
+     "edges_within": 18,
+     "edges_between": 47,
+     "links": {
+      "within_community": [
+       0.6609,
+       0.6628,
+       0.6667,
+       0.6695,
+       0.6708,
+       0.672,
+       0.6721,
+       0.6742,
+       0.6748,
+       0.6757,
+       0.6763,
+       0.6769,
+       0.693,
+       0.6955,
+       0.6964,
+       0.6979,
+       0.6989,
+       0.6999
+      ],
+      "between_communities": [
+       0.0591,
+       0.0592,
+       0.0593,
+       0.0598,
+       0.0599,
+       0.0601,
+       0.0602,
+       0.0603,
+       0.0604,
+       0.0605,
+       0.0607,
+       0.0621,
+       0.0623,
+       0.0631,
+       0.0633,
+       0.0633,
+       0.0644,
+       0.0649,
+       0.065,
+       0.0653,
+       0.0653,
+       0.0658,
+       0.066,
+       0.0663,
+       0.0666,
+       0.0667,
+       0.0673,
+       0.0674,
+       0.0675,
+       0.0686,
+       0.0688,
+       0.0692,
+       0.0694,
+       0.0698,
+       0.0703,
+       0.0708,
+       0.071,
+       0.071,
+       0.0717,
+       0.0725,
+       0.073,
+       0.073,
+       0.0731,
+       0.0737,
+       0.075,
+       0.0751,
+       0.0752
+      ]
+     }
+    },
+    "max_hashes_per_sample": 1000000,
+    "compared_at_scaled": 1000,
+    "hashes_per_sample": [
+     10633,
+     13914
+    ],
+    "sketch_seconds": 1.249,
+    "sketch_workers": 12,
+    "memory_bound_bytes": 576000000,
+    "command": {
+     "wall_seconds": 1.9,
+     "cpu_seconds": 17.9,
+     "max_single_process_rss_kib": 53760
+    }
+   },
+   "pools-seeded": {
+    "represents": "discovery-pools",
+    "policy": "seeded",
+    "min_similarity": null,
+    "groups": [
+     [
+      "A01",
+      "A02",
+      "A03",
+      "A04"
+     ],
+     [
+      "B01",
+      "B02",
+      "B03",
+      "B04"
+     ],
+     [
+      "C01",
+      "C02",
+      "C03",
+      "C04"
+     ]
+    ],
+    "adjusted_rand_index_vs_community": 1.0,
+    "similarity": {
+     "within_community": [
+      0.661,
+      0.7
+     ],
+     "between_communities": [
+      0.059,
+      0.075
+     ],
+     "edges_within": 18,
+     "edges_between": 47,
+     "links": {
+      "within_community": [
+       0.6609,
+       0.6628,
+       0.6667,
+       0.6695,
+       0.6708,
+       0.672,
+       0.6721,
+       0.6742,
+       0.6748,
+       0.6757,
+       0.6763,
+       0.6769,
+       0.693,
+       0.6955,
+       0.6964,
+       0.6979,
+       0.6989,
+       0.6999
+      ],
+      "between_communities": [
+       0.0591,
+       0.0592,
+       0.0593,
+       0.0598,
+       0.0599,
+       0.0601,
+       0.0602,
+       0.0603,
+       0.0604,
+       0.0605,
+       0.0607,
+       0.0621,
+       0.0623,
+       0.0631,
+       0.0633,
+       0.0633,
+       0.0644,
+       0.0649,
+       0.065,
+       0.0653,
+       0.0653,
+       0.0658,
+       0.066,
+       0.0663,
+       0.0666,
+       0.0667,
+       0.0673,
+       0.0674,
+       0.0675,
+       0.0686,
+       0.0688,
+       0.0692,
+       0.0694,
+       0.0698,
+       0.0703,
+       0.0708,
+       0.071,
+       0.071,
+       0.0717,
+       0.0725,
+       0.073,
+       0.073,
+       0.0731,
+       0.0737,
+       0.075,
+       0.0751,
+       0.0752
+      ]
+     }
+    },
+    "max_hashes_per_sample": 1000000,
+    "compared_at_scaled": 1000,
+    "hashes_per_sample": [
+     10633,
+     13914
+    ],
+    "sketch_seconds": 1.071,
+    "sketch_workers": 12,
+    "memory_bound_bytes": 576000000,
+    "command": {
+     "wall_seconds": 1.9,
+     "cpu_seconds": 17.5,
+     "max_single_process_rss_kib": 53760
+    }
+   },
+   "pools-threshold-0.05": {
+    "represents": "discovery-pools",
+    "policy": "threshold",
+    "min_similarity": 0.05,
+    "groups": [
+     [
+      "A01",
+      "A02",
+      "A03",
+      "A04"
+     ],
+     [
+      "B01",
+      "B02",
+      "B03",
+      "B04"
+     ],
+     [
+      "C01",
+      "C02",
+      "C03",
+      "C04"
+     ]
+    ],
+    "adjusted_rand_index_vs_community": 1.0,
+    "similarity": {
+     "within_community": [
+      0.661,
+      0.7
+     ],
+     "between_communities": [
+      0.059,
+      0.075
+     ],
+     "edges_within": 18,
+     "edges_between": 47,
+     "links": {
+      "within_community": [
+       0.6609,
+       0.6628,
+       0.6667,
+       0.6695,
+       0.6708,
+       0.672,
+       0.6721,
+       0.6742,
+       0.6748,
+       0.6757,
+       0.6763,
+       0.6769,
+       0.693,
+       0.6955,
+       0.6964,
+       0.6979,
+       0.6989,
+       0.6999
+      ],
+      "between_communities": [
+       0.0591,
+       0.0592,
+       0.0593,
+       0.0598,
+       0.0599,
+       0.0601,
+       0.0602,
+       0.0603,
+       0.0604,
+       0.0605,
+       0.0607,
+       0.0621,
+       0.0623,
+       0.0631,
+       0.0633,
+       0.0633,
+       0.0644,
+       0.0649,
+       0.065,
+       0.0653,
+       0.0653,
+       0.0658,
+       0.066,
+       0.0663,
+       0.0666,
+       0.0667,
+       0.0673,
+       0.0674,
+       0.0675,
+       0.0686,
+       0.0688,
+       0.0692,
+       0.0694,
+       0.0698,
+       0.0703,
+       0.0708,
+       0.071,
+       0.071,
+       0.0717,
+       0.0725,
+       0.073,
+       0.073,
+       0.0731,
+       0.0737,
+       0.075,
+       0.0751,
+       0.0752
+      ]
+     }
+    },
+    "max_hashes_per_sample": 1000000,
+    "compared_at_scaled": 1000,
+    "hashes_per_sample": [
+     10633,
+     13914
+    ],
+    "sketch_seconds": 1.057,
+    "sketch_workers": 12,
+    "memory_bound_bytes": 576000000,
+    "command": {
+     "wall_seconds": 1.7,
+     "cpu_seconds": 17.2,
+     "max_single_process_rss_kib": 53760
+    }
+   },
+   "pools-threshold-0.1": {
+    "represents": "discovery-pools",
+    "policy": "threshold",
+    "min_similarity": 0.1,
+    "groups": [
+     [
+      "A01",
+      "A02",
+      "A03",
+      "A04"
+     ],
+     [
+      "B01",
+      "B02",
+      "B03",
+      "B04"
+     ],
+     [
+      "C01",
+      "C02",
+      "C03",
+      "C04"
+     ]
+    ],
+    "adjusted_rand_index_vs_community": 1.0,
+    "similarity": {
+     "within_community": [
+      0.661,
+      0.7
+     ],
+     "between_communities": [
+      0.059,
+      0.075
+     ],
+     "edges_within": 18,
+     "edges_between": 47,
+     "links": {
+      "within_community": [
+       0.6609,
+       0.6628,
+       0.6667,
+       0.6695,
+       0.6708,
+       0.672,
+       0.6721,
+       0.6742,
+       0.6748,
+       0.6757,
+       0.6763,
+       0.6769,
+       0.693,
+       0.6955,
+       0.6964,
+       0.6979,
+       0.6989,
+       0.6999
+      ],
+      "between_communities": [
+       0.0591,
+       0.0592,
+       0.0593,
+       0.0598,
+       0.0599,
+       0.0601,
+       0.0602,
+       0.0603,
+       0.0604,
+       0.0605,
+       0.0607,
+       0.0621,
+       0.0623,
+       0.0631,
+       0.0633,
+       0.0633,
+       0.0644,
+       0.0649,
+       0.065,
+       0.0653,
+       0.0653,
+       0.0658,
+       0.066,
+       0.0663,
+       0.0666,
+       0.0667,
+       0.0673,
+       0.0674,
+       0.0675,
+       0.0686,
+       0.0688,
+       0.0692,
+       0.0694,
+       0.0698,
+       0.0703,
+       0.0708,
+       0.071,
+       0.071,
+       0.0717,
+       0.0725,
+       0.073,
+       0.073,
+       0.0731,
+       0.0737,
+       0.075,
+       0.0751,
+       0.0752
+      ]
+     }
+    },
+    "max_hashes_per_sample": 1000000,
+    "compared_at_scaled": 1000,
+    "hashes_per_sample": [
+     10633,
+     13914
+    ],
+    "sketch_seconds": 1.436,
+    "sketch_workers": 12,
+    "memory_bound_bytes": 576000000,
+    "command": {
+     "wall_seconds": 2.0,
+     "cpu_seconds": 17.8,
+     "max_single_process_rss_kib": 53760
+    }
+   },
+   "pools-threshold-0.5": {
+    "represents": "discovery-pools",
+    "policy": "threshold",
+    "min_similarity": 0.5,
+    "groups": [
+     [
+      "A01",
+      "A02",
+      "A03",
+      "A04"
+     ],
+     [
+      "B01",
+      "B02",
+      "B03",
+      "B04"
+     ],
+     [
+      "C01",
+      "C02",
+      "C03",
+      "C04"
+     ]
+    ],
+    "adjusted_rand_index_vs_community": 1.0,
+    "similarity": {
+     "within_community": [
+      0.661,
+      0.7
+     ],
+     "between_communities": [
+      0.059,
+      0.075
+     ],
+     "edges_within": 18,
+     "edges_between": 47,
+     "links": {
+      "within_community": [
+       0.6609,
+       0.6628,
+       0.6667,
+       0.6695,
+       0.6708,
+       0.672,
+       0.6721,
+       0.6742,
+       0.6748,
+       0.6757,
+       0.6763,
+       0.6769,
+       0.693,
+       0.6955,
+       0.6964,
+       0.6979,
+       0.6989,
+       0.6999
+      ],
+      "between_communities": [
+       0.0591,
+       0.0592,
+       0.0593,
+       0.0598,
+       0.0599,
+       0.0601,
+       0.0602,
+       0.0603,
+       0.0604,
+       0.0605,
+       0.0607,
+       0.0621,
+       0.0623,
+       0.0631,
+       0.0633,
+       0.0633,
+       0.0644,
+       0.0649,
+       0.065,
+       0.0653,
+       0.0653,
+       0.0658,
+       0.066,
+       0.0663,
+       0.0666,
+       0.0667,
+       0.0673,
+       0.0674,
+       0.0675,
+       0.0686,
+       0.0688,
+       0.0692,
+       0.0694,
+       0.0698,
+       0.0703,
+       0.0708,
+       0.071,
+       0.071,
+       0.0717,
+       0.0725,
+       0.073,
+       0.073,
+       0.0731,
+       0.0737,
+       0.075,
+       0.0751,
+       0.0752
+      ]
+     }
+    },
+    "max_hashes_per_sample": 1000000,
+    "compared_at_scaled": 1000,
+    "hashes_per_sample": [
+     10633,
+     13914
+    ],
+    "sketch_seconds": 1.181,
+    "sketch_workers": 12,
+    "memory_bound_bytes": 576000000,
+    "command": {
+     "wall_seconds": 1.9,
+     "cpu_seconds": 18.0,
+     "max_single_process_rss_kib": 53248
+    }
+   },
+   "pools-threshold-0.8": {
+    "represents": "discovery-pools",
+    "policy": "threshold",
+    "min_similarity": 0.8,
+    "groups": [
+     [
+      "A01"
+     ],
+     [
+      "A02"
+     ],
+     [
+      "A03"
+     ],
+     [
+      "A04"
+     ],
+     [
+      "B01"
+     ],
+     [
+      "B02"
+     ],
+     [
+      "B03"
+     ],
+     [
+      "B04"
+     ],
+     [
+      "C01"
+     ],
+     [
+      "C02"
+     ],
+     [
+      "C03"
+     ],
+     [
+      "C04"
+     ]
+    ],
+    "adjusted_rand_index_vs_community": 0.0,
+    "similarity": {
+     "within_community": [
+      0.661,
+      0.7
+     ],
+     "between_communities": [
+      0.059,
+      0.075
+     ],
+     "edges_within": 18,
+     "edges_between": 47,
+     "links": {
+      "within_community": [
+       0.6609,
+       0.6628,
+       0.6667,
+       0.6695,
+       0.6708,
+       0.672,
+       0.6721,
+       0.6742,
+       0.6748,
+       0.6757,
+       0.6763,
+       0.6769,
+       0.693,
+       0.6955,
+       0.6964,
+       0.6979,
+       0.6989,
+       0.6999
+      ],
+      "between_communities": [
+       0.0591,
+       0.0592,
+       0.0593,
+       0.0598,
+       0.0599,
+       0.0601,
+       0.0602,
+       0.0603,
+       0.0604,
+       0.0605,
+       0.0607,
+       0.0621,
+       0.0623,
+       0.0631,
+       0.0633,
+       0.0633,
+       0.0644,
+       0.0649,
+       0.065,
+       0.0653,
+       0.0653,
+       0.0658,
+       0.066,
+       0.0663,
+       0.0666,
+       0.0667,
+       0.0673,
+       0.0674,
+       0.0675,
+       0.0686,
+       0.0688,
+       0.0692,
+       0.0694,
+       0.0698,
+       0.0703,
+       0.0708,
+       0.071,
+       0.071,
+       0.0717,
+       0.0725,
+       0.073,
+       0.073,
+       0.0731,
+       0.0737,
+       0.075,
+       0.0751,
+       0.0752
+      ]
+     }
+    },
+    "max_hashes_per_sample": 1000000,
+    "compared_at_scaled": 1000,
+    "hashes_per_sample": [
+     10633,
+     13914
+    ],
+    "sketch_seconds": 1.096,
+    "sketch_workers": 12,
+    "memory_bound_bytes": 576000000,
+    "command": {
+     "wall_seconds": 1.7,
+     "cpu_seconds": 16.9,
+     "max_single_process_rss_kib": 53248
+    }
+   },
+   "reads-merge": {
+    "represents": "original-reads",
+    "policy": "merge",
+    "min_similarity": null,
+    "groups": [
+     [
+      "A01",
+      "A02",
+      "A03",
+      "A04"
+     ],
+     [
+      "B01",
+      "B02",
+      "B03",
+      "B04"
+     ],
+     [
+      "C01",
+      "C02",
+      "C03",
+      "C04"
+     ]
+    ],
+    "adjusted_rand_index_vs_community": 1.0,
+    "similarity": {
+     "within_community": [
+      0.664,
+      0.743
+     ],
+     "between_communities": [
+      0.449,
+      0.492
+     ],
+     "edges_within": 18,
+     "edges_between": 46,
+     "links": {
+      "within_community": [
+       0.6638,
+       0.6661,
+       0.674,
+       0.6758,
+       0.6818,
+       0.684,
+       0.6977,
+       0.6978,
+       0.6982,
+       0.7024,
+       0.7032,
+       0.7117,
+       0.719,
+       0.7242,
+       0.7248,
+       0.7252,
+       0.7268,
+       0.7429
+      ],
+      "between_communities": [
+       0.4486,
+       0.4518,
+       0.4526,
+       0.4529,
+       0.4538,
+       0.4557,
+       0.4558,
+       0.4573,
+       0.4606,
+       0.4609,
+       0.461,
+       0.4614,
+       0.4629,
+       0.463,
+       0.4644,
+       0.4649,
+       0.4651,
+       0.4657,
+       0.4661,
+       0.4663,
+       0.4668,
+       0.4694,
+       0.4704,
+       0.4731,
+       0.4732,
+       0.4741,
+       0.4743,
+       0.4748,
+       0.4758,
+       0.4764,
+       0.4766,
+       0.4768,
+       0.4772,
+       0.478,
+       0.478,
+       0.478,
+       0.4781,
+       0.48,
+       0.4804,
+       0.4808,
+       0.4839,
+       0.4879,
+       0.489,
+       0.4896,
+       0.4913,
+       0.4922
+      ]
+     }
+    },
+    "max_hashes_per_sample": 1000000,
+    "compared_at_scaled": 1000,
+    "hashes_per_sample": [
+     36929,
+     42874
+    ],
+    "sketch_seconds": 2.768,
+    "sketch_workers": 12,
+    "memory_bound_bytes": 576000000,
+    "command": {
+     "wall_seconds": 4.0,
+     "cpu_seconds": 44.4,
+     "max_single_process_rss_kib": 52736
+    }
+   },
+   "reads-merge-cap1000": {
+    "represents": "original-reads",
+    "policy": "merge",
+    "min_similarity": null,
+    "groups": [
+     [
+      "A01",
+      "A02",
+      "A03",
+      "A04"
+     ],
+     [
+      "B01",
+      "B02",
+      "B03",
+      "B04"
+     ],
+     [
+      "C01",
+      "C02",
+      "C03",
+      "C04"
+     ]
+    ],
+    "adjusted_rand_index_vs_community": 1.0,
+    "similarity": {
+     "within_community": [
+      0.637,
+      0.743
+     ],
+     "between_communities": [
+      0.425,
+      0.484
+     ],
+     "edges_within": 18,
+     "edges_between": 45,
+     "links": {
+      "within_community": [
+       0.6365,
+       0.6386,
+       0.6539,
+       0.6605,
+       0.6633,
+       0.6653,
+       0.6656,
+       0.6743,
+       0.6888,
+       0.6995,
+       0.7005,
+       0.7006,
+       0.7047,
+       0.705,
+       0.7073,
+       0.723,
+       0.731,
+       0.7432
+      ],
+      "between_communities": [
+       0.4248,
+       0.4253,
+       0.4284,
+       0.4295,
+       0.4306,
+       0.4315,
+       0.4324,
+       0.4338,
+       0.4347,
+       0.4357,
+       0.4366,
+       0.4372,
+       0.4375,
+       0.4389,
+       0.4389,
+       0.4397,
+       0.4406,
+       0.4437,
+       0.4457,
+       0.4459,
+       0.4464,
+       0.4465,
+       0.4467,
+       0.4467,
+       0.447,
+       0.4507,
+       0.4511,
+       0.4526,
+       0.4528,
+       0.4537,
+       0.4548,
+       0.4555,
+       0.4575,
+       0.4579,
+       0.4579,
+       0.4604,
+       0.4645,
+       0.4651,
+       0.4672,
+       0.4674,
+       0.4724,
+       0.4775,
+       0.4785,
+       0.4818,
+       0.4845
+      ]
+     }
+    },
+    "max_hashes_per_sample": 1000,
+    "compared_at_scaled": 64000,
+    "hashes_per_sample": [
+     508,
+     669
+    ],
+    "sketch_seconds": 2.878,
+    "sketch_workers": 12,
+    "memory_bound_bytes": 576000,
+    "command": {
+     "wall_seconds": 4.2,
+     "cpu_seconds": 45.4,
+     "max_single_process_rss_kib": 52736
+    }
+   },
+   "reads-merge-cap10000": {
+    "represents": "original-reads",
+    "policy": "merge",
+    "min_similarity": null,
+    "groups": [
+     [
+      "A01",
+      "A02",
+      "A03",
+      "A04"
+     ],
+     [
+      "B01",
+      "B02",
+      "B03",
+      "B04"
+     ],
+     [
+      "C01",
+      "C02",
+      "C03",
+      "C04"
+     ]
+    ],
+    "adjusted_rand_index_vs_community": 1.0,
+    "similarity": {
+     "within_community": [
+      0.656,
+      0.748
+     ],
+     "between_communities": [
+      0.455,
+      0.496
+     ],
+     "edges_within": 18,
+     "edges_between": 45,
+     "links": {
+      "within_community": [
+       0.6563,
+       0.6628,
+       0.6711,
+       0.6713,
+       0.6749,
+       0.6783,
+       0.6983,
+       0.6993,
+       0.7038,
+       0.7042,
+       0.7054,
+       0.7088,
+       0.7232,
+       0.7306,
+       0.7312,
+       0.7319,
+       0.7339,
+       0.7482
+      ],
+      "between_communities": [
+       0.4549,
+       0.4549,
+       0.4586,
+       0.4587,
+       0.4615,
+       0.4626,
+       0.464,
+       0.4642,
+       0.4648,
+       0.4653,
+       0.4659,
+       0.4664,
+       0.4668,
+       0.467,
+       0.4672,
+       0.4674,
+       0.4691,
+       0.4693,
+       0.4702,
+       0.4708,
+       0.4718,
+       0.4722,
+       0.4723,
+       0.473,
+       0.476,
+       0.4761,
+       0.4764,
+       0.4765,
+       0.4767,
+       0.4799,
+       0.4817,
+       0.4817,
+       0.482,
+       0.4824,
+       0.4827,
+       0.4839,
+       0.484,
+       0.4843,
+       0.4851,
+       0.4868,
+       0.49,
+       0.4905,
+       0.4932,
+       0.4955,
+       0.4957
+      ]
+     }
+    },
+    "max_hashes_per_sample": 10000,
+    "compared_at_scaled": 8000,
+    "hashes_per_sample": [
+     4584,
+     5375
+    ],
+    "sketch_seconds": 2.954,
+    "sketch_workers": 12,
+    "memory_bound_bytes": 5760000,
+    "command": {
+     "wall_seconds": 4.4,
+     "cpu_seconds": 45.3,
+     "max_single_process_rss_kib": 52736
+    }
+   },
+   "reads-merge-cap100000": {
+    "represents": "original-reads",
+    "policy": "merge",
+    "min_similarity": null,
+    "groups": [
+     [
+      "A01",
+      "A02",
+      "A03",
+      "A04"
+     ],
+     [
+      "B01",
+      "B02",
+      "B03",
+      "B04"
+     ],
+     [
+      "C01",
+      "C02",
+      "C03",
+      "C04"
+     ]
+    ],
+    "adjusted_rand_index_vs_community": 1.0,
+    "similarity": {
+     "within_community": [
+      0.664,
+      0.743
+     ],
+     "between_communities": [
+      0.449,
+      0.492
+     ],
+     "edges_within": 18,
+     "edges_between": 46,
+     "links": {
+      "within_community": [
+       0.6638,
+       0.6661,
+       0.674,
+       0.6758,
+       0.6818,
+       0.684,
+       0.6977,
+       0.6978,
+       0.6982,
+       0.7024,
+       0.7032,
+       0.7117,
+       0.719,
+       0.7242,
+       0.7248,
+       0.7252,
+       0.7268,
+       0.7429
+      ],
+      "between_communities": [
+       0.4486,
+       0.4518,
+       0.4526,
+       0.4529,
+       0.4538,
+       0.4557,
+       0.4558,
+       0.4573,
+       0.4606,
+       0.4609,
+       0.461,
+       0.4614,
+       0.4629,
+       0.463,
+       0.4644,
+       0.4649,
+       0.4651,
+       0.4657,
+       0.4661,
+       0.4663,
+       0.4668,
+       0.4694,
+       0.4704,
+       0.4731,
+       0.4732,
+       0.4741,
+       0.4743,
+       0.4748,
+       0.4758,
+       0.4764,
+       0.4766,
+       0.4768,
+       0.4772,
+       0.478,
+       0.478,
+       0.478,
+       0.4781,
+       0.48,
+       0.4804,
+       0.4808,
+       0.4839,
+       0.4879,
+       0.489,
+       0.4896,
+       0.4913,
+       0.4922
+      ]
+     }
+    },
+    "max_hashes_per_sample": 100000,
+    "compared_at_scaled": 1000,
+    "hashes_per_sample": [
+     36929,
+     42874
+    ],
+    "sketch_seconds": 2.72,
+    "sketch_workers": 12,
+    "memory_bound_bytes": 57600000,
+    "command": {
+     "wall_seconds": 4.1,
+     "cpu_seconds": 43.9,
+     "max_single_process_rss_kib": 52736
+    }
+   },
+   "reads-merge-scaled1-cap100000": {
+    "represents": "original-reads",
+    "policy": "merge",
+    "min_similarity": null,
+    "groups": [
+     [
+      "A01",
+      "A02",
+      "A03",
+      "A04"
+     ],
+     [
+      "B01",
+      "B02",
+      "B03",
+      "B04"
+     ],
+     [
+      "C01",
+      "C02",
+      "C03",
+      "C04"
+     ]
+    ],
+    "adjusted_rand_index_vs_community": 1.0,
+    "similarity": {
+     "within_community": [
+      0.666,
+      0.74
+     ],
+     "between_communities": [
+      0.449,
+      0.491
+     ],
+     "edges_within": 18,
+     "edges_between": 46,
+     "links": {
+      "within_community": [
+       0.6664,
+       0.6665,
+       0.6744,
+       0.6749,
+       0.6819,
+       0.6835,
+       0.6973,
+       0.698,
+       0.6987,
+       0.7027,
+       0.7054,
+       0.713,
+       0.7196,
+       0.723,
+       0.7233,
+       0.7243,
+       0.7262,
+       0.7404
+      ],
+      "between_communities": [
+       0.4489,
+       0.45,
+       0.4507,
+       0.453,
+       0.453,
+       0.4552,
+       0.456,
+       0.457,
+       0.4592,
+       0.4595,
+       0.4599,
+       0.461,
+       0.4613,
+       0.4629,
+       0.4637,
+       0.4639,
+       0.4639,
+       0.464,
+       0.4645,
+       0.466,
+       0.4667,
+       0.4697,
+       0.4706,
+       0.4715,
+       0.4736,
+       0.4749,
+       0.4749,
+       0.4751,
+       0.4753,
+       0.4757,
+       0.4764,
+       0.4768,
+       0.4774,
+       0.4775,
+       0.4777,
+       0.4779,
+       0.4785,
+       0.4786,
+       0.4788,
+       0.4802,
+       0.4837,
+       0.4881,
+       0.4886,
+       0.4902,
+       0.4905,
+       0.4909
+      ]
+     }
+    },
+    "max_hashes_per_sample": 100000,
+    "compared_at_scaled": 512,
+    "hashes_per_sample": [
+     72515,
+     83958
+    ],
+    "sketch_seconds": 3.104,
+    "sketch_workers": 12,
+    "memory_bound_bytes": 57600000,
+    "command": {
+     "wall_seconds": 5.0,
+     "cpu_seconds": 45.4,
+     "max_single_process_rss_kib": 61912
+    }
+   },
+   "reads-merge-scaled1-cap1000000": {
+    "represents": "original-reads",
+    "policy": "merge",
+    "min_similarity": null,
+    "groups": [
+     [
+      "A01",
+      "A02",
+      "A03",
+      "A04"
+     ],
+     [
+      "B01",
+      "B02",
+      "B03",
+      "B04"
+     ],
+     [
+      "C01",
+      "C02",
+      "C03",
+      "C04"
+     ]
+    ],
+    "adjusted_rand_index_vs_community": 1.0,
+    "similarity": {
+     "within_community": [
+      0.665,
+      0.735
+     ],
+     "between_communities": [
+      0.447,
+      0.488
+     ],
+     "edges_within": 18,
+     "edges_between": 46,
+     "links": {
+      "within_community": [
+       0.6651,
+       0.6667,
+       0.6727,
+       0.6741,
+       0.679,
+       0.6816,
+       0.6943,
+       0.6947,
+       0.6951,
+       0.7002,
+       0.7014,
+       0.7094,
+       0.7175,
+       0.7196,
+       0.721,
+       0.7228,
+       0.724,
+       0.7355
+      ],
+      "between_communities": [
+       0.447,
+       0.447,
+       0.4494,
+       0.4495,
+       0.4503,
+       0.4524,
+       0.4541,
+       0.455,
+       0.4565,
+       0.4573,
+       0.4574,
+       0.4584,
+       0.4587,
+       0.4592,
+       0.4594,
+       0.4612,
+       0.4615,
+       0.4618,
+       0.4621,
+       0.4628,
+       0.4637,
+       0.4658,
+       0.4671,
+       0.468,
+       0.471,
+       0.4713,
+       0.4716,
+       0.4716,
+       0.4724,
+       0.4727,
+       0.4729,
+       0.4744,
+       0.475,
+       0.4752,
+       0.4752,
+       0.4754,
+       0.4759,
+       0.4759,
+       0.476,
+       0.4764,
+       0.4818,
+       0.4862,
+       0.4862,
+       0.4864,
+       0.4865,
+       0.4884
+      ]
+     }
+    },
+    "max_hashes_per_sample": 1000000,
+    "compared_at_scaled": 64,
+    "hashes_per_sample": [
+     580431,
+     671764
+    ],
+    "sketch_seconds": 3.828,
+    "sketch_workers": 12,
+    "memory_bound_bytes": 576000000,
+    "command": {
+     "wall_seconds": 5.1,
+     "cpu_seconds": 48.0,
+     "max_single_process_rss_kib": 253452
+    }
+   },
+   "reads-merge-scaled1-cap10000000": {
+    "represents": "original-reads",
+    "policy": "merge",
+    "min_similarity": null,
+    "groups": [
+     [
+      "A01",
+      "A02",
+      "A03",
+      "A04"
+     ],
+     [
+      "B01",
+      "B02",
+      "B03",
+      "B04"
+     ],
+     [
+      "C01",
+      "C02",
+      "C03",
+      "C04"
+     ]
+    ],
+    "adjusted_rand_index_vs_community": 1.0,
+    "similarity": {
+     "within_community": [
+      0.665,
+      0.735
+     ],
+     "between_communities": [
+      0.446,
+      0.488
+     ],
+     "edges_within": 18,
+     "edges_between": 46,
+     "links": {
+      "within_community": [
+       0.6646,
+       0.6664,
+       0.6725,
+       0.6736,
+       0.6787,
+       0.6814,
+       0.6932,
+       0.6937,
+       0.6941,
+       0.6997,
+       0.7003,
+       0.7091,
+       0.7173,
+       0.7192,
+       0.7208,
+       0.7228,
+       0.723,
+       0.735
+      ],
+      "between_communities": [
+       0.4465,
+       0.4468,
+       0.4488,
+       0.4489,
+       0.4502,
+       0.4517,
+       0.4536,
+       0.4543,
+       0.4564,
+       0.4567,
+       0.4573,
+       0.458,
+       0.4581,
+       0.4587,
+       0.4589,
+       0.4602,
+       0.4607,
+       0.4612,
+       0.4617,
+       0.4621,
+       0.4624,
+       0.465,
+       0.4661,
+       0.4668,
+       0.4699,
+       0.47,
+       0.4706,
+       0.4709,
+       0.4713,
+       0.4717,
+       0.4722,
+       0.4739,
+       0.4743,
+       0.4744,
+       0.4745,
+       0.4747,
+       0.475,
+       0.4752,
+       0.4754,
+       0.4756,
+       0.4813,
+       0.4848,
+       0.4854,
+       0.4857,
+       0.4857,
+       0.4882
+      ]
+     }
+    },
+    "max_hashes_per_sample": 10000000,
+    "compared_at_scaled": 8,
+    "hashes_per_sample": [
+     4637874,
+     5367844
+    ],
+    "sketch_seconds": 10.578,
+    "sketch_workers": 12,
+    "memory_bound_bytes": 5760000000,
+    "command": {
+     "wall_seconds": 11.9,
+     "cpu_seconds": 75.3,
+     "max_single_process_rss_kib": 1916432
+    }
+   },
+   "reads-seeded": {
+    "represents": "original-reads",
+    "policy": "seeded",
+    "min_similarity": null,
+    "groups": [
+     [
+      "A01",
+      "A02",
+      "A03",
+      "A04"
+     ],
+     [
+      "B01",
+      "B02",
+      "B03",
+      "B04"
+     ],
+     [
+      "C01",
+      "C02",
+      "C03",
+      "C04"
+     ]
+    ],
+    "adjusted_rand_index_vs_community": 1.0,
+    "similarity": {
+     "within_community": [
+      0.664,
+      0.743
+     ],
+     "between_communities": [
+      0.449,
+      0.492
+     ],
+     "edges_within": 18,
+     "edges_between": 46,
+     "links": {
+      "within_community": [
+       0.6638,
+       0.6661,
+       0.674,
+       0.6758,
+       0.6818,
+       0.684,
+       0.6977,
+       0.6978,
+       0.6982,
+       0.7024,
+       0.7032,
+       0.7117,
+       0.719,
+       0.7242,
+       0.7248,
+       0.7252,
+       0.7268,
+       0.7429
+      ],
+      "between_communities": [
+       0.4486,
+       0.4518,
+       0.4526,
+       0.4529,
+       0.4538,
+       0.4557,
+       0.4558,
+       0.4573,
+       0.4606,
+       0.4609,
+       0.461,
+       0.4614,
+       0.4629,
+       0.463,
+       0.4644,
+       0.4649,
+       0.4651,
+       0.4657,
+       0.4661,
+       0.4663,
+       0.4668,
+       0.4694,
+       0.4704,
+       0.4731,
+       0.4732,
+       0.4741,
+       0.4743,
+       0.4748,
+       0.4758,
+       0.4764,
+       0.4766,
+       0.4768,
+       0.4772,
+       0.478,
+       0.478,
+       0.478,
+       0.4781,
+       0.48,
+       0.4804,
+       0.4808,
+       0.4839,
+       0.4879,
+       0.489,
+       0.4896,
+       0.4913,
+       0.4922
+      ]
+     }
+    },
+    "max_hashes_per_sample": 1000000,
+    "compared_at_scaled": 1000,
+    "hashes_per_sample": [
+     36929,
+     42874
+    ],
+    "sketch_seconds": 2.795,
+    "sketch_workers": 12,
+    "memory_bound_bytes": 576000000,
+    "command": {
+     "wall_seconds": 4.0,
+     "cpu_seconds": 43.3,
+     "max_single_process_rss_kib": 52736
+    }
+   }
+  }
+ },
+ "hard_assemblies": {
+  "arms": {
+   "sketch-merge": {
+    "assemblies": 3,
+    "assembly_seconds": 166.6,
+    "assembly_statuses": [
+     "contigs"
+    ],
+    "command": "coassemble",
+    "input_bases": 580531800,
+    "input_pairs": 1935106,
+    "max_peak_rss_kib": 389912,
+    "max_scratch_peak_bytes": 246455431,
+    "pooled_contig_sets": 0,
+    "shared": false,
+    "source_kind": "discovery-pools",
+    "grouping": "sketch",
+    "groups": [
+     [
+      "A01",
+      "A02",
+      "A03",
+      "A04"
+     ],
+     [
+      "B01",
+      "B02",
+      "B03",
+      "B04"
+     ],
+     [
+      "C01",
+      "C02",
+      "C03",
+      "C04"
+     ]
+    ],
+    "adjusted_rand_index_vs_community": 1.0,
+    "sketch_seconds": 1.08,
+    "end_to_end": {
+     "wall_seconds": 194.8,
+     "cpu_seconds": 2254.3,
+     "max_single_process_rss_kib": 423332
+    }
+   },
+   "random-1": {
+    "assemblies": 3,
+    "assembly_seconds": 239.9,
+    "assembly_statuses": [
+     "contigs"
+    ],
+    "command": "coassemble",
+    "input_bases": 580531800,
+    "input_pairs": 1935106,
+    "max_peak_rss_kib": 452752,
+    "max_scratch_peak_bytes": 411631740,
+    "pooled_contig_sets": 3,
+    "shared": false,
+    "source_kind": "discovery-pools",
+    "grouping": "random_1",
+    "groups": [
+     [
+      "B03",
+      "C01",
+      "C03",
+      "C04"
+     ],
+     [
+      "A02",
+      "A04",
+      "B02",
+      "C02"
+     ],
+     [
+      "A01",
+      "A03",
+      "B01",
+      "B04"
+     ]
+    ],
+    "adjusted_rand_index_vs_community": 0.083,
+    "sketch_seconds": null,
+    "end_to_end": {
+     "wall_seconds": 267.3,
+     "cpu_seconds": 3220.4,
+     "max_single_process_rss_kib": 538532
+    }
+   },
+   "random-2": {
+    "assemblies": 3,
+    "assembly_seconds": 282.1,
+    "assembly_statuses": [
+     "contigs"
+    ],
+    "command": "coassemble",
+    "input_bases": 580531800,
+    "input_pairs": 1935106,
+    "max_peak_rss_kib": 491368,
+    "max_scratch_peak_bytes": 413458635,
+    "pooled_contig_sets": 3,
+    "shared": false,
+    "source_kind": "discovery-pools",
+    "grouping": "random_2",
+    "groups": [
+     [
+      "A02",
+      "A03",
+      "B04",
+      "C03"
+     ],
+     [
+      "A01",
+      "B01",
+      "C01",
+      "C02"
+     ],
+     [
+      "A04",
+      "B02",
+      "B03",
+      "C04"
+     ]
+    ],
+    "adjusted_rand_index_vs_community": -0.146,
+    "sketch_seconds": null,
+    "end_to_end": {
+     "wall_seconds": 309.5,
+     "cpu_seconds": 3755.3,
+     "max_single_process_rss_kib": 543152
+    }
+   },
+   "random-3": {
+    "assemblies": 3,
+    "assembly_seconds": 241.1,
+    "assembly_statuses": [
+     "contigs"
+    ],
+    "command": "coassemble",
+    "input_bases": 580531800,
+    "input_pairs": 1935106,
+    "max_peak_rss_kib": 460160,
+    "max_scratch_peak_bytes": 392005640,
+    "pooled_contig_sets": 3,
+    "shared": false,
+    "source_kind": "discovery-pools",
+    "grouping": "random_3",
+    "groups": [
+     [
+      "B01",
+      "B02",
+      "B04",
+      "C03"
+     ],
+     [
+      "A02",
+      "B03",
+      "C01",
+      "C04"
+     ],
+     [
+      "A01",
+      "A03",
+      "A04",
+      "C02"
+     ]
+    ],
+    "adjusted_rand_index_vs_community": 0.16,
+    "sketch_seconds": null,
+    "end_to_end": {
+     "wall_seconds": 268.2,
+     "cpu_seconds": 3228.4,
+     "max_single_process_rss_kib": 544092
+    }
+   },
+   "community": {
+    "assemblies": 3,
+    "assembly_seconds": 156.9,
+    "assembly_statuses": [
+     "contigs"
+    ],
+    "command": "coassemble",
+    "input_bases": 580531800,
+    "input_pairs": 1935106,
+    "max_peak_rss_kib": 402528,
+    "max_scratch_peak_bytes": 246454900,
+    "pooled_contig_sets": 0,
+    "shared": false,
+    "source_kind": "discovery-pools",
+    "grouping": "community",
+    "groups": [
+     [
+      "A01",
+      "A02",
+      "A03",
+      "A04"
+     ],
+     [
+      "B01",
+      "B02",
+      "B03",
+      "B04"
+     ],
+     [
+      "C01",
+      "C02",
+      "C03",
+      "C04"
+     ]
+    ],
+    "adjusted_rand_index_vs_community": 1.0,
+    "sketch_seconds": null,
+    "end_to_end": {
+     "wall_seconds": 184.3,
+     "cpu_seconds": 2177.0,
+     "max_single_process_rss_kib": 423336
+    }
+   },
+   "pooled": {
+    "assemblies": 1,
+    "assembly_seconds": 158.7,
+    "assembly_statuses": [
+     "contigs"
+    ],
+    "command": "coassemble",
+    "input_bases": 580531800,
+    "input_pairs": 1935106,
+    "max_peak_rss_kib": 499468,
+    "max_scratch_peak_bytes": 562040571,
+    "pooled_contig_sets": 1,
+    "shared": false,
+    "source_kind": "discovery-pools",
+    "grouping": "all-samples",
+    "groups": [
+     [
+      "A01",
+      "A02",
+      "A03",
+      "A04",
+      "B01",
+      "B02",
+      "B03",
+      "B04",
+      "C01",
+      "C02",
+      "C03",
+      "C04"
+     ]
+    ],
+    "adjusted_rand_index_vs_community": 0.0,
+    "sketch_seconds": null,
+    "end_to_end": {
+     "wall_seconds": 186.2,
+     "cpu_seconds": 2209.2,
+     "max_single_process_rss_kib": 500644
+    }
+   },
+   "allreads-grouped": {
+    "assemblies": 3,
+    "assembly_seconds": 673.7,
+    "assembly_statuses": [
+     "contigs"
+    ],
+    "command": "assemble-reads",
+    "input_bases": 1800000000,
+    "input_pairs": 6000000,
+    "max_peak_rss_kib": 658700,
+    "max_scratch_peak_bytes": 929464087,
+    "pooled_contig_sets": 0,
+    "shared": false,
+    "source_kind": "all-reads",
+    "grouping": "community",
+    "groups": [
+     [
+      "A01",
+      "A02",
+      "A03",
+      "A04"
+     ],
+     [
+      "B01",
+      "B02",
+      "B03",
+      "B04"
+     ],
+     [
+      "C01",
+      "C02",
+      "C03",
+      "C04"
+     ]
+    ],
+    "adjusted_rand_index_vs_community": 1.0,
+    "sketch_seconds": null,
+    "end_to_end": {
+     "wall_seconds": 676.0,
+     "cpu_seconds": 8425.4,
+     "max_single_process_rss_kib": 674736
+    }
+   }
+  },
+  "communities": {
+   "community_A": {
+    "genomes": {
+     "GCF_000007525.1": "novel_rare",
+     "GCF_000007645.1": "novel_congener",
+     "GCF_000009205.2": "novel_thin",
+     "GCF_000020225.1": "novel_thin",
+     "GCF_000025465.1": "novel_congener"
+    },
+    "genome_fraction_percent": {
+     "allreads-grouped": {
+      "GCF_000007525.1": 73.019,
+      "GCF_000007645.1": 97.973,
+      "GCF_000009205.2": 11.251,
+      "GCF_000020225.1": 74.631,
+      "GCF_000025465.1": 90.77
+     },
+     "community": {
+      "GCF_000007525.1": 73.25,
+      "GCF_000007645.1": 97.997,
+      "GCF_000009205.2": 11.408,
+      "GCF_000020225.1": 74.795,
+      "GCF_000025465.1": 98.046
+     },
+     "pooled": {
+      "GCF_000007525.1": 73.159,
+      "GCF_000007645.1": 97.983,
+      "GCF_000009205.2": 93.698,
+      "GCF_000020225.1": 98.889,
+      "GCF_000025465.1": 98.017
+     },
+     "random-1": {
+      "GCF_000007525.1": 24.376,
+      "GCF_000007645.1": 98.073,
+      "GCF_000009205.2": 23.246,
+      "GCF_000020225.1": 92.007,
+      "GCF_000025465.1": 97.719
+     },
+     "random-2": {
+      "GCF_000007525.1": 13.087,
+      "GCF_000007645.1": 98.361,
+      "GCF_000009205.2": 31.584,
+      "GCF_000020225.1": 97.669,
+      "GCF_000025465.1": 97.484
+     },
+     "random-3": {
+      "GCF_000007525.1": 43.324,
+      "GCF_000007645.1": 98.163,
+      "GCF_000009205.2": 22.727,
+      "GCF_000020225.1": 92.796,
+      "GCF_000025465.1": 97.884
+     },
+     "sketch-merge": {
+      "GCF_000007525.1": 73.25,
+      "GCF_000007645.1": 97.997,
+      "GCF_000009205.2": 11.408,
+      "GCF_000020225.1": 74.795,
+      "GCF_000025465.1": 98.046
+     }
+    },
+    "report": {
+     "allreads-grouped": {
+      "bases_at_least_1000": 39901001,
+      "combined_genome_fraction_percent": 81.308,
+      "contigs_at_least_1000": 7844,
+      "indels_per_100kbp": 4.48,
+      "largest_contig": 886137,
+      "local_misassemblies": 14,
+      "misassemblies": 58,
+      "mismatches_per_100kbp": 122.75,
+      "n50": 8894,
+      "unaligned_length": 0
+     },
+     "community": {
+      "bases_at_least_1000": 12012449,
+      "combined_genome_fraction_percent": 24.282,
+      "contigs_at_least_1000": 2248,
+      "indels_per_100kbp": 1.82,
+      "largest_contig": 270414,
+      "local_misassemblies": 2,
+      "misassemblies": 14,
+      "mismatches_per_100kbp": 29.17,
+      "n50": 34832,
+      "unaligned_length": 0
+     },
+     "pooled": {
+      "bases_at_least_1000": 28944219,
+      "combined_genome_fraction_percent": 39.061,
+      "contigs_at_least_1000": 2019,
+      "indels_per_100kbp": 31.53,
+      "largest_contig": 982984,
+      "local_misassemblies": 137,
+      "misassemblies": 150,
+      "mismatches_per_100kbp": 971.72,
+      "n50": 88544,
+      "unaligned_length": 9751655
+     },
+     "random-1": {
+      "bases_at_least_1000": 40377476,
+      "combined_genome_fraction_percent": 30.739,
+      "contigs_at_least_1000": 6571,
+      "indels_per_100kbp": 34.35,
+      "largest_contig": 244264,
+      "local_misassemblies": 180,
+      "misassemblies": 206,
+      "mismatches_per_100kbp": 1217.9,
+      "n50": 23438,
+      "unaligned_length": 13742934
+     },
+     "random-2": {
+      "bases_at_least_1000": 65042097,
+      "combined_genome_fraction_percent": 31.61,
+      "contigs_at_least_1000": 13948,
+      "indels_per_100kbp": 35.84,
+      "largest_contig": 921271,
+      "local_misassemblies": 246,
+      "misassemblies": 308,
+      "mismatches_per_100kbp": 1307.19,
+      "n50": 7742,
+      "unaligned_length": 28055336
+     },
+     "random-3": {
+      "bases_at_least_1000": 37406285,
+      "combined_genome_fraction_percent": 30.352,
+      "contigs_at_least_1000": 7913,
+      "indels_per_100kbp": 23.18,
+      "largest_contig": 982984,
+      "local_misassemblies": 90,
+      "misassemblies": 107,
+      "mismatches_per_100kbp": 704.2,
+      "n50": 9205,
+      "unaligned_length": 14375428
+     },
+     "sketch-merge": {
+      "bases_at_least_1000": 12012449,
+      "combined_genome_fraction_percent": 24.282,
+      "contigs_at_least_1000": 2248,
+      "indels_per_100kbp": 1.82,
+      "largest_contig": 270414,
+      "local_misassemblies": 2,
+      "misassemblies": 14,
+      "mismatches_per_100kbp": 29.17,
+      "n50": 34832,
+      "unaligned_length": 0
+     }
+    }
+   },
+   "community_B": {
+    "genomes": {
+     "GCF_000009205.2": "novel_thin",
+     "GCF_000020225.1": "novel_thin",
+     "GCF_000026225.1": "novel_congener",
+     "GCF_000195795.1": "novel_congener"
+    },
+    "genome_fraction_percent": {
+     "allreads-grouped": {
+      "GCF_000009205.2": 12.402,
+      "GCF_000020225.1": 73.526,
+      "GCF_000026225.1": 92.662,
+      "GCF_000195795.1": 96.91
+     },
+     "community": {
+      "GCF_000009205.2": 12.597,
+      "GCF_000020225.1": 73.387,
+      "GCF_000026225.1": 97.719,
+      "GCF_000195795.1": 97.552
+     },
+     "pooled": {
+      "GCF_000009205.2": 93.702,
+      "GCF_000020225.1": 98.897,
+      "GCF_000026225.1": 97.84,
+      "GCF_000195795.1": 97.534
+     },
+     "random-1": {
+      "GCF_000009205.2": 32.534,
+      "GCF_000020225.1": 98.099,
+      "GCF_000026225.1": 97.545,
+      "GCF_000195795.1": 98.066
+     },
+     "random-2": {
+      "GCF_000009205.2": 31.593,
+      "GCF_000020225.1": 97.669,
+      "GCF_000026225.1": 97.695,
+      "GCF_000195795.1": 98.093
+     },
+     "random-3": {
+      "GCF_000009205.2": 22.058,
+      "GCF_000020225.1": 93.173,
+      "GCF_000026225.1": 97.779,
+      "GCF_000195795.1": 97.838
+     },
+     "sketch-merge": {
+      "GCF_000009205.2": 12.597,
+      "GCF_000020225.1": 73.387,
+      "GCF_000026225.1": 97.719,
+      "GCF_000195795.1": 97.552
+     }
+    },
+    "report": {
+     "allreads-grouped": {
+      "bases_at_least_1000": 39237689,
+      "combined_genome_fraction_percent": 83.683,
+      "contigs_at_least_1000": 5853,
+      "indels_per_100kbp": 2.19,
+      "largest_contig": 564055,
+      "local_misassemblies": 17,
+      "misassemblies": 52,
+      "mismatches_per_100kbp": 65.79,
+      "n50": 14190,
+      "unaligned_length": 0
+     },
+     "community": {
+      "bases_at_least_1000": 10058835,
+      "combined_genome_fraction_percent": 21.538,
+      "contigs_at_least_1000": 1535,
+      "indels_per_100kbp": 1.46,
+      "largest_contig": 492964,
+      "local_misassemblies": 6,
+      "misassemblies": 7,
+      "mismatches_per_100kbp": 31.77,
+      "n50": 69274,
+      "unaligned_length": 0
+     },
+     "pooled": {
+      "bases_at_least_1000": 28944219,
+      "combined_genome_fraction_percent": 39.991,
+      "contigs_at_least_1000": 2019,
+      "indels_per_100kbp": 41.26,
+      "largest_contig": 982984,
+      "local_misassemblies": 70,
+      "misassemblies": 135,
+      "mismatches_per_100kbp": 1267.23,
+      "n50": 88544,
+      "unaligned_length": 10189034
+     },
+     "random-1": {
+      "bases_at_least_1000": 54615629,
+      "combined_genome_fraction_percent": 34.361,
+      "contigs_at_least_1000": 10032,
+      "indels_per_100kbp": 40.49,
+      "largest_contig": 982984,
+      "local_misassemblies": 132,
+      "misassemblies": 288,
+      "mismatches_per_100kbp": 1287.7,
+      "n50": 18111,
+      "unaligned_length": 17658459
+     },
+     "random-2": {
+      "bases_at_least_1000": 65042097,
+      "combined_genome_fraction_percent": 34.228,
+      "contigs_at_least_1000": 13948,
+      "indels_per_100kbp": 46.4,
+      "largest_contig": 921271,
+      "local_misassemblies": 160,
+      "misassemblies": 298,
+      "mismatches_per_100kbp": 1581.75,
+      "n50": 7742,
+      "unaligned_length": 25314496
+     },
+     "random-3": {
+      "bases_at_least_1000": 36128645,
+      "combined_genome_fraction_percent": 31.414,
+      "contigs_at_least_1000": 7307,
+      "indels_per_100kbp": 26.33,
+      "largest_contig": 982984,
+      "local_misassemblies": 48,
+      "misassemblies": 91,
+      "mismatches_per_100kbp": 886.31,
+      "n50": 10191,
+      "unaligned_length": 13467482
+     },
+     "sketch-merge": {
+      "bases_at_least_1000": 10058835,
+      "combined_genome_fraction_percent": 21.538,
+      "contigs_at_least_1000": 1535,
+      "indels_per_100kbp": 1.46,
+      "largest_contig": 492964,
+      "local_misassemblies": 6,
+      "misassemblies": 7,
+      "mismatches_per_100kbp": 31.77,
+      "n50": 69274,
+      "unaligned_length": 0
+     }
+    }
+   },
+   "community_C": {
+    "genomes": {
+     "GCF_000009205.2": "novel_thin",
+     "GCF_000020225.1": "novel_thin",
+     "GCF_000025985.1": "novel_common"
+    },
+    "genome_fraction_percent": {
+     "allreads-grouped": {
+      "GCF_000009205.2": 12.461,
+      "GCF_000020225.1": 73.971,
+      "GCF_000025985.1": 99.421
+     },
+     "community": {
+      "GCF_000009205.2": 12.419,
+      "GCF_000020225.1": 73.975,
+      "GCF_000025985.1": 99.42
+     },
+     "pooled": {
+      "GCF_000009205.2": 93.698,
+      "GCF_000020225.1": 98.889,
+      "GCF_000025985.1": 99.42
+     },
+     "random-1": {
+      "GCF_000009205.2": 23.009,
+      "GCF_000020225.1": 93.361,
+      "GCF_000025985.1": 99.556
+     },
+     "random-2": {
+      "GCF_000009205.2": 31.589,
+      "GCF_000020225.1": 97.669,
+      "GCF_000025985.1": 99.674
+     },
+     "random-3": {
+      "GCF_000009205.2": 31.353,
+      "GCF_000020225.1": 97.913,
+      "GCF_000025985.1": 99.579
+     },
+     "sketch-merge": {
+      "GCF_000009205.2": 12.419,
+      "GCF_000020225.1": 73.975,
+      "GCF_000025985.1": 99.42
+     }
+    },
+    "report": {
+     "allreads-grouped": {
+      "bases_at_least_1000": 29825801,
+      "combined_genome_fraction_percent": 66.979,
+      "contigs_at_least_1000": 4850,
+      "indels_per_100kbp": 1.28,
+      "largest_contig": 982984,
+      "local_misassemblies": 10,
+      "misassemblies": 70,
+      "mismatches_per_100kbp": 23.99,
+      "n50": 101054,
+      "unaligned_length": 0
+     },
+     "community": {
+      "bases_at_least_1000": 7734847,
+      "combined_genome_fraction_percent": 17.407,
+      "contigs_at_least_1000": 1324,
+      "indels_per_100kbp": 2.02,
+      "largest_contig": 700721,
+      "local_misassemblies": 0,
+      "misassemblies": 12,
+      "mismatches_per_100kbp": 29.17,
+      "n50": 251499,
+      "unaligned_length": 0
+     },
+     "pooled": {
+      "bases_at_least_1000": 28944219,
+      "combined_genome_fraction_percent": 43.683,
+      "contigs_at_least_1000": 2019,
+      "indels_per_100kbp": 66.54,
+      "largest_contig": 982984,
+      "local_misassemblies": 199,
+      "misassemblies": 273,
+      "mismatches_per_100kbp": 2115.87,
+      "n50": 88544,
+      "unaligned_length": 9516637
+     },
+     "random-1": {
+      "bases_at_least_1000": 36535184,
+      "combined_genome_fraction_percent": 36.651,
+      "contigs_at_least_1000": 7649,
+      "indels_per_100kbp": 59.75,
+      "largest_contig": 982984,
+      "local_misassemblies": 219,
+      "misassemblies": 258,
+      "mismatches_per_100kbp": 2109.19,
+      "n50": 8754,
+      "unaligned_length": 11504414
+     },
+     "random-2": {
+      "bases_at_least_1000": 65042097,
+      "combined_genome_fraction_percent": 38.636,
+      "contigs_at_least_1000": 13948,
+      "indels_per_100kbp": 71.1,
+      "largest_contig": 921271,
+      "local_misassemblies": 392,
+      "misassemblies": 500,
+      "mismatches_per_100kbp": 2528.86,
+      "n50": 7742,
+      "unaligned_length": 22108722
+     },
+     "random-3": {
+      "bases_at_least_1000": 52625301,
+      "combined_genome_fraction_percent": 38.612,
+      "contigs_at_least_1000": 9495,
+      "indels_per_100kbp": 62.35,
+      "largest_contig": 982984,
+      "local_misassemblies": 324,
+      "misassemblies": 415,
+      "mismatches_per_100kbp": 2045.5,
+      "n50": 34066,
+      "unaligned_length": 15859207
+     },
+     "sketch-merge": {
+      "bases_at_least_1000": 7734847,
+      "combined_genome_fraction_percent": 17.407,
+      "contigs_at_least_1000": 1324,
+      "indels_per_100kbp": 2.02,
+      "largest_contig": 700721,
+      "local_misassemblies": 0,
+      "misassemblies": 12,
+      "mismatches_per_100kbp": 29.17,
+      "n50": 251499,
+      "unaligned_length": 0
+     }
+    }
+   }
+  },
+  "gate": {
+   "community": {
+    "community_A": {
+     "heldout_recovery_loss_pp": {
+      "GCF_000007525.1": -0.231,
+      "GCF_000007645.1": -0.024,
+      "GCF_000009205.2": -0.157,
+      "GCF_000020225.1": -0.164,
+      "GCF_000025465.1": -7.276
+     },
+     "input_pair_reduction": 0.6966,
+     "passes_recovery": true,
+     "passes_reduction": true
+    },
+    "community_B": {
+     "heldout_recovery_loss_pp": {
+      "GCF_000009205.2": -0.195,
+      "GCF_000020225.1": 0.139,
+      "GCF_000026225.1": -5.057,
+      "GCF_000195795.1": -0.642
+     },
+     "input_pair_reduction": 0.7195,
+     "passes_recovery": true,
+     "passes_reduction": true
+    },
+    "community_C": {
+     "heldout_recovery_loss_pp": {
+      "GCF_000009205.2": 0.042,
+      "GCF_000020225.1": -0.004,
+      "GCF_000025985.1": 0.001
+     },
+     "input_pair_reduction": 0.6164,
+     "passes_recovery": true,
+     "passes_reduction": true
+    },
+    "overall": {
+     "input_pair_reduction": 0.6775,
+     "passes": true
+    },
+    "wall_ratio_vs_allreads_grouped": 0.273,
+    "peak_rss_ratio_vs_allreads_grouped": 0.627
+   },
+   "pooled": {
+    "community_A": {
+     "heldout_recovery_loss_pp": {
+      "GCF_000007525.1": -0.14,
+      "GCF_000007645.1": -0.01,
+      "GCF_000009205.2": -82.447,
+      "GCF_000020225.1": -24.258,
+      "GCF_000025465.1": -7.247
+     },
+     "input_pair_reduction": 0.6966,
+     "passes_recovery": true,
+     "passes_reduction": true
+    },
+    "community_B": {
+     "heldout_recovery_loss_pp": {
+      "GCF_000009205.2": -81.3,
+      "GCF_000020225.1": -25.371,
+      "GCF_000026225.1": -5.178,
+      "GCF_000195795.1": -0.624
+     },
+     "input_pair_reduction": 0.7195,
+     "passes_recovery": true,
+     "passes_reduction": true
+    },
+    "community_C": {
+     "heldout_recovery_loss_pp": {
+      "GCF_000009205.2": -81.237,
+      "GCF_000020225.1": -24.918,
+      "GCF_000025985.1": 0.001
+     },
+     "input_pair_reduction": 0.6164,
+     "passes_recovery": true,
+     "passes_reduction": true
+    },
+    "overall": {
+     "input_pair_reduction": 0.6775,
+     "passes": true
+    },
+    "wall_ratio_vs_allreads_grouped": 0.275,
+    "peak_rss_ratio_vs_allreads_grouped": 0.742
+   },
+   "random-1": {
+    "community_A": {
+     "heldout_recovery_loss_pp": {
+      "GCF_000007525.1": 48.643,
+      "GCF_000007645.1": -0.1,
+      "GCF_000009205.2": -11.995,
+      "GCF_000020225.1": -17.376,
+      "GCF_000025465.1": -6.949
+     },
+     "input_pair_reduction": 0.6966,
+     "passes_recovery": false,
+     "passes_reduction": true
+    },
+    "community_B": {
+     "heldout_recovery_loss_pp": {
+      "GCF_000009205.2": -20.132,
+      "GCF_000020225.1": -24.573,
+      "GCF_000026225.1": -4.883,
+      "GCF_000195795.1": -1.156
+     },
+     "input_pair_reduction": 0.7195,
+     "passes_recovery": true,
+     "passes_reduction": true
+    },
+    "community_C": {
+     "heldout_recovery_loss_pp": {
+      "GCF_000009205.2": -10.548,
+      "GCF_000020225.1": -19.39,
+      "GCF_000025985.1": -0.135
+     },
+     "input_pair_reduction": 0.6164,
+     "passes_recovery": true,
+     "passes_reduction": true
+    },
+    "overall": {
+     "input_pair_reduction": 0.6775,
+     "passes": false
+    },
+    "wall_ratio_vs_allreads_grouped": 0.395,
+    "peak_rss_ratio_vs_allreads_grouped": 0.798
+   },
+   "random-2": {
+    "community_A": {
+     "heldout_recovery_loss_pp": {
+      "GCF_000007525.1": 59.932,
+      "GCF_000007645.1": -0.388,
+      "GCF_000009205.2": -20.333,
+      "GCF_000020225.1": -23.038,
+      "GCF_000025465.1": -6.714
+     },
+     "input_pair_reduction": 0.6966,
+     "passes_recovery": false,
+     "passes_reduction": true
+    },
+    "community_B": {
+     "heldout_recovery_loss_pp": {
+      "GCF_000009205.2": -19.191,
+      "GCF_000020225.1": -24.143,
+      "GCF_000026225.1": -5.033,
+      "GCF_000195795.1": -1.183
+     },
+     "input_pair_reduction": 0.7195,
+     "passes_recovery": true,
+     "passes_reduction": true
+    },
+    "community_C": {
+     "heldout_recovery_loss_pp": {
+      "GCF_000009205.2": -19.128,
+      "GCF_000020225.1": -23.698,
+      "GCF_000025985.1": -0.253
+     },
+     "input_pair_reduction": 0.6164,
+     "passes_recovery": true,
+     "passes_reduction": true
+    },
+    "overall": {
+     "input_pair_reduction": 0.6775,
+     "passes": false
+    },
+    "wall_ratio_vs_allreads_grouped": 0.458,
+    "peak_rss_ratio_vs_allreads_grouped": 0.805
+   },
+   "random-3": {
+    "community_A": {
+     "heldout_recovery_loss_pp": {
+      "GCF_000007525.1": 29.695,
+      "GCF_000007645.1": -0.19,
+      "GCF_000009205.2": -11.476,
+      "GCF_000020225.1": -18.165,
+      "GCF_000025465.1": -7.114
+     },
+     "input_pair_reduction": 0.6966,
+     "passes_recovery": false,
+     "passes_reduction": true
+    },
+    "community_B": {
+     "heldout_recovery_loss_pp": {
+      "GCF_000009205.2": -9.656,
+      "GCF_000020225.1": -19.647,
+      "GCF_000026225.1": -5.117,
+      "GCF_000195795.1": -0.928
+     },
+     "input_pair_reduction": 0.7195,
+     "passes_recovery": true,
+     "passes_reduction": true
+    },
+    "community_C": {
+     "heldout_recovery_loss_pp": {
+      "GCF_000009205.2": -18.892,
+      "GCF_000020225.1": -23.942,
+      "GCF_000025985.1": -0.158
+     },
+     "input_pair_reduction": 0.6164,
+     "passes_recovery": true,
+     "passes_reduction": true
+    },
+    "overall": {
+     "input_pair_reduction": 0.6775,
+     "passes": false
+    },
+    "wall_ratio_vs_allreads_grouped": 0.397,
+    "peak_rss_ratio_vs_allreads_grouped": 0.806
+   },
+   "sketch-merge": {
+    "community_A": {
+     "heldout_recovery_loss_pp": {
+      "GCF_000007525.1": -0.231,
+      "GCF_000007645.1": -0.024,
+      "GCF_000009205.2": -0.157,
+      "GCF_000020225.1": -0.164,
+      "GCF_000025465.1": -7.276
+     },
+     "input_pair_reduction": 0.6966,
+     "passes_recovery": true,
+     "passes_reduction": true
+    },
+    "community_B": {
+     "heldout_recovery_loss_pp": {
+      "GCF_000009205.2": -0.195,
+      "GCF_000020225.1": 0.139,
+      "GCF_000026225.1": -5.057,
+      "GCF_000195795.1": -0.642
+     },
+     "input_pair_reduction": 0.7195,
+     "passes_recovery": true,
+     "passes_reduction": true
+    },
+    "community_C": {
+     "heldout_recovery_loss_pp": {
+      "GCF_000009205.2": 0.042,
+      "GCF_000020225.1": -0.004,
+      "GCF_000025985.1": 0.001
+     },
+     "input_pair_reduction": 0.6164,
+     "passes_recovery": true,
+     "passes_reduction": true
+    },
+    "overall": {
+     "input_pair_reduction": 0.6775,
+     "passes": true
+    },
+    "wall_ratio_vs_allreads_grouped": 0.288,
+    "peak_rss_ratio_vs_allreads_grouped": 0.627
+   }
+  },
+  "global_lens": {
+   "genomes": {
+    "GCF_000007525.1": "novel_rare",
+    "GCF_000007645.1": "novel_congener",
+    "GCF_000009205.2": "novel_thin",
+    "GCF_000020225.1": "novel_thin",
+    "GCF_000025465.1": "novel_congener",
+    "GCF_000025985.1": "novel_common",
+    "GCF_000026225.1": "novel_congener",
+    "GCF_000195795.1": "novel_congener"
+   },
+   "genome_fraction_percent": {
+    "allreads-grouped": {
+     "GCF_000007525.1": 73.019,
+     "GCF_000007645.1": 97.964,
+     "GCF_000009205.2": 31.4,
+     "GCF_000020225.1": 98.089,
+     "GCF_000025465.1": 90.913,
+     "GCF_000025985.1": 99.421,
+     "GCF_000026225.1": 92.853,
+     "GCF_000195795.1": 97.2
+    },
+    "community": {
+     "GCF_000007525.1": 73.25,
+     "GCF_000007645.1": 97.997,
+     "GCF_000009205.2": 31.81,
+     "GCF_000020225.1": 97.898,
+     "GCF_000025465.1": 98.046,
+     "GCF_000025985.1": 99.42,
+     "GCF_000026225.1": 97.828,
+     "GCF_000195795.1": 97.552
+    },
+    "pooled": {
+     "GCF_000007525.1": 73.159,
+     "GCF_000007645.1": 97.983,
+     "GCF_000009205.2": 93.698,
+     "GCF_000020225.1": 98.889,
+     "GCF_000025465.1": 97.975,
+     "GCF_000025985.1": 99.42,
+     "GCF_000026225.1": 97.756,
+     "GCF_000195795.1": 97.526
+    },
+    "random-1": {
+     "GCF_000007525.1": 24.376,
+     "GCF_000007645.1": 98.073,
+     "GCF_000009205.2": 32.525,
+     "GCF_000020225.1": 98.099,
+     "GCF_000025465.1": 97.64,
+     "GCF_000025985.1": 99.556,
+     "GCF_000026225.1": 97.536,
+     "GCF_000195795.1": 98.058
+    },
+    "random-2": {
+     "GCF_000007525.1": 13.087,
+     "GCF_000007645.1": 98.361,
+     "GCF_000009205.2": 31.584,
+     "GCF_000020225.1": 97.669,
+     "GCF_000025465.1": 97.467,
+     "GCF_000025985.1": 99.67,
+     "GCF_000026225.1": 97.631,
+     "GCF_000195795.1": 98.078
+    },
+    "random-3": {
+     "GCF_000007525.1": 43.324,
+     "GCF_000007645.1": 98.163,
+     "GCF_000009205.2": 31.35,
+     "GCF_000020225.1": 97.913,
+     "GCF_000025465.1": 97.88,
+     "GCF_000025985.1": 99.579,
+     "GCF_000026225.1": 97.806,
+     "GCF_000195795.1": 97.841
+    },
+    "sketch-merge": {
+     "GCF_000007525.1": 73.25,
+     "GCF_000007645.1": 97.997,
+     "GCF_000009205.2": 31.764,
+     "GCF_000020225.1": 97.886,
+     "GCF_000025465.1": 98.046,
+     "GCF_000025985.1": 99.42,
+     "GCF_000026225.1": 97.828,
+     "GCF_000195795.1": 97.552
+    }
+   },
+   "report": {
+    "allreads-grouped": {
+     "bases_at_least_1000": 108964491,
+     "combined_genome_fraction_percent": 90.523,
+     "contigs_at_least_1000": 18547,
+     "indels_per_100kbp": 2.74,
+     "largest_contig": 982984,
+     "local_misassemblies": 41,
+     "misassemblies": 180,
+     "mismatches_per_100kbp": 75.99,
+     "n50": 17844,
+     "unaligned_length": 0
+    },
+    "community": {
+     "bases_at_least_1000": 29806131,
+     "combined_genome_fraction_percent": 42.174,
+     "contigs_at_least_1000": 5107,
+     "indels_per_100kbp": 2.03,
+     "largest_contig": 700721,
+     "local_misassemblies": 8,
+     "misassemblies": 33,
+     "mismatches_per_100kbp": 31.39,
+     "n50": 61898,
+     "unaligned_length": 0
+    },
+    "pooled": {
+     "bases_at_least_1000": 28944219,
+     "combined_genome_fraction_percent": 46.343,
+     "contigs_at_least_1000": 2019,
+     "indels_per_100kbp": 1.51,
+     "largest_contig": 982984,
+     "local_misassemblies": 8,
+     "misassemblies": 15,
+     "mismatches_per_100kbp": 19.16,
+     "n50": 88544,
+     "unaligned_length": 0
+    },
+    "random-1": {
+     "bases_at_least_1000": 54615629,
+     "combined_genome_fraction_percent": 40.44,
+     "contigs_at_least_1000": 10032,
+     "indels_per_100kbp": 1.78,
+     "largest_contig": 982984,
+     "local_misassemblies": 14,
+     "misassemblies": 73,
+     "mismatches_per_100kbp": 36.3,
+     "n50": 18111,
+     "unaligned_length": 2254
+    },
+    "random-2": {
+     "bases_at_least_1000": 65042097,
+     "combined_genome_fraction_percent": 39.975,
+     "contigs_at_least_1000": 13948,
+     "indels_per_100kbp": 1.84,
+     "largest_contig": 921271,
+     "local_misassemblies": 14,
+     "misassemblies": 115,
+     "mismatches_per_100kbp": 41.24,
+     "n50": 7742,
+     "unaligned_length": 1472
+    },
+    "random-3": {
+     "bases_at_least_1000": 52625301,
+     "combined_genome_fraction_percent": 41.469,
+     "contigs_at_least_1000": 9495,
+     "indels_per_100kbp": 4.24,
+     "largest_contig": 982984,
+     "local_misassemblies": 12,
+     "misassemblies": 72,
+     "mismatches_per_100kbp": 50.37,
+     "n50": 34066,
+     "unaligned_length": 678
+    },
+    "sketch-merge": {
+     "bases_at_least_1000": 29806131,
+     "combined_genome_fraction_percent": 42.174,
+     "contigs_at_least_1000": 5107,
+     "indels_per_100kbp": 2.03,
+     "largest_contig": 700721,
+     "local_misassemblies": 8,
+     "misassemblies": 33,
+     "mismatches_per_100kbp": 31.39,
+     "n50": 61898,
+     "unaligned_length": 0
+    }
+   }
+  }
+ }
+}

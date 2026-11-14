@@ -235,6 +235,23 @@ Choose the sketch/cluster method with the owner, then add it as a grouping
 strategy alongside metadata grouping. Decide whether sketches represent full
 inputs or discovery pools.
 
+Implementation for review: [decision](docs/decisions/0008-sketch-grouping.md),
+[results](experiments/m8/results.json), `--sketch` grouping, and the `group`
+command, which prints groups without assembling. By owner decision:
+- a built-in, capped FracMinHash sketch of what each command assembles
+  (discovery pools for `coassemble` and `iterate`);
+- similarity over hashes shared by at least two samples, using a sparse
+  neighbour graph;
+- the `merge` (default), `threshold`, and `seeded` policies.
+
+On the M7 datasets, sketch groups matched the true communities with every
+policy, from pools or reads, in 1–6 s. On the hard benchmark at a cap of
+4 samples, they equalled community metadata. Random groups lost a rare
+genome (13–43% against 73% recovered), took 1.4–1.8 times longer to
+assemble, and had 2–3.5 times the misassemblies. No grouping into three
+groups recovers genomes spread thinly over every sample; pooling remains
+better for them.
+
 Acceptance:
 
 - Sketch computation streams reads with an explicit memory bound and recorded seed.

@@ -39,7 +39,11 @@ combined. `run` stays reserved. M7's research decision is to continue.
 On synthetic benchmarks, pooled discovery coassembly matched all-read
 assembly on held-out genomes, assembled 68–83% fewer pairs, and took about a
 third of the wall time. It is therefore the recommended flow
-([decision](docs/decisions/0007-research-decision.md)).
+([decision](docs/decisions/0007-research-decision.md)). M8 adds `--sketch`
+grouping, which groups samples by FracMinHash similarity of their discovery
+pools within the caps. It needs no metadata, and `group` previews the groups
+without assembling
+([decision](docs/decisions/0008-sketch-grouping.md)).
 
 ```sh
 meta-co-assembler discover --samples data/pilot/samples.tsv \
@@ -52,7 +56,8 @@ meta-co-assembler coassemble --discovery-dir results/discover-species-holdout \
   --all-samples --output-dir results/coassemble-species-holdout --threads 16 --memory-gib 64
 ```
 
-When one pooled assembly is too large, coassemble by metadata and let
+When one pooled assembly is too large, coassemble by metadata (or by
+`--sketch` similarity when metadata is missing or unreliable) and let
 `iterate` pool what the groups leave unassigned. In M7 this recovered most,
 but not all, of what grouping alone missed:
 
@@ -64,6 +69,17 @@ meta-co-assembler coassemble --discovery-dir results/discover-species-holdout \
 meta-co-assembler iterate --coassembly-dir results/coassemble-grouped \
   --iteration-strategy residual-only --all-samples --max-rounds 3 \
   --output-dir results/iterate-species-holdout --threads 16 --memory-gib 64
+```
+
+Without trustworthy metadata, group by sequence similarity instead: preview
+the groups, then coassemble (or `iterate`) with the same options.
+
+```sh
+meta-co-assembler group --discovery-dir results/discover-species-holdout \
+  --sketch --max-group-samples 4 --threads 16 --memory-gib 64
+meta-co-assembler coassemble --discovery-dir results/discover-species-holdout \
+  --sketch --max-group-samples 4 --output-dir results/coassemble-sketch \
+  --threads 16 --memory-gib 64
 ```
 
 ## Environment and build

@@ -4,8 +4,8 @@
 //! `discovery` maps reads to them and writes per-sample discovery pools,
 //! `assembly` coassembles grouped pools (or original reads) with MEGAHIT, and
 //! `iteration` runs bounded residual-only or recruitment rounds on one or more
-//! coassemblies, all through the `execution` engine. The `run` command remains
-//! reserved.
+//! coassemblies, all through the `execution` engine. `sketch` groups samples
+//! by k-mer sketch similarity. The `run` command remains reserved.
 
 pub mod assembly;
 pub mod catalogue;
@@ -18,4 +18,5 @@ pub mod iteration;
 pub mod manifest;
 pub mod plan;
 pub mod profiling;
+pub mod sketch;
 pub mod tools;

@@ -9,8 +9,8 @@ AI agents assist software development only; no LLM runs inside the pipeline.
 Read the CLI contract, architecture, roadmap, and existing code before editing.
 Report the current capability honestly: validation, research planning,
 per-sample reference profiling, discovery-pool extraction, grouped
-coassembly, and bounded iteration (residual-only and recruitment) work; MAG
-recovery does not.
+coassembly (by metadata or sketch similarity), and bounded iteration
+(residual-only and recruitment) work; MAG recovery does not.
 Do not return placeholder scientific results.
 
 The owner is exploring whether this approach works. Prefer the smallest
@@ -26,7 +26,7 @@ the contig pilot justifies further investment.
 - Start with already processed paired-end Illumina FASTQ/gzip FASTQ.
 - Preserve both mates whenever either mate is unassigned or ambiguous.
 - Execute on one node with explicit total CPU/memory budgets.
-- Group using metadata first; add bounded k-mer/sketch strategies later.
+- Group using metadata or bounded FracMinHash sketches (M8).
 - Expose both residual-only and recruitment iteration through the CLI.
 - Produce contigs first. MAG recovery is conditional future work.
 - Catalogue absence is the intended discovery target; novel species/strain
