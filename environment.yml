@@ -10,6 +10,8 @@ dependencies:
   - c-compiler=2.0.0
   # Pilot preparation and selectable biological backends; no databases included.
   - python=3.13.18
+  # QUAST 5.3.0 imports distutils, which Python 3.13 provides only through setuptools.
+  - setuptools=84.2.1
   - sylph=1.0.0
   - kraken2=2.17.2
   - strobealign=0.20.0
