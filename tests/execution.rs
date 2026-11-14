@@ -660,3 +660,68 @@ fn external_scratch_must_be_empty_or_owned_and_is_cleaned_after_success() {
         "refusal creates no output directory"
     );
 }
+
+#[test]
+fn hooks_prepare_inputs_and_normalize_outputs_and_their_failures_block_publication() {
+    let fixture = Fixture::new();
+    let tool = fixture.tool("copy", "cat input.txt > raw.txt\necho ran > ran");
+    let mut ok = task("ok", &tool, &[]);
+    ok.prepare = Some(Box::new(|dir| {
+        fs::write(dir.join("input.txt"), "listed\n").map_err(|e| e.to_string())
+    }));
+    ok.finalize = Some(Box::new(|dir| {
+        let raw = fs::read_to_string(dir.join("raw.txt")).map_err(|e| e.to_string())?;
+        fs::write(dir.join("normalized.txt"), raw.to_uppercase()).map_err(|e| e.to_string())
+    }));
+    ok.outputs.push(OutputSpec::file("normalized.txt"));
+    let mut bad_prepare = task("bad-prepare", &tool, &[]);
+    bad_prepare.prepare = Some(Box::new(|_| Err("catalogue list unavailable".into())));
+    let mut bad_finalize = task("bad-finalize", &tool, &[]);
+    bad_finalize.prepare = Some(Box::new(|dir| {
+        fs::write(dir.join("input.txt"), "x\n").map_err(|e| e.to_string())
+    }));
+    bad_finalize.finalize = Some(Box::new(|_| Err("unresolved genome".into())));
+    let request = fixture.request("out");
+    let report = execute(
+        &request,
+        &[ok, bad_prepare, bad_finalize],
+        &CancelToken::new(),
+    )
+    .unwrap();
+
+    let published = request.layout.stage_dir("ok");
+    assert_eq!(
+        fs::read_to_string(published.join("normalized.txt")).unwrap(),
+        "LISTED\n"
+    );
+    let prepare = stage(&report, "bad-prepare");
+    assert_eq!(prepare.status, StageStatus::Failed);
+    assert!(
+        prepare
+            .reason
+            .as_ref()
+            .unwrap()
+            .contains("preparation failed: catalogue list unavailable")
+    );
+    assert!(
+        prepare.steps.is_empty(),
+        "no step runs after a failed preparation"
+    );
+    assert!(
+        !request
+            .layout
+            .partial_dir("bad-prepare")
+            .join("ran")
+            .exists()
+    );
+    let finalize = stage(&report, "bad-finalize");
+    assert_eq!(finalize.status, StageStatus::Failed);
+    assert!(
+        finalize
+            .reason
+            .as_ref()
+            .unwrap()
+            .contains("finalization failed: unresolved genome")
+    );
+    assert!(!request.layout.stage_dir("bad-finalize").exists());
+}

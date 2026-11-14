@@ -1,7 +1,8 @@
 # CLI contract: exploratory foundation
 
-Status: implemented CLI and planning contract, version 0.1.0. Biological
-execution is unavailable. Before 1.0, documented contract changes are allowed
+Status: implemented CLI and planning contract, version 0.1.0. Reference
+profiling (`profile`) executes Sylph or LoCovE; the full pipeline (`run`) is
+unavailable. Before 1.0, documented contract changes are allowed
 with corresponding tests and migration notes. JSON has its own integer
 `schema_version`: validation reports use 1 and research plans use 2.
 Plan schema 2 adds explicit tool/guidance choices and renames unresolved tool
@@ -33,6 +34,9 @@ meta-co-assembler validate --samples FILE [--metadata FILE]
 meta-co-assembler plan --samples FILE --metadata FILE --group-by COLUMN
     --memory-gib N [--threads N] [--jobs N] [--max-group-samples N]
     [--iteration-strategy residual-only|recruitment] [--max-rounds N]
+meta-co-assembler profile --samples FILE --catalogue FILE --output-dir DIR
+    --memory-gib N [--threads N] [--jobs N] [--profiler sylph|locove]
+    [--min-ani PERCENT] [--min-breadth FRACTION] [--force]
 meta-co-assembler run <the same options as plan> --output-dir DIR
 ```
 
@@ -69,6 +73,36 @@ and `--scratch-dir DIR` with an explicit scratch budget, following
 directory is refused; `--force` deletes a previous meta-co-assembler run there
 and reruns everything; there is no resume. Exit codes for failed and
 interrupted runs will be specified then.
+
+## Profile
+
+`profile` screens each sample against a frozen catalogue and writes candidate
+references for later mapping; see
+[the M3 decision](decisions/0003-reference-profiling.md). It reads every
+catalogue FASTA to verify its SHA-256 before starting, finds `sylph` or
+`locove` on `PATH`, builds the backend index as its own stage, and runs one
+stage per sample within the thread, memory, and job budgets. Output
+directories follow the M2 rules: a non-empty directory is refused, and
+`--force` deletes a previous meta-co-assembler run there.
+
+| Flag | Default | Contract |
+| --- | --- | --- |
+| `--catalogue` | required | `reference_id, fasta, taxid, species_taxid, sha256` TSV; FASTA paths relative to it |
+| `--profiler` | sylph | sylph or experimental locove; kraken2 exits 3 (roadmap M14) |
+| `--min-ani` | 95 | Sylph adjusted containment ANI percent, greater than 0 and at most 100 |
+| `--min-breadth` | 0.10 | LoCovE per-genome k-mer breadth, greater than 0 and at most 1 |
+| `--force` | off | Delete a previous run in `--output-dir` and rerun everything |
+
+`--threads`, `--memory-gib`, and `--jobs` are total budgets as for `plan`.
+Thresholds are provisional pilot settings, recorded wherever they are used.
+A selected reference also brings in every catalogue reference of the same
+species, marked `species-expansion`.
+
+Each sample's `stages/profile-ID/` holds the raw tool report,
+`candidates.tsv`, and `profile.json` (schema 1). An empty selection is a
+complete stage with status `no-candidates`. A genome name that is not in the
+catalogue registry fails that sample's stage. On completion `profile` prints
+a JSON summary with the run status, manifest path, and per-sample counts.
 
 ## Flags and defaults
 
@@ -184,6 +218,8 @@ arguments on the same host; absolute paths differ across machines.
 | 1 | I/O or unexpected operational failure |
 | 2 | Invalid arguments or input table contents |
 | 3 | Execution backend unavailable |
+| 4 | An executed run finished with a failed stage (see `run.json`) |
+| 130 | An executed run was interrupted (SIGINT, SIGTERM, or SIGHUP) |
 
 Future execution will produce versioned provenance, per-sample profiling and
 read-state counts, group membership, per-round contig FASTA, mapping summaries,

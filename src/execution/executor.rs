@@ -39,7 +39,10 @@ pub const STAGE_FILE: &str = "stage.json";
 const MIB: u64 = 1024 * 1024;
 
 /// Checks a task's outputs inside its stage directory; return a reason on failure.
-pub type Validator = Box<dyn Fn(&Path) -> Result<(), String> + Send + Sync>;
+pub type Validator = Hook;
+
+/// In-process work on a stage directory; return a reason on failure.
+pub type Hook = Box<dyn Fn(&Path) -> Result<(), String> + Send + Sync>;
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub enum OutputKind {
@@ -80,6 +83,12 @@ pub struct TaskSpec {
     pub reservation: Reservation,
     pub steps: Vec<Step>,
     pub outputs: Vec<OutputSpec>,
+    /// Runs in the new stage directory before the first step, for example to
+    /// write an input list that a tool reads.
+    pub prepare: Option<Hook>,
+    /// Runs after every step succeeded and before outputs are validated, for
+    /// example to normalize a tool's report.
+    pub finalize: Option<Hook>,
     pub validator: Option<Validator>,
     /// Wall-clock limit for all steps together.
     pub timeout: Option<Duration>,
@@ -429,8 +438,14 @@ fn run_task(
             last_sample = Some(Instant::now());
         }
     };
-    let mut result: Result<(), (StageStatus, String)> = Ok(());
-    for step in &task.steps {
+    let mut result: Result<(), (StageStatus, String)> = match &task.prepare {
+        Some(prepare) => prepare(&partial)
+            .map_err(|reason| (StageStatus::Failed, format!("preparation failed: {reason}"))),
+        None => Ok(()),
+    };
+    // Steps run only after a successful preparation.
+    let steps = if result.is_ok() { &task.steps[..] } else { &[] };
+    for step in steps {
         let record = run_step(step, &context, || sample(false));
         let end = record.end.clone();
         outcome.steps.push(record);
@@ -457,6 +472,14 @@ fn run_task(
     }
     sample(true);
     outcome.scratch_peak_bytes = peak;
+    if let (Ok(()), Some(finalize)) = (&result, &task.finalize) {
+        result = finalize(&partial).map_err(|reason| {
+            (
+                StageStatus::Failed,
+                format!("finalization failed: {reason}"),
+            )
+        });
+    }
     if result.is_ok() {
         result = check_outputs(task, &partial).map_err(|reason| {
             (

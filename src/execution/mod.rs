@@ -14,8 +14,8 @@ pub mod run_dir;
 
 pub use cancel::CancelToken;
 pub use executor::{
-    ExecOptions, OutputKind, OutputSpec, RunReport, RunRequest, RunStatus, STAGE_FILE, StageReport,
-    StageStatus, TaskSpec, Validator, completed_stages, execute,
+    ExecOptions, Hook, OutputKind, OutputSpec, RunReport, RunRequest, RunStatus, STAGE_FILE,
+    StageReport, StageStatus, TaskSpec, Validator, completed_stages, execute,
 };
 pub use process::{ProcessSpec, StdoutTarget, Step, StepEnd};
 pub use resources::{Budget, Helper, Reservation, Usage};
