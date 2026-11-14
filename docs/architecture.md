@@ -21,7 +21,8 @@ Plans explicitly remain non-executable. FASTQ contents are not read.
 | `catalogue` | Frozen reference catalogue parsing, digest verification, species grouping |
 | `profiling` | `profile` command: Sylph and LoCovE adapters, normalized candidates, species expansion |
 | `discovery` | `discover` command: selected-reference FASTA, Strobealign/Minimap2 mapping, pair decisions, lockstep extraction |
-| `assembly` | `coassemble`/`assemble-reads`: verified inputs, volume-capped metadata groups, MEGAHIT, contig statistics |
+| `assembly` | `coassemble`/`assemble-reads`/`group`: verified inputs, volume-capped groups, MEGAHIT, contig statistics |
+| `sketch` | Bounded streaming FracMinHash sketches, sparse neighbour graph, merge/threshold/seeded grouping policies |
 | `iteration` | `iterate`: combined coassembly inputs, per-round pair classification, contig acceptance with minimap2 containment, stop policy |
 | `digest` | SHA-256 while streams are read or written |
 | `error` | Contextual diagnostics and documented exit categories |
@@ -158,10 +159,20 @@ policy; a sample-count cap alone cannot predict assembler RAM. Multiple groups
 from one metadata class remain separate assemblies unless explicitly combined.
 The current planner neither loads nor concatenates their reads.
 
-For future k-mer grouping, use bounded streaming sketches and avoid a mandatory
-dense all-pairs matrix. Record whether sketches represent full inputs or
-discovery pools, the sketch parameters, seed, distance definition, and grouping
-policy. Compare against metadata and simple baselines before making it default.
+Sketch grouping (M8, [decision](decisions/0008-sketch-grouping.md)) streams
+each sample's reads once into a FracMinHash sketch capped at a fixed number of
+hashes; a full sketch doubles its scale, so memory is bounded per sample and
+concurrent sketches are limited to the memory budget. Sketches represent what
+the command assembles: discovery pools for `coassemble` and `iterate`,
+original reads for `assemble-reads`. Shared hashes are found by sorting
+(hash, sample) entries, and each sample keeps only its nearest neighbours, so
+no dense all-pairs matrix is built (the shared-hash count is quadratic only
+in the number of samples holding the same hash). Groups come from
+average-linkage merging within the caps (default), the same along links
+above a threshold, or seeded greedy selection. The run manifest records the
+representation, sketch parameters, seed, similarity definition, policy,
+neighbour links, and memory bound. Metadata grouping stays available; sketch
+grouping is not the default.
 
 ## Resource model
 

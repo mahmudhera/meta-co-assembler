@@ -5,7 +5,7 @@ use std::{
 
 use clap::Parser;
 use meta_co_assembler::{
-    assembly::{run_assemble_reads, run_coassemble},
+    assembly::{run_assemble_reads, run_coassemble, run_group},
     cli::{Cli, Command},
     discovery::{run_discover, run_extract_pairs},
     error::Error,
@@ -115,6 +115,11 @@ fn execute(cli: Cli) -> Result<(), Error> {
                 outcome.report.status,
                 outcome.report.stop_reason,
             )
+        }
+        Command::Group(args) => {
+            let cancel = CancelToken::new();
+            cancel.cancel_on_termination_signals()?;
+            write_json(&run_group(&args, &cancel)?)
         }
         Command::Run(args) => {
             args.plan.validate()?;

@@ -17,7 +17,8 @@ choices to unresolved adapter implementations; plans remain non-executable.
 - AI agents develop the software and do not participate in execution.
 - Initial inputs are already processed, paired-end Illumina FASTQ or gzip FASTQ.
 - Initial execution targets one node; the Rust CLI targets Linux/macOS/Windows.
-- Metadata grouping comes first. Sketch grouping is a later strategy.
+- Metadata grouping came first; M8 adds sketch grouping (FracMinHash
+  similarity of the reads to be assembled) as an alternative.
 - The initial research output is contigs. Binning and MAG assessment come later.
 - Discovery is relative to an explicitly versioned reference catalogue.
 - The project owner chooses the profiler, mapper, extraction tool, assembler,
@@ -42,11 +43,16 @@ meta-co-assembler discover <the same options as profile>
     [--mapper strobealign|minimap2] [--min-identity FRACTION]
     [--min-aligned-fraction FRACTION] [--min-mapq N] [--secondary-alignments N]
 meta-co-assembler coassemble --discovery-dir DIR --output-dir DIR --memory-gib N
-    (--metadata FILE --group-by COLUMN | --per-sample | --all-samples)
+    (--metadata FILE --group-by COLUMN | --sketch | --per-sample | --all-samples)
     [--max-group-samples N] [--max-group-bases N] [--threads N] [--jobs N]
     [--scratch-dir DIR] [--scratch-gib N] [--assembler megahit|metaspades]
     [--force]
+    [--sketch-policy merge|threshold|seeded] [--sketch-min-similarity FRACTION]
+    [--sketch-k N] [--sketch-scaled N] [--sketch-seed N] [--sketch-max-hashes N]
+    [--sketch-neighbors N]
 meta-co-assembler assemble-reads --samples FILE <the same options as coassemble>
+meta-co-assembler group (--discovery-dir DIR | --samples FILE) --memory-gib N
+    [--threads N] <the grouping options of coassemble>
 meta-co-assembler iterate --coassembly-dir DIR [--coassembly-dir DIR ...]
     <the same options as coassemble, or --keep-groups instead of a grouping>
     [--iteration-strategy residual-only|recruitment] [--max-rounds N]
@@ -171,6 +177,35 @@ failed assembler or malformed contig FASTA fails the stage. `--all-samples`
 puts every sample in one group, still split at the caps. Exit codes follow
 `profile`.
 
+`--sketch` groups samples by the similarity of k-mer sketches of the reads
+that will be assembled: the discovery pools for `coassemble` and `iterate`,
+the original reads for `assemble-reads`; see
+[the M8 decision](decisions/0008-sketch-grouping.md). Each sample's reads are
+streamed once into a FracMinHash sketch (canonical `--sketch-k` 31-mers whose
+hash is in the lowest 1/`--sketch-scaled` (1,000) of the hash space, hash
+seed `--sketch-seed` 42). A sketch keeps at most `--sketch-max-hashes`
+(1,000,000) hashes, doubling its scale until it fits; samples are compared at
+the largest scale reached, and concurrent sketches are limited to fit
+`--memory-gib`. Similarity is the Jaccard index of the hashes each sample
+shares with at least one other sample. Each sample keeps its
+`--sketch-neighbors` (10) most similar samples; no all-pairs matrix is built.
+`--sketch-policy` turns that graph into groups within the caps:
+
+- `merge` (default): repeatedly merge the two linked groups with the highest
+  mean similarity whose union fits the caps. Without a binding cap, linked
+  samples end in one group; a sample with no link stays alone.
+- `threshold`: the same, along links of at least `--sketch-min-similarity`
+  (required, no default).
+- `seeded`: take the ungrouped sample sharing the most hashes and add its
+  most similar ungrouped neighbours until a cap; repeat.
+
+Groups are ordered by their first sample ID, and each group's `value` is its
+first sample (or its seed). The run manifest's `grouping.sketch` records the
+settings, each sample's sketch size, the neighbour links, and each group's
+mean within-group similarity. `group` prints the groups (and that record) of
+any grouping for a discover run or a samples TSV without assembling,
+creating no output directory.
+
 The recommended flow is `discover` followed by `coassemble --all-samples`
 ([M7 decision](decisions/0007-research-decision.md)). Pooling every
 sample's discovery pool recovered genomes spread thinly over samples that
@@ -187,9 +222,9 @@ must have disjoint samples and come from discover runs with the same
 catalogue and assignment policy. Every discover run and pool is re-verified
 against its digests, as are the input contigs.
 
-Groups for later rounds come from `--metadata`/`--group-by`, `--per-sample`,
-or `--all-samples` over all samples of all inputs, or from `--keep-groups`
-(each input run's groups). One grouping applies to every later round. Later
+Groups for later rounds come from `--metadata`/`--group-by`, `--sketch` (of
+the original discovery pools), `--per-sample`, or `--all-samples` over all
+samples of all inputs, or from `--keep-groups` (each input run's groups). One grouping applies to every later round. Later
 rounds assemble only leftovers, so `--max-group-samples` is unlimited unless
 given; `--max-group-bases` is checked against the original pool sizes, an
 upper bound on any round's input. `coassemble` by metadata followed by
@@ -230,6 +265,13 @@ follow `profile`; `minimap2` is required for containment.
 | `--threads` | 1 | Positive integer total thread budget, across tasks |
 | `--jobs` | 1 | Positive task concurrency, no greater than threads |
 | `--max-group-samples` | 32 (unlimited for iterate) | Positive sample-count cap per assembly group |
+| `--sketch-policy` | merge | merge, threshold, or seeded (with `--sketch`) |
+| `--sketch-min-similarity` | none | Required for, and only for, the threshold policy; 0 < value <= 1 |
+| `--sketch-k` | 31 | Odd k-mer length, 11 to 31 |
+| `--sketch-scaled` | 1000 | Positive FracMinHash scale |
+| `--sketch-seed` | 42 | Hash seed |
+| `--sketch-max-hashes` | 1000000 | Hashes kept per sample; at least 1000 |
+| `--sketch-neighbors` | 10 | Most similar samples kept per sample |
 | `--iteration-strategy` | residual-only | residual-only or recruitment |
 | `--max-rounds` | 1 (plan), 3 (iterate) | Positive upper bound including the initial assembly; 2–99 for iterate |
 | `--output-dir` | required for run | Reserved execution output location |

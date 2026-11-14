@@ -510,3 +510,180 @@ fn a_relative_discovery_dir_resolves_before_the_assembler_runs_elsewhere() {
     );
     assert!(log.contains(&absolute), "{log}");
 }
+
+/// Paired reads drawn from a pseudo-random genome; read names are unique.
+fn simulated_pairs(dir: &Path, sample: &str, genome: &[u8], pairs: usize, seed: u64) -> String {
+    let (r1, r2) = (
+        dir.join(format!("{sample}_R1.fq")),
+        dir.join(format!("{sample}_R2.fq")),
+    );
+    let (mut one, mut two) = (String::new(), String::new());
+    let mut state = seed;
+    for pair in 0..pairs {
+        state = state
+            .wrapping_mul(6_364_136_223_846_793_005)
+            .wrapping_add(1_442_695_040_888_963_407);
+        let start = (state >> 33) as usize % (genome.len() - 250);
+        let mate = |offset: usize| {
+            String::from_utf8(genome[start + offset..start + offset + 100].to_vec()).unwrap()
+        };
+        one.push_str(&format!(
+            "@{sample}.{pair}/1\n{}\n+\n{}\n",
+            mate(0),
+            "I".repeat(100)
+        ));
+        two.push_str(&format!(
+            "@{sample}.{pair}/2\n{}\n+\n{}\n",
+            mate(150),
+            "I".repeat(100)
+        ));
+    }
+    fs::write(&r1, one).unwrap();
+    fs::write(&r2, two).unwrap();
+    format!("{sample}\t{}\t{}\n", r1.display(), r2.display())
+}
+
+fn random_genome(seed: u64, length: usize) -> Vec<u8> {
+    let mut state = seed;
+    (0..length)
+        .map(|_| {
+            state = state
+                .wrapping_mul(6_364_136_223_846_793_005)
+                .wrapping_add(1_442_695_040_888_963_407);
+            b"ACGT"[(state >> 62) as usize]
+        })
+        .collect()
+}
+
+#[test]
+fn sketch_grouping_puts_samples_of_the_same_genomes_together_within_the_caps() {
+    let project = Project::new();
+    let (first, second) = (random_genome(1, 5_000), random_genome(2, 5_000));
+    let mut samples = "sample_id\tread1\tread2\n".to_owned();
+    for (index, (sample, genome)) in [
+        ("X1", &first),
+        ("Y1", &second),
+        ("X2", &first),
+        ("Y2", &second),
+    ]
+    .into_iter()
+    .enumerate()
+    {
+        samples.push_str(&simulated_pairs(
+            &project.root,
+            sample,
+            genome,
+            200,
+            index as u64,
+        ));
+    }
+    let table = project.root.join("samples.tsv");
+    fs::write(&table, samples).unwrap();
+    let group = |cap: &str, extra: &[&str]| {
+        Command::new(env!("CARGO_BIN_EXE_meta-co-assembler"))
+            .arg("group")
+            .arg("--samples")
+            .arg(&table)
+            .args(["--threads", "2", "--memory-gib", "1", "--sketch"])
+            .args([
+                "--sketch-k",
+                "21",
+                "--sketch-scaled",
+                "1",
+                "--max-group-samples",
+                cap,
+            ])
+            .args(extra)
+            .output()
+            .unwrap()
+    };
+    let grouping = |output: &Output| {
+        assert_eq!(
+            output.status.code(),
+            Some(0),
+            "{}",
+            String::from_utf8_lossy(&output.stderr)
+        );
+        let mut grouping = stdout_json(output)["grouping"].clone();
+        grouping["sketch"]["seconds"] = Value::Null;
+        grouping
+    };
+    for policy in [
+        &["--sketch-policy", "merge"][..],
+        &["--sketch-policy", "seeded"],
+        &[
+            "--sketch-policy",
+            "threshold",
+            "--sketch-min-similarity",
+            "0.5",
+        ],
+    ] {
+        let grouping = grouping(&group("2", policy));
+        let members: Vec<_> = grouping["groups"]
+            .as_array()
+            .unwrap()
+            .iter()
+            .map(|g| g["samples"].clone())
+            .collect();
+        assert_eq!(
+            members,
+            [json!(["X1", "X2"]), json!(["Y1", "Y2"])],
+            "{policy:?}"
+        );
+        assert_eq!(grouping["grouped_by"], "sketch");
+        let sketch = &grouping["sketch"];
+        assert_eq!(sketch["represents"], "original-reads");
+        assert_eq!(
+            (sketch["k"].as_u64(), sketch["seed"].as_u64()),
+            (Some(21), Some(42))
+        );
+        let within = sketch["groups"][0]["mean_within_similarity"]
+            .as_f64()
+            .unwrap();
+        assert!(within > 0.5, "{sketch}");
+        assert!(
+            sketch["edges"].as_array().unwrap().iter().all(|edge| {
+                let pair = edge["samples"].to_string();
+                pair.contains('X') != pair.contains('Y')
+            }),
+            "no k-mers are shared between genomes: {sketch}"
+        );
+    }
+    assert_eq!(
+        grouping(&group("2", &[])),
+        grouping(&group("2", &[])),
+        "repeat runs give identical groups and records"
+    );
+    let open = grouping(&group("4", &[]));
+    assert_eq!(
+        open["groups"].as_array().unwrap().len(),
+        2,
+        "unlinked genomes stay apart"
+    );
+    assert!(
+        !project.root.join("out").exists(),
+        "group creates no output"
+    );
+}
+
+#[test]
+fn coassembly_records_sketch_grouping_of_the_discovery_pools() {
+    let project = Project::new();
+    let output = project.run("coassemble", &["--sketch", "--sketch-k", "11"]);
+    assert_eq!(
+        output.status.code(),
+        Some(0),
+        "{}",
+        String::from_utf8_lossy(&output.stderr)
+    );
+    let run = read_json(&project.root.join("out/run.json"));
+    let grouping = &run["configuration"]["grouping"];
+    assert_eq!(grouping["grouped_by"], "sketch");
+    assert_eq!(grouping["max_group_samples"], 32);
+    assert_eq!(grouping["sketch"]["represents"], "discovery-pools");
+    assert_eq!(grouping["sketch"]["policy"], "merge");
+    // Ten-base reads hold no 11-mers, so no sample links to another.
+    assert_eq!(grouping["groups"].as_array().unwrap().len(), 3);
+    let group = read_json(&project.stage("group-000001").join("group.json"));
+    assert_eq!(group["group"]["grouped_by"], "sketch");
+}

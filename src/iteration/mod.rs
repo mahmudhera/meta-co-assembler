@@ -33,8 +33,9 @@ use serde_json::{Value, json};
 
 use crate::{
     assembly::{
-        AssemblyGroup, CONTIGS, SUMMARY as ASSEMBLY_SUMMARY, discovery_inputs, inputs::ReadPair,
-        make_groups, megahit_parameters, megahit_step, prepare_megahit, publish_contigs, read_json,
+        AssemblyGroup, CONTIGS, SUMMARY as ASSEMBLY_SUMMARY, discovery_inputs, group_inputs,
+        inputs::ReadPair, megahit_parameters, megahit_step, prepare_megahit, publish_contigs,
+        read_json,
     },
     catalogue::sha256_file,
     cli::{ClassifyPairsArgs, IterateArgs, IterationStrategy, PairRule},
@@ -45,6 +46,7 @@ use crate::{
         RunReport, RunRequest, StageStatus, Step, TaskSpec, execute, run_dir::PRODUCER,
     },
     profiling::{ToolIdentity, bytes_to_mib, resolve_tool},
+    sketch::SketchContext,
     tools::{Assembler, Mapper},
 };
 use accept::CandidateSource;
@@ -291,15 +293,24 @@ fn load_inputs(dirs: &[PathBuf], threads: usize) -> Result<(Vec<InputRun>, Vec<R
     Ok((runs, selected))
 }
 
+/// The iteration's groups; sketch grouping sketches the original discovery
+/// pools once and also returns its provenance record.
 fn iteration_groups(
     args: &IterateArgs,
     runs: &[InputRun],
     pools: Vec<ReadPair>,
-) -> Result<Vec<AssemblyGroup>, Error> {
+    cancel: &CancelToken,
+) -> Result<(Vec<AssemblyGroup>, Option<Value>), Error> {
     if !args.keep_groups {
         // Later rounds hold only leftovers, so samples are unlimited by default.
         let grouping = &args.assembly.grouping;
-        return make_groups(pools, grouping, grouping.sample_cap(None));
+        let context = SketchContext {
+            threads: args.assembly.threads.get(),
+            memory_mib: u64::from(args.assembly.memory_gib.get()) * 1024,
+            represents: "discovery-pools",
+            cancel,
+        };
+        return group_inputs(pools, grouping, grouping.sample_cap(None), &context);
     }
     let by_id: HashMap<&str, &ReadPair> = pools.iter().map(|p| (p.sample_id.as_str(), p)).collect();
     let mut groups = Vec::new();
@@ -317,7 +328,7 @@ fn iteration_groups(
             });
         }
     }
-    Ok(groups)
+    Ok((groups, None))
 }
 
 /// What every task builder needs.
@@ -866,7 +877,7 @@ pub fn run_iterate(args: &IterateArgs, cancel: &CancelToken) -> Result<IterateOu
     ))?;
     let threads = args.assembly.threads.get();
     let (runs, pools) = load_inputs(&args.coassembly_dirs, threads)?;
-    let groups = iteration_groups(args, &runs, pools)?;
+    let (groups, sketch) = iteration_groups(args, &runs, pools, cancel)?;
     let layout = RunLayout::new(
         &args.assembly.output_dir,
         args.assembly.scratch_dir.as_deref(),
@@ -933,6 +944,8 @@ pub fn run_iterate(args: &IterateArgs, cancel: &CancelToken) -> Result<IterateOu
         "per-sample"
     } else if args.assembly.grouping.all_samples {
         "all-samples"
+    } else if args.assembly.grouping.sketch {
+        "sketch"
     } else {
         "metadata"
     };
@@ -981,6 +994,10 @@ pub fn run_iterate(args: &IterateArgs, cancel: &CancelToken) -> Result<IterateOu
             })).collect::<Vec<_>>(),
         },
     });
+    let mut configuration = configuration;
+    if let Some(sketch) = sketch {
+        configuration["grouping"]["sketch"] = sketch;
+    }
     let request = RunRequest {
         layout: layout.clone(),
         budget,

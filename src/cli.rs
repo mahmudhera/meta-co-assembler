@@ -38,6 +38,9 @@ pub enum Command {
     Coassemble(CoassembleArgs),
     /// Assemble original reads by group or per sample (all-read baselines).
     AssembleReads(AssembleReadsArgs),
+    /// Print the groups that coassemble or assemble-reads would form, as
+    /// JSON; assemble nothing.
+    Group(GroupArgs),
     /// Iterate on one or more coassemble runs: map pairs to the accepted
     /// contigs and reassemble what they do not settle, for bounded rounds.
     Iterate(IterateArgs),
@@ -224,6 +227,12 @@ pub struct GroupingArgs {
     /// Metadata column whose exact values define groups.
     #[arg(long, requires = "metadata")]
     pub group_by: Option<String>,
+    /// Group samples by the similarity of k-mer sketches of the reads that
+    /// will be assembled, within the caps below (see --sketch-policy).
+    #[arg(long, conflicts_with_all = ["metadata", "group_by", "per_sample", "all_samples"])]
+    pub sketch: bool,
+    #[command(flatten)]
+    pub sketch_options: SketchArgs,
     /// Assemble every sample on its own instead of grouping.
     #[arg(long, conflicts_with_all = ["metadata", "group_by", "all_samples"])]
     pub per_sample: bool,
@@ -237,6 +246,47 @@ pub struct GroupingArgs {
     /// Also split groups so that each assembles at most this many bases.
     #[arg(long)]
     pub max_group_bases: Option<NonZeroU64>,
+}
+
+/// How `--sketch` turns sample similarity into groups.
+#[derive(Clone, Copy, Debug, PartialEq, Eq, ValueEnum, Serialize)]
+#[serde(rename_all = "kebab-case")]
+pub enum SketchPolicy {
+    /// Repeatedly merge the two most similar groups (average linkage) that
+    /// fit the caps; without a binding cap, linked samples form one group.
+    Merge,
+    /// Like merge, but only along links of at least --sketch-min-similarity.
+    Threshold,
+    /// From the sample sharing the most hashes, add its most similar
+    /// ungrouped samples until a cap; repeat.
+    Seeded,
+}
+
+/// FracMinHash sketch settings for `--sketch` grouping.
+#[derive(Debug, Args)]
+pub struct SketchArgs {
+    /// How similar samples become groups.
+    #[arg(long, value_enum, default_value = "merge", requires = "sketch")]
+    pub sketch_policy: SketchPolicy,
+    /// Minimum link similarity for --sketch-policy threshold (0 to 1).
+    #[arg(long, requires = "sketch")]
+    pub sketch_min_similarity: Option<f64>,
+    /// k-mer length (odd, 11 to 31).
+    #[arg(long, default_value = "31", requires = "sketch")]
+    pub sketch_k: usize,
+    /// Keep k-mers whose hash lies in the lowest 1/SCALED of the hash space.
+    #[arg(long, default_value = "1000", requires = "sketch")]
+    pub sketch_scaled: NonZeroU64,
+    /// Seed of the k-mer hash.
+    #[arg(long, default_value = "42", requires = "sketch")]
+    pub sketch_seed: u64,
+    /// Memory bound: hashes kept per sample (at least 1000). A larger sketch
+    /// doubles its scale until it fits; samples are compared at one scale.
+    #[arg(long, default_value = "1000000", requires = "sketch")]
+    pub sketch_max_hashes: NonZeroUsize,
+    /// Most similar samples kept as each sample's neighbours.
+    #[arg(long, default_value = "10", requires = "sketch")]
+    pub sketch_neighbors: NonZeroUsize,
 }
 
 /// Options shared by the assembly commands.
@@ -276,7 +326,43 @@ pub const DEFAULT_MAX_GROUP_SAMPLES: usize = 32;
 impl GroupingArgs {
     /// Whether a grouping mode was given; clap rejects conflicting modes.
     pub fn chosen(&self) -> bool {
-        self.per_sample || self.all_samples || self.metadata.is_some()
+        self.per_sample || self.all_samples || self.sketch || self.metadata.is_some()
+    }
+
+    /// Column and sketch checks shared by every command that groups.
+    pub fn validate(&self) -> Result<(), Error> {
+        let invalid = |message: &str| Err(Error::InvalidInput(message.into()));
+        if let Some(column) = &self.group_by {
+            if column.trim().is_empty() || column == "sample_id" {
+                return invalid(
+                    "--group-by must name a metadata column other than sample_id; use --per-sample for single-sample assembly",
+                );
+            }
+        }
+        if !self.sketch {
+            return Ok(());
+        }
+        let sketch = &self.sketch_options;
+        if !(11..=31).contains(&sketch.sketch_k) || sketch.sketch_k % 2 == 0 {
+            return invalid("--sketch-k must be odd and between 11 and 31");
+        }
+        if sketch.sketch_max_hashes.get() < 1000 {
+            return invalid("--sketch-max-hashes must be at least 1000");
+        }
+        match (sketch.sketch_policy, sketch.sketch_min_similarity) {
+            (SketchPolicy::Threshold, None) => {
+                invalid("--sketch-policy threshold needs --sketch-min-similarity")
+            }
+            (SketchPolicy::Threshold, Some(value))
+                if !(value.is_finite() && value > 0.0 && value <= 1.0) =>
+            {
+                invalid("--sketch-min-similarity must be greater than 0 and at most 1")
+            }
+            (SketchPolicy::Merge | SketchPolicy::Seeded, Some(_)) => {
+                invalid("--sketch-min-similarity applies only to --sketch-policy threshold")
+            }
+            _ => Ok(()),
+        }
     }
 
     /// The sample cap: the flag, else `default` (`None` means unlimited).
@@ -285,7 +371,8 @@ impl GroupingArgs {
     }
 }
 
-const CHOOSE_GROUPING: &str = "choose --metadata with --group-by, --per-sample, or --all-samples";
+const CHOOSE_GROUPING: &str =
+    "choose --metadata with --group-by, --sketch, --per-sample, or --all-samples";
 
 impl AssemblyArgs {
     pub fn validate(&self) -> Result<(), Error> {
@@ -302,14 +389,7 @@ impl AssemblyArgs {
                 "--jobs must not exceed the total --threads budget".into(),
             ));
         }
-        if let Some(column) = &self.grouping.group_by {
-            if column.trim().is_empty() || column == "sample_id" {
-                return Err(Error::InvalidInput(
-                    "--group-by must name a metadata column other than sample_id; use --per-sample for single-sample assembly".into(),
-                ));
-            }
-        }
-        Ok(())
+        self.grouping.validate()
     }
 }
 
@@ -329,6 +409,33 @@ pub struct AssembleReadsArgs {
     pub samples: PathBuf,
     #[command(flatten)]
     pub assembly: AssemblyArgs,
+}
+
+#[derive(Debug, Args)]
+pub struct GroupArgs {
+    /// Output directory of a succeeded discover run; groups its discovery pools.
+    #[arg(long, required_unless_present = "samples", conflicts_with = "samples")]
+    pub discovery_dir: Option<PathBuf>,
+    /// TSV with sample_id, read1, read2 columns; groups the original reads.
+    #[arg(long)]
+    pub samples: Option<PathBuf>,
+    #[command(flatten)]
+    pub grouping: GroupingArgs,
+    /// Threads for scanning and sketching inputs.
+    #[arg(long, default_value = "1")]
+    pub threads: NonZeroUsize,
+    /// Memory in GiB; bounds concurrent sketches.
+    #[arg(long)]
+    pub memory_gib: NonZeroU32,
+}
+
+impl GroupArgs {
+    pub fn validate(&self) -> Result<(), Error> {
+        if !self.grouping.chosen() {
+            return Err(Error::InvalidInput(CHOOSE_GROUPING.into()));
+        }
+        self.grouping.validate()
+    }
 }
 
 #[derive(Debug, Args)]
@@ -368,7 +475,7 @@ pub struct IterateArgs {
     #[arg(long, default_value = "50")]
     pub secondary_alignments: usize,
     /// Reuse the input runs' groups instead of regrouping.
-    #[arg(long, conflicts_with_all = ["metadata", "group_by", "per_sample", "all_samples"])]
+    #[arg(long, conflicts_with_all = ["metadata", "group_by", "sketch", "per_sample", "all_samples"])]
     pub keep_groups: bool,
     #[command(flatten)]
     pub assembly: AssemblyArgs,
@@ -379,7 +486,7 @@ impl IterateArgs {
         let invalid = |message: &str| Err(Error::InvalidInput(message.into()));
         if !(self.keep_groups || self.assembly.grouping.chosen()) {
             return invalid(
-                "choose --keep-groups, --metadata with --group-by, --per-sample, or --all-samples",
+                "choose --keep-groups, --metadata with --group-by, --sketch, --per-sample, or --all-samples",
             );
         }
         self.assembly.validate_resources()?;
@@ -776,5 +883,96 @@ mod tests {
                 .unwrap_err()
                 .contains("cannot be used with")
         );
+    }
+
+    #[test]
+    fn sketch_grouping_options_are_checked_and_need_sketch() {
+        let parse = |extra: &[&str]| {
+            let mut args = vec![
+                "meta-co-assembler",
+                "group",
+                "--samples",
+                "s.tsv",
+                "--memory-gib",
+                "4",
+            ];
+            args.extend_from_slice(extra);
+            match Cli::try_parse_from(args)
+                .map_err(|error| error.to_string())?
+                .command
+            {
+                Command::Group(args) => args.validate().map(|()| args).map_err(|e| e.to_string()),
+                _ => unreachable!(),
+            }
+        };
+        let args = parse(&["--sketch"]).unwrap();
+        let sketch = &args.grouping.sketch_options;
+        assert_eq!(sketch.sketch_policy, SketchPolicy::Merge);
+        assert_eq!(
+            (
+                sketch.sketch_k,
+                sketch.sketch_scaled.get(),
+                sketch.sketch_seed,
+                sketch.sketch_max_hashes.get(),
+                sketch.sketch_neighbors.get()
+            ),
+            (31, 1000, 42, 1_000_000, 10)
+        );
+        assert_eq!(
+            args.grouping.sample_cap(Some(DEFAULT_MAX_GROUP_SAMPLES)),
+            Some(32)
+        );
+        assert!(
+            parse(&[
+                "--sketch",
+                "--sketch-policy",
+                "threshold",
+                "--sketch-min-similarity",
+                "0.2"
+            ])
+            .is_ok()
+        );
+        assert!(parse(&["--sketch", "--sketch-policy", "seeded"]).is_ok());
+        for (extra, message) in [
+            (&["--sketch-k", "21"][..], "--sketch"),
+            (&["--sketch", "--per-sample"][..], "cannot be used with"),
+            (
+                &["--sketch", "--metadata", "m.tsv", "--group-by", "c"][..],
+                "cannot be used with",
+            ),
+            (&["--sketch", "--sketch-k", "20"][..], "odd"),
+            (&["--sketch", "--sketch-k", "33"][..], "odd"),
+            (
+                &["--sketch", "--sketch-max-hashes", "999"][..],
+                "at least 1000",
+            ),
+            (
+                &["--sketch", "--sketch-policy", "threshold"][..],
+                "needs --sketch-min-similarity",
+            ),
+            (
+                &[
+                    "--sketch",
+                    "--sketch-policy",
+                    "threshold",
+                    "--sketch-min-similarity",
+                    "0",
+                ][..],
+                "greater than 0",
+            ),
+            (
+                &["--sketch", "--sketch-min-similarity", "0.2"][..],
+                "applies only to",
+            ),
+            (&[][..], "--sketch"),
+        ] {
+            let error = parse(extra).map(|_| ()).unwrap_err();
+            assert!(error.contains(message), "{extra:?}: {error}");
+        }
+        let error = iterate(&["--keep-groups", "--sketch"])
+            .map(|_| ())
+            .unwrap_err();
+        assert!(error.contains("cannot be used with"), "{error}");
+        assert!(iterate(&["--sketch"]).is_ok());
     }
 }

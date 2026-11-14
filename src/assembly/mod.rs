@@ -2,9 +2,11 @@
 //!
 //! `coassemble` assembles the discovery pools of a completed `discover` run;
 //! `assemble-reads` assembles original reads for the all-read baselines. Both
-//! group samples deterministically by an exact metadata value (or one group
-//! per sample), split groups at a sample cap and an optional base cap, and run
-//! one assembly at a time with the whole thread and memory budget. Per-sample
+//! group samples deterministically by an exact metadata value, by sketch
+//! similarity (`crate::sketch`), one group per sample, or all together; split
+//! groups at a sample cap and an optional base cap; and run one assembly at
+//! a time with the whole thread and memory budget. `group` prints the groups
+//! without assembling. Per-sample
 //! inputs are streamed to MEGAHIT as file lists; nothing is concatenated.
 //! MEGAHIT works in the task's scratch directory, which is measured and
 //! removed after success; contigs are renamed `GROUP__ID`.
@@ -24,7 +26,8 @@ use serde_json::{Value, json};
 use crate::{
     catalogue::sha256_file,
     cli::{
-        AssembleReadsArgs, AssemblyArgs, CoassembleArgs, DEFAULT_MAX_GROUP_SAMPLES, GroupingArgs,
+        AssembleReadsArgs, AssemblyArgs, CoassembleArgs, DEFAULT_MAX_GROUP_SAMPLES, GroupArgs,
+        GroupingArgs,
     },
     error::Error,
     execution::{
@@ -33,6 +36,7 @@ use crate::{
     },
     manifest::{Sample, read_metadata, read_samples},
     profiling::{ToolIdentity, resolve_tool},
+    sketch::{SketchContext, sketch_groups},
     tools::Assembler,
 };
 use inputs::{ReadPair, scan_all};
@@ -69,16 +73,9 @@ fn invalid(message: String) -> Error {
     Error::InvalidInput(message)
 }
 
-/// Deterministic groups: exact metadata values (sorted), sample IDs sorted
-/// within a value, split into consecutive batches that respect both caps.
-/// `sample_cap` of `None` puts no limit on samples per group.
-pub fn make_groups(
-    mut inputs: Vec<ReadPair>,
-    grouping: &GroupingArgs,
-    sample_cap: Option<usize>,
-) -> Result<Vec<AssemblyGroup>, Error> {
-    inputs.sort_by(|a, b| a.sample_id.cmp(&b.sample_id));
-    for input in &inputs {
+/// Input checks shared by every grouping mode.
+fn check_inputs(inputs: &[ReadPair], grouping: &GroupingArgs) -> Result<(), Error> {
+    for input in inputs {
         for path in [&input.read1, &input.read2] {
             if path.to_string_lossy().contains(',') {
                 return Err(invalid(format!(
@@ -97,6 +94,42 @@ pub fn make_groups(
             }
         }
     }
+    Ok(())
+}
+
+/// Groups inputs by the chosen mode. Sketch grouping also returns its
+/// provenance record; `context` is used only by sketch grouping.
+pub fn group_inputs(
+    mut inputs: Vec<ReadPair>,
+    grouping: &GroupingArgs,
+    sample_cap: Option<usize>,
+    context: &SketchContext,
+) -> Result<(Vec<AssemblyGroup>, Option<Value>), Error> {
+    if !grouping.sketch {
+        return make_groups(inputs, grouping, sample_cap).map(|groups| (groups, None));
+    }
+    inputs.sort_by(|a, b| a.sample_id.cmp(&b.sample_id));
+    check_inputs(&inputs, grouping)?;
+    let (groups, record) = sketch_groups(inputs, grouping, sample_cap, context)?;
+    Ok((groups, Some(record)))
+}
+
+/// Deterministic groups: exact metadata values (sorted), sample IDs sorted
+/// within a value, split into consecutive batches that respect both caps.
+/// `sample_cap` of `None` puts no limit on samples per group. Sketch grouping
+/// goes through `group_inputs`.
+pub fn make_groups(
+    mut inputs: Vec<ReadPair>,
+    grouping: &GroupingArgs,
+    sample_cap: Option<usize>,
+) -> Result<Vec<AssemblyGroup>, Error> {
+    if grouping.sketch {
+        return Err(invalid(
+            "sketch grouping needs sketches; use group_inputs".into(),
+        ));
+    }
+    inputs.sort_by(|a, b| a.sample_id.cmp(&b.sample_id));
+    check_inputs(&inputs, grouping)?;
     let mut keyed: BTreeMap<String, Vec<ReadPair>> = BTreeMap::new();
     let column = if grouping.per_sample {
         for input in inputs {
@@ -434,6 +467,87 @@ pub(crate) fn discovery_inputs(
     Ok((scanned, provenance))
 }
 
+/// Original reads listed in a samples TSV, scanned, with their provenance.
+fn all_read_inputs(samples_path: &Path, threads: usize) -> Result<(Vec<ReadPair>, Value), Error> {
+    let samples = read_samples(samples_path)?;
+    let to_scan: Vec<_> = samples
+        .iter()
+        .map(|s| (s.sample_id.clone(), s.read1.clone(), s.read2.clone()))
+        .collect();
+    let inputs = scan_all(&to_scan, threads)?;
+    let source = json!({
+        "kind": "all-reads",
+        "samples": {
+            "path": samples_path,
+            "sha256": sha256_file(samples_path).map_err(|source| Error::Io {
+                context: format!("cannot read {}", samples_path.display()),
+                source,
+            })?,
+        },
+    });
+    Ok((inputs, source))
+}
+
+/// What sketches of inputs from `source` stand for.
+pub(crate) fn sketch_represents(source: &Value) -> &'static str {
+    if source["kind"] == "discovery-pools" {
+        "discovery-pools"
+    } else {
+        "original-reads"
+    }
+}
+
+/// The `grouping` record of a run manifest or `group` output.
+fn grouping_record(
+    groups: &[AssemblyGroup],
+    grouping: &GroupingArgs,
+    sample_cap: Option<usize>,
+    sketch: Option<Value>,
+) -> Value {
+    let mut record = json!({
+        "grouped_by": groups.first().map(|g| g.grouped_by.clone()),
+        "max_group_samples": sample_cap,
+        "max_group_bases": grouping.max_group_bases.map(std::num::NonZeroU64::get),
+        "groups": groups.iter().map(|g| json!({
+            "group_id": g.group_id,
+            "value": g.value,
+            "samples": g.members.iter().map(|m| &m.sample_id).collect::<Vec<_>>(),
+            "pairs": g.pairs(),
+            "bases": g.bases(),
+        })).collect::<Vec<_>>(),
+    });
+    if let Some(sketch) = sketch {
+        record["sketch"] = sketch;
+    }
+    record
+}
+
+/// Prints the groups that `coassemble` (with `--discovery-dir`) or
+/// `assemble-reads` (with `--samples`) would form; creates no output.
+pub fn run_group(args: &GroupArgs, cancel: &CancelToken) -> Result<Value, Error> {
+    args.validate()?;
+    let threads = args.threads.get();
+    let (inputs, source) = match (&args.discovery_dir, &args.samples) {
+        (Some(dir), _) => discovery_inputs(dir, threads)?,
+        (None, Some(samples)) => all_read_inputs(samples, threads)?,
+        (None, None) => return Err(invalid("give --discovery-dir or --samples".into())),
+    };
+    let sample_cap = args.grouping.sample_cap(Some(DEFAULT_MAX_GROUP_SAMPLES));
+    let context = SketchContext {
+        threads,
+        memory_mib: u64::from(args.memory_gib.get()) * 1024,
+        represents: sketch_represents(&source),
+        cancel,
+    };
+    let (groups, sketch) = group_inputs(inputs, &args.grouping, sample_cap, &context)?;
+    Ok(json!({
+        "schema_version": SCHEMA_VERSION,
+        "command": "group",
+        "source": source,
+        "grouping": grouping_record(&groups, &args.grouping, sample_cap, sketch),
+    }))
+}
+
 /// The final manifest and a compact machine-readable summary.
 pub struct AssemblyOutcome {
     pub report: RunReport,
@@ -449,11 +563,14 @@ fn run_groups(
     cancel: &CancelToken,
 ) -> Result<AssemblyOutcome, Error> {
     let tool = resolve_tool("megahit", &["--version"])?;
-    let groups = make_groups(
-        inputs,
-        &args.grouping,
-        args.grouping.sample_cap(Some(DEFAULT_MAX_GROUP_SAMPLES)),
-    )?;
+    let sample_cap = args.grouping.sample_cap(Some(DEFAULT_MAX_GROUP_SAMPLES));
+    let context = SketchContext {
+        threads: args.threads.get(),
+        memory_mib: u64::from(args.memory_gib.get()) * 1024,
+        represents: sketch_represents(&source),
+        cancel,
+    };
+    let (groups, sketch) = group_inputs(inputs, &args.grouping, sample_cap, &context)?;
     let layout = RunLayout::new(&args.output_dir, args.scratch_dir.as_deref())?;
     let budget = Budget {
         threads: args.threads.get(),
@@ -474,18 +591,7 @@ fn run_groups(
         "command": command,
         "assembler": {"name": "megahit", "tool": tool},
         "source": source,
-        "grouping": {
-            "grouped_by": groups.first().map(|g| g.grouped_by.clone()),
-            "max_group_samples": args.grouping.sample_cap(Some(DEFAULT_MAX_GROUP_SAMPLES)),
-            "max_group_bases": args.grouping.max_group_bases.map(std::num::NonZeroU64::get),
-            "groups": groups.iter().map(|g| json!({
-                "group_id": g.group_id,
-                "value": g.value,
-                "samples": g.members.iter().map(|m| &m.sample_id).collect::<Vec<_>>(),
-                "pairs": g.pairs(),
-                "bases": g.bases(),
-            })).collect::<Vec<_>>(),
-        },
+        "grouping": grouping_record(&groups, &args.grouping, sample_cap, sketch),
     });
     let request = RunRequest {
         layout: layout.clone(),
@@ -536,22 +642,7 @@ pub fn run_assemble_reads(
 ) -> Result<AssemblyOutcome, Error> {
     require_megahit(&args.assembly)?;
     resolve_tool("megahit", &["--version"])?;
-    let samples = read_samples(&args.samples)?;
-    let to_scan: Vec<_> = samples
-        .iter()
-        .map(|s| (s.sample_id.clone(), s.read1.clone(), s.read2.clone()))
-        .collect();
-    let inputs = scan_all(&to_scan, args.assembly.threads.get())?;
-    let source = json!({
-        "kind": "all-reads",
-        "samples": {
-            "path": args.samples,
-            "sha256": sha256_file(&args.samples).map_err(|source| Error::Io {
-                context: format!("cannot read {}", args.samples.display()),
-                source,
-            })?,
-        },
-    });
+    let (inputs, source) = all_read_inputs(&args.samples, args.assembly.threads.get())?;
     run_groups(
         &args.assembly,
         "assemble-reads",
@@ -609,6 +700,8 @@ fn summarize(
 mod tests {
     use std::num::{NonZeroU64, NonZeroUsize};
 
+    use clap::Parser;
+
     use super::*;
 
     fn pair(id: &str, bases: u64) -> ReadPair {
@@ -635,9 +728,24 @@ mod tests {
     }
 
     fn grouping(metadata: Option<PathBuf>, samples: usize, bases: Option<u64>) -> GroupingArgs {
+        let parsed = crate::cli::Cli::try_parse_from([
+            "meta-co-assembler",
+            "group",
+            "--samples",
+            "s.tsv",
+            "--memory-gib",
+            "1",
+            "--per-sample",
+        ])
+        .unwrap();
+        let crate::cli::Command::Group(args) = parsed.command else {
+            unreachable!()
+        };
         GroupingArgs {
             per_sample: metadata.is_none(),
             all_samples: false,
+            sketch: false,
+            sketch_options: args.grouping.sketch_options,
             group_by: metadata.as_ref().map(|_| "community".to_owned()),
             metadata,
             max_group_samples: NonZeroUsize::new(samples),
