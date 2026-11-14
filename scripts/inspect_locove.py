@@ -49,11 +49,20 @@ def inspect(directory):
     rows = list(zip(*(arrays[name] for name in [
         "seg_start", "seg_end", "seg_record", "n_anchors", "breadth_anchor"
     ])))
+    # LoCovE's record map has no lengths; infer them from segment ends. A record
+    # without segments has unknown length and coverage, so it cannot be scored.
     lengths = [0] * len(mapping["records"])
+    seen = [False] * len(lengths)
     for start, end, record, _, _ in rows:
         if not 0 <= record < len(lengths) or start < 0 or end < start:
             raise ValueError("invalid record or coordinate")
         lengths[record] = max(lengths[record], end)
+        seen[record] = True
+    missing = [name for name, present in zip(mapping["records"], seen) if not present]
+    if missing:
+        raise ValueError(f"{len(missing)} record(s) have no segments, e.g. {missing[:3]}; their coverage is unknown")
+    if not sum(lengths):
+        raise ValueError("segments cover no reference bases")
     result = {
         "schema_version": 1, "segments": len(rows), "records": len(lengths),
         "reference_bases": sum(lengths),
