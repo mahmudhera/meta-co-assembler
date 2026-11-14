@@ -3,6 +3,7 @@
 //! The `execution` module can run external tools safely, but no biological
 //! adapter uses it yet and the `run` command remains reserved.
 
+pub mod catalogue;
 pub mod cli;
 pub mod error;
 pub mod execution;
