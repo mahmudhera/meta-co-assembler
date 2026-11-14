@@ -23,7 +23,9 @@ use serde_json::{Value, json};
 
 use crate::{
     catalogue::sha256_file,
-    cli::{AssembleReadsArgs, AssemblyArgs, CoassembleArgs, GroupingArgs},
+    cli::{
+        AssembleReadsArgs, AssemblyArgs, CoassembleArgs, DEFAULT_MAX_GROUP_SAMPLES, GroupingArgs,
+    },
     error::Error,
     execution::{
         Budget, CancelToken, ExecOptions, OutputSpec, ProcessSpec, Reservation, RunLayout,
@@ -69,9 +71,11 @@ fn invalid(message: String) -> Error {
 
 /// Deterministic groups: exact metadata values (sorted), sample IDs sorted
 /// within a value, split into consecutive batches that respect both caps.
+/// `sample_cap` of `None` puts no limit on samples per group.
 pub fn make_groups(
     mut inputs: Vec<ReadPair>,
     grouping: &GroupingArgs,
+    sample_cap: Option<usize>,
 ) -> Result<Vec<AssemblyGroup>, Error> {
     inputs.sort_by(|a, b| a.sample_id.cmp(&b.sample_id));
     for input in &inputs {
@@ -99,10 +103,13 @@ pub fn make_groups(
             keyed.insert(input.sample_id.clone(), vec![input]);
         }
         "sample_id".to_owned()
+    } else if grouping.all_samples {
+        keyed.insert("all".to_owned(), inputs);
+        "all-samples".to_owned()
     } else {
         let (Some(path), Some(column)) = (&grouping.metadata, &grouping.group_by) else {
             return Err(invalid(
-                "--metadata and --group-by are required unless --per-sample".into(),
+                "choose --metadata with --group-by, --per-sample, or --all-samples".into(),
             ));
         };
         let samples: Vec<Sample> = inputs
@@ -146,7 +153,7 @@ pub fn make_groups(
         };
         for member in members {
             let bases: u64 = batch.iter().map(|m| m.bases).sum();
-            let full = batch.len() >= grouping.max_group_samples.get()
+            let full = sample_cap.is_some_and(|cap| batch.len() >= cap)
                 || grouping
                     .max_group_bases
                     .is_some_and(|cap| bases + member.bases > cap.get());
@@ -169,6 +176,83 @@ fn file_list(members: &[&ReadPair], mate: u8) -> String {
         .join(",")
 }
 
+/// MEGAHIT on comma-separated per-sample file lists, writing its output and
+/// temporary directories inside `scratch` (the task's scratch directory).
+pub(crate) fn megahit_step(
+    tool: &ToolIdentity,
+    reads1: &str,
+    reads2: &str,
+    scratch: &Path,
+    budget: &Budget,
+) -> Step {
+    let memory_bytes = (budget.memory_mib * MIB / 10 * 9).to_string();
+    let threads = budget.threads.to_string();
+    Step::new(
+        "megahit",
+        vec![
+            ProcessSpec::new(&tool.path)
+                .args(["-1", reads1, "-2", reads2])
+                .arg("-o")
+                .arg(scratch.join("megahit"))
+                .args(["-t", threads.as_str(), "-m", memory_bytes.as_str()])
+                .args(["--min-contig-len", MIN_CONTIG_LENGTH, "--tmp-dir"])
+                .arg(scratch.join("tmp")),
+        ],
+    )
+}
+
+pub(crate) fn megahit_parameters(budget: &Budget) -> Value {
+    json!({
+        "threads": budget.threads,
+        "memory_bytes": budget.memory_mib * MIB / 10 * 9,
+        "min_contig_length": 200,
+        "k_list": "MEGAHIT default",
+    })
+}
+
+/// Creates MEGAHIT's temporary directory inside `scratch`.
+pub(crate) fn prepare_megahit(scratch: &Path) -> Result<(), String> {
+    let tmp = scratch.join("tmp");
+    fs::create_dir_all(&tmp).map_err(|error| format!("cannot create {}: {error}", tmp.display()))
+}
+
+/// Publishes MEGAHIT's contigs as `contigs.fa` with IDs `{prefix}__{id}` and
+/// copies its log; without a run, writes an empty `contigs.fa`. Returns the
+/// status (`contigs`, `no-contigs`, or `empty-input`), statistics, and digest.
+pub(crate) fn publish_contigs(
+    dir: &Path,
+    scratch: &Path,
+    prefix: &str,
+    ran: bool,
+) -> Result<(&'static str, contigs::ContigStats, String), String> {
+    let out_dir = scratch.join("megahit");
+    let (status, stats) = if ran {
+        let produced = out_dir.join("final.contigs.fa");
+        if !produced.is_file() {
+            return Err(format!(
+                "MEGAHIT exited successfully but wrote no {}",
+                produced.display()
+            ));
+        }
+        let stats = contigs::rewrite(&produced, &dir.join(CONTIGS), prefix)?;
+        let log = out_dir.join("log");
+        if log.is_file() {
+            fs::copy(&log, dir.join("megahit.log")).map_err(|error| error.to_string())?;
+        }
+        let status = if stats.contigs == 0 {
+            "no-contigs"
+        } else {
+            "contigs"
+        };
+        (status, stats)
+    } else {
+        fs::File::create_new(dir.join(CONTIGS)).map_err(|error| error.to_string())?;
+        ("empty-input", contigs::ContigStats::default())
+    };
+    let digest = sha256_file(&dir.join(CONTIGS)).map_err(|error| error.to_string())?;
+    Ok((status, stats, digest))
+}
+
 fn assembly_task(
     group: &AssemblyGroup,
     layout: &RunLayout,
@@ -178,25 +262,10 @@ fn assembly_task(
 ) -> TaskSpec {
     let id = format!("assemble-{}", group.group_id);
     let scratch = layout.task_scratch_dir(&id);
-    let out_dir = scratch.join("megahit");
-    let tmp_dir = scratch.join("tmp");
-    let memory_bytes = (budget.memory_mib * MIB / 10 * 9).to_string();
-    let threads = budget.threads.to_string();
     // Empty pools add nothing; MEGAHIT rejects an all-empty input.
     let nonempty: Vec<&ReadPair> = group.members.iter().filter(|m| m.pairs > 0).collect();
     let (reads1, reads2) = (file_list(&nonempty, 1), file_list(&nonempty, 2));
-    let megahit = Step::new(
-        "megahit",
-        vec![
-            ProcessSpec::new(&tool.path)
-                .args(["-1", reads1.as_str(), "-2", reads2.as_str()])
-                .arg("-o")
-                .arg(&out_dir)
-                .args(["-t", threads.as_str(), "-m", memory_bytes.as_str()])
-                .args(["--min-contig-len", MIN_CONTIG_LENGTH, "--tmp-dir"])
-                .arg(&tmp_dir),
-        ],
-    );
+    let megahit = megahit_step(tool, &reads1, &reads2, &scratch, budget);
     let run_assembler = !nonempty.is_empty();
     let manifest = json!({
         "schema_version": SCHEMA_VERSION,
@@ -206,16 +275,12 @@ fn assembly_task(
         "bases": group.bases(),
         "source": source,
     });
-    let parameters = json!({
-        "threads": budget.threads,
-        "memory_bytes": budget.memory_mib * MIB / 10 * 9,
-        "min_contig_length": 200,
-        "k_list": "MEGAHIT default",
-    });
+    let parameters = megahit_parameters(budget);
     let group_id = group.group_id.clone();
     let (pairs, bases) = (group.pairs(), group.bases());
     let summary_tool = tool.clone();
     let summary_parameters = parameters.clone();
+    let prepare_scratch = scratch.clone();
     TaskSpec {
         id,
         reservation: Reservation {
@@ -225,8 +290,7 @@ fn assembly_task(
             ..Reservation::default()
         },
         prepare: Some(Box::new(move |dir: &Path| {
-            fs::create_dir_all(&tmp_dir)
-                .map_err(|error| format!("cannot create {}: {error}", tmp_dir.display()))?;
+            prepare_megahit(&prepare_scratch)?;
             let text =
                 serde_json::to_string_pretty(&manifest).map_err(|error| error.to_string())?;
             fs::write(dir.join(GROUP), text + "\n").map_err(|error| error.to_string())
@@ -239,31 +303,7 @@ fn assembly_task(
             })
         })),
         finalize: Some(Box::new(move |dir: &Path| {
-            let (status, stats) = if run_assembler {
-                let produced = out_dir.join("final.contigs.fa");
-                if !produced.is_file() {
-                    return Err(format!(
-                        "MEGAHIT exited successfully but wrote no {}",
-                        produced.display()
-                    ));
-                }
-                let stats = contigs::rewrite(&produced, &dir.join(CONTIGS), &group_id)?;
-                let log = out_dir.join("log");
-                if log.is_file() {
-                    fs::copy(&log, dir.join("megahit.log")).map_err(|error| error.to_string())?;
-                }
-                (
-                    if stats.contigs == 0 {
-                        "no-contigs"
-                    } else {
-                        "contigs"
-                    },
-                    stats,
-                )
-            } else {
-                fs::File::create_new(dir.join(CONTIGS)).map_err(|error| error.to_string())?;
-                ("empty-input", contigs::ContigStats::default())
-            };
+            let (status, stats, digest) = publish_contigs(dir, &scratch, &group_id, run_assembler)?;
             let summary = json!({
                 "schema_version": SCHEMA_VERSION,
                 "producer": PRODUCER,
@@ -271,6 +311,7 @@ fn assembly_task(
                 "status": status,
                 "input": {"pairs": pairs, "bases": bases},
                 "contigs": stats,
+                "contigs_sha256": digest,
                 "assembler": {"tool": summary_tool, "parameters": summary_parameters},
                 "contig_ids": format!("{group_id}__<assembler id>"),
             });
@@ -292,7 +333,7 @@ fn assembly_task(
     }
 }
 
-fn read_json(path: &Path) -> Result<Value, Error> {
+pub(crate) fn read_json(path: &Path) -> Result<Value, Error> {
     let text = fs::read_to_string(path).map_err(|source| Error::Io {
         context: format!("cannot read {}", path.display()),
         source,
@@ -302,7 +343,10 @@ fn read_json(path: &Path) -> Result<Value, Error> {
 
 /// Discovery pools of a completed `discover` run, each re-read and checked
 /// against the digests and counts its extraction recorded.
-fn discovery_inputs(dir: &Path, threads: usize) -> Result<(Vec<ReadPair>, Value), Error> {
+pub(crate) fn discovery_inputs(
+    dir: &Path,
+    threads: usize,
+) -> Result<(Vec<ReadPair>, Value), Error> {
     // Assemblers run inside their stage directory, so pool paths must be absolute.
     let dir = &fs::canonicalize(dir).map_err(|source| Error::Io {
         context: format!("cannot resolve discovery directory {}", dir.display()),
@@ -405,7 +449,11 @@ fn run_groups(
     cancel: &CancelToken,
 ) -> Result<AssemblyOutcome, Error> {
     let tool = resolve_tool("megahit", &["--version"])?;
-    let groups = make_groups(inputs, &args.grouping)?;
+    let groups = make_groups(
+        inputs,
+        &args.grouping,
+        args.grouping.sample_cap(Some(DEFAULT_MAX_GROUP_SAMPLES)),
+    )?;
     let layout = RunLayout::new(&args.output_dir, args.scratch_dir.as_deref())?;
     let budget = Budget {
         threads: args.threads.get(),
@@ -428,7 +476,7 @@ fn run_groups(
         "source": source,
         "grouping": {
             "grouped_by": groups.first().map(|g| g.grouped_by.clone()),
-            "max_group_samples": args.grouping.max_group_samples.get(),
+            "max_group_samples": args.grouping.sample_cap(Some(DEFAULT_MAX_GROUP_SAMPLES)),
             "max_group_bases": args.grouping.max_group_bases.map(std::num::NonZeroU64::get),
             "groups": groups.iter().map(|g| json!({
                 "group_id": g.group_id,
@@ -575,12 +623,24 @@ mod tests {
         }
     }
 
+    fn groups_of(
+        inputs: Vec<ReadPair>,
+        grouping: &GroupingArgs,
+    ) -> Result<Vec<AssemblyGroup>, Error> {
+        make_groups(
+            inputs,
+            grouping,
+            grouping.sample_cap(Some(DEFAULT_MAX_GROUP_SAMPLES)),
+        )
+    }
+
     fn grouping(metadata: Option<PathBuf>, samples: usize, bases: Option<u64>) -> GroupingArgs {
         GroupingArgs {
             per_sample: metadata.is_none(),
+            all_samples: false,
             group_by: metadata.as_ref().map(|_| "community".to_owned()),
             metadata,
-            max_group_samples: NonZeroUsize::new(samples).unwrap(),
+            max_group_samples: NonZeroUsize::new(samples),
             max_group_bases: bases.and_then(NonZeroU64::new),
         }
     }
@@ -628,7 +688,7 @@ mod tests {
             pair("a1", 300),
             pair("a3", 900),
         ];
-        let groups = make_groups(inputs.clone(), &grouping(Some(path.clone()), 3, None)).unwrap();
+        let groups = groups_of(inputs.clone(), &grouping(Some(path.clone()), 3, None)).unwrap();
         let s = |v: &[&str]| v.iter().map(|x| (*x).to_owned()).collect::<Vec<_>>();
         assert_eq!(
             summary(&groups),
@@ -640,7 +700,7 @@ mod tests {
         );
         assert_eq!(groups[0].grouped_by, "community");
         // A base cap of 1200 closes a batch before a3 (600 + 900 > 1200).
-        let groups = make_groups(inputs, &grouping(Some(path.clone()), 10, Some(1200))).unwrap();
+        let groups = groups_of(inputs, &grouping(Some(path.clone()), 10, Some(1200))).unwrap();
         assert_eq!(summary(&groups)[0].2, s(&["a1", "a2"]));
         assert_eq!(summary(&groups)[1].2, s(&["a3", "a4"]));
         assert!(groups.iter().all(|g| g.bases() <= 1200));
@@ -649,20 +709,44 @@ mod tests {
 
     #[test]
     fn per_sample_groups_and_impossible_or_ambiguous_inputs() {
-        let groups = make_groups(
+        let groups = groups_of(
             vec![pair("s2", 300), pair("s1", 300)],
             &grouping(None, 32, None),
         )
         .unwrap();
         assert_eq!(summary(&groups)[0].1, "s1");
         assert_eq!(groups[0].grouped_by, "sample_id");
+        let mut all = grouping(None, 2, None);
+        (all.per_sample, all.all_samples) = (false, true);
+        let groups = groups_of(
+            vec![pair("s3", 300), pair("s2", 300), pair("s1", 300)],
+            &all,
+        )
+        .unwrap();
+        let s = |v: &[&str]| v.iter().map(|x| (*x).to_owned()).collect::<Vec<_>>();
+        assert_eq!(
+            summary(&groups),
+            [
+                ("group-000001".into(), "all".into(), s(&["s1", "s2"])),
+                ("group-000002".into(), "all".into(), s(&["s3"])),
+            ]
+        );
+        assert_eq!(groups[0].grouped_by, "all-samples");
+        // Without a cap (iterate's default), everything pools into one group.
+        let mut unlimited = all;
+        unlimited.max_group_samples = None;
+        let many: Vec<ReadPair> = (0..40).map(|i| pair(&format!("s{i:02}"), 300)).collect();
+        let groups = make_groups(many.clone(), &unlimited, unlimited.sample_cap(None)).unwrap();
+        assert_eq!((groups.len(), groups[0].members.len()), (1, 40));
+        let capped = make_groups(many, &unlimited, unlimited.sample_cap(Some(32))).unwrap();
+        assert_eq!(capped.len(), 2);
         let error =
-            make_groups(vec![pair("big", 5000)], &grouping(None, 32, Some(1000))).unwrap_err();
+            groups_of(vec![pair("big", 5000)], &grouping(None, 32, Some(1000))).unwrap_err();
         assert!(error.to_string().contains("exceed --max-group-bases"));
         let mut comma = pair("c", 300);
         comma.read1 = PathBuf::from("/a,b/c_R1.fq");
         assert!(
-            make_groups(vec![comma], &grouping(None, 32, None))
+            groups_of(vec![comma], &grouping(None, 32, None))
                 .unwrap_err()
                 .to_string()
                 .contains("commas")
@@ -672,7 +756,7 @@ mod tests {
     #[test]
     fn missing_or_empty_group_values_are_errors() {
         let path = metadata(&[("a1", "A"), ("a2", " ")]);
-        let error = make_groups(
+        let error = groups_of(
             vec![pair("a1", 300), pair("a2", 300)],
             &grouping(Some(path.clone()), 32, None),
         )

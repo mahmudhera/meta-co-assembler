@@ -1,5 +1,5 @@
 use std::{
-    num::{NonZeroU32, NonZeroUsize},
+    num::{NonZeroU32, NonZeroU64, NonZeroUsize},
     path::PathBuf,
 };
 
@@ -213,20 +213,24 @@ impl DiscoverArgs {
 #[derive(Debug, Args)]
 pub struct GroupingArgs {
     /// Metadata TSV with exactly the run's sample IDs.
-    #[arg(long, required_unless_present = "per_sample")]
+    #[arg(long, requires = "group_by")]
     pub metadata: Option<PathBuf>,
     /// Metadata column whose exact values define groups.
-    #[arg(long, required_unless_present = "per_sample")]
+    #[arg(long, requires = "metadata")]
     pub group_by: Option<String>,
     /// Assemble every sample on its own instead of grouping.
-    #[arg(long, conflicts_with_all = ["metadata", "group_by"])]
+    #[arg(long, conflicts_with_all = ["metadata", "group_by", "all_samples"])]
     pub per_sample: bool,
-    /// Split metadata groups into batches of at most this many samples.
-    #[arg(long, default_value = "32")]
-    pub max_group_samples: NonZeroUsize,
+    /// Put every sample in one group (still split by the caps below).
+    #[arg(long, conflicts_with_all = ["metadata", "group_by"])]
+    pub all_samples: bool,
+    /// Split groups into batches of at most this many samples
+    /// [default: 32 for coassemble and assemble-reads, unlimited for iterate].
+    #[arg(long)]
+    pub max_group_samples: Option<NonZeroUsize>,
     /// Also split groups so that each assembles at most this many bases.
     #[arg(long)]
-    pub max_group_bases: Option<std::num::NonZeroU64>,
+    pub max_group_bases: Option<NonZeroU64>,
 }
 
 /// Options shared by the assembly commands.
@@ -260,8 +264,33 @@ pub struct AssemblyArgs {
     pub force: bool,
 }
 
+/// The sample cap of `coassemble` and `assemble-reads` unless given.
+pub const DEFAULT_MAX_GROUP_SAMPLES: usize = 32;
+
+impl GroupingArgs {
+    /// Whether a grouping mode was given; clap rejects conflicting modes.
+    pub fn chosen(&self) -> bool {
+        self.per_sample || self.all_samples || self.metadata.is_some()
+    }
+
+    /// The sample cap: the flag, else `default` (`None` means unlimited).
+    pub fn sample_cap(&self, default: Option<usize>) -> Option<usize> {
+        self.max_group_samples.map(NonZeroUsize::get).or(default)
+    }
+}
+
+const CHOOSE_GROUPING: &str = "choose --metadata with --group-by, --per-sample, or --all-samples";
+
 impl AssemblyArgs {
     pub fn validate(&self) -> Result<(), Error> {
+        if !self.grouping.chosen() {
+            return Err(Error::InvalidInput(CHOOSE_GROUPING.into()));
+        }
+        self.validate_resources()
+    }
+
+    /// Resource and column checks shared with `iterate`.
+    pub fn validate_resources(&self) -> Result<(), Error> {
         if self.jobs.get() > self.threads.get() {
             return Err(Error::InvalidInput(
                 "--jobs must not exceed the total --threads budget".into(),

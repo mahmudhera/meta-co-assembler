@@ -30,12 +30,12 @@ pub struct Policy {
     pub max_secondary: usize,
 }
 
-const UNMAPPED: u16 = 0x4;
-const PROPER_PAIR: u16 = 0x2;
-const FIRST: u16 = 0x40;
-const SECOND: u16 = 0x80;
-const SECONDARY: u16 = 0x100;
-const SUPPLEMENTARY: u16 = 0x800;
+pub const UNMAPPED: u16 = 0x4;
+pub const PROPER_PAIR: u16 = 0x2;
+pub const FIRST: u16 = 0x40;
+pub const SECOND: u16 = 0x80;
+pub const SECONDARY: u16 = 0x100;
+pub const SUPPLEMENTARY: u16 = 0x800;
 
 /// The fields of one SAM record that decisions use.
 #[derive(Clone, Debug, PartialEq, Eq)]
@@ -92,7 +92,7 @@ impl Alignment {
         }
     }
 
-    fn is_primary(&self) -> bool {
+    pub fn is_primary(&self) -> bool {
         self.flag & (SECONDARY | SUPPLEMENTARY) == 0
     }
 }
@@ -128,14 +128,14 @@ pub struct Decision {
     pub mapq: [Option<u8>; 2],
 }
 
-struct Measured {
-    identity: f64,
-    aligned_fraction: f64,
+pub struct Measured {
+    pub identity: f64,
+    pub aligned_fraction: f64,
 }
 
 /// Identity and aligned fraction from CIGAR and NM. `None` when they cannot
 /// be established. Hard clips count as unaligned query only if `allow_hard`.
-fn measure(alignment: &Alignment, allow_hard: bool) -> Option<Measured> {
+pub fn measure(alignment: &Alignment, allow_hard: bool) -> Option<Measured> {
     let nm = f64::from(alignment.nm?);
     let (mut aligned, mut deleted, mut clipped) = (0u64, 0u64, 0u64);
     let mut number = 0u64;
