@@ -20,8 +20,9 @@ coverage for guidance. Full-reference mode remains the comparison/control.
 Samtools performs alignment I/O with an explicit pair-decision layer.
 
 Future execution needs `--catalogue FILE`, `--policy FILE`, and
-`--scratch-dir DIR` with explicit scratch limits. These flags are proposed,
-not currently accepted. Artifact/config schemas will be versioned separately
+`--scratch-dir DIR` with explicit scratch limits, plus `--force` to replace a
+previous run (M2 has no resume). These flags are proposed, not currently
+accepted. Artifact/config schemas will be versioned separately
 from the CLI; changed policies invalidate affected work.
 
 ## Catalogue and crosswalk
@@ -125,6 +126,7 @@ and immutable discovery pools. Group manifests retain sample membership and
 pool counts. Per-round directories hold contig FASTA, cumulative-reference
 identity, remapping reports, and stop reasons.
 
-Use schema versions, stage-owned partial outputs, validated atomic completion,
-and content-aware resume in M2. The current plan JSON is schema version 2 and
-does not serve as a completed-run manifest.
+M2 implements schema-versioned `run.json`, stage-owned partial outputs, and
+validated atomic completion; content-aware resume is deferred to roadmap M13.
+The current plan JSON is schema version 2 and does not serve as a
+completed-run manifest.

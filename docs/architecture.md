@@ -17,12 +17,15 @@ Plans explicitly remain non-executable. FASTQ contents are not read.
 | `manifest` | Streaming TSV parsing, read-path checks, metadata summary |
 | `plan` | Deterministic grouping and non-executable JSON research plans |
 | `tools` | Selectable backends and guidance options, recorded only |
+| `execution` | Library engine: budget admission, process groups, capped logs, atomic stage publication, run manifest; not yet used by `run` |
 | `error` | Contextual diagnostics and documented exit categories |
 | Binary entry point | Dispatch and JSON stdout/stderr boundary |
 
 Table data is held in memory proportional to sample/metadata size. Biological
-read volume is never held in memory. The foundation does not schedule tasks,
-enforce resource budgets, cache results, fingerprint inputs, or run tools.
+read volume is never held in memory. The CLI does not yet schedule tasks or run
+tools. The `execution` module can, and is tested with fake executables; no
+biological adapter uses it before M3. Nothing caches results or fingerprints
+inputs, and resume is unsupported.
 
 ## Dependency environment
 
@@ -91,7 +94,7 @@ Keep one crate while the prototype is small. Introduce modules for:
 - Planning: sample grouping, stage dependencies, explicit iteration policies.
 - Adapters: normalize selected tools' commands, outputs, versions, and failures.
 - Execution: local admission scheduling, process lifecycles, cancellation,
-  bounded streams, stage completion, and resume.
+  bounded streams, and stage completion (implemented in M2); resume later.
 - Reporting: read-state accounting, metadata summaries, contig statistics,
   resource observations, and research comparisons.
 
@@ -172,25 +175,35 @@ full copies for each iteration.
 
 ## Execution, completion, and resume
 
-The first executor is local. Represent a stage with immutable input identities,
-configuration, tool/version identity, resource reservation, declared outputs,
-and a completion result. Keep this boundary small enough for an optional later
-SLURM executor; do not introduce a distributed service now.
+The local executor is implemented as the `execution` library module (M2); see
+[the M2 decision](decisions/0002-local-execution.md). A task has an ID,
+dependencies, a reservation (threads, memory, scratch, and helper processes),
+sequential steps that are argument-array pipelines, declared outputs, an
+optional validator, an optional timeout, and recorded provenance. Keep this
+boundary small enough for an optional later SLURM executor; do not introduce
+a distributed service now.
 
-Invoke executables with argument arrays. Drain both output streams, capture
-bounded logs or log files, and propagate failures from every process in a
-pipeline. Cancellation must stop dependent work and reap children.
+Each pipeline runs in its own Unix process group. Both output streams are
+drained to capped logs, and a failure in any process fails the step. Failure,
+timeout, or cancellation sends SIGTERM to the group, waits a grace period, and
+then sends SIGKILL. After a task fails, nothing new starts but running tasks
+finish; cancellation interrupts running tasks.
 
-Write outputs under stage-owned partial locations, validate them, and publish
-completion atomically on the same filesystem. An exit code of zero is necessary
-but insufficient: expected outputs and their invariants must also pass.
+Work happens under `partial/ID`. Completion requires successful steps, declared
+outputs, and the validator; then `stage.json` is written and the directory is
+renamed atomically to `stages/ID`. An exit code of zero is necessary but
+insufficient. `run.json` is replaced atomically after every state change. A
+lock prevents concurrent runs in one output directory; an existing run is
+refused unless `force` deletes it, and only directories a previous run owned
+can be deleted.
 
-Resume requires a completed stage manifest matching input content identities,
-catalogue, tool versions, parameters, group membership, and upstream outputs.
-Paths, timestamps, and generated group IDs alone are insufficient. Compute
-large-file content digests during necessary streaming passes where feasible.
-Changed inputs or configuration invalidate affected stages. Never mark partial
-work as complete or silently overwrite another run.
+Resume is deferred to roadmap M13. When implemented, it requires a completed
+stage manifest matching input content identities, catalogue, tool versions,
+parameters, group membership, and upstream outputs. Paths, timestamps, and
+generated group IDs alone are insufficient. Compute large-file content digests
+during necessary streaming passes where feasible. Changed inputs or
+configuration invalidate affected stages. Never mark partial work as complete
+or silently overwrite another run.
 
 Provenance includes the resolved configuration, sample/metadata versions,
 catalogue identity, exact commands/tool versions, seeds, read-state counts,

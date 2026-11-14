@@ -17,6 +17,11 @@ MEGAHIT/metaSPAdes, with Samtools for alignment I/O. The initial pilot uses
 Sylph, Strobealign, and MEGAHIT. See the [pilot protocol](experiments/pilot/README.md)
 and [LoCovE investigation](docs/research/locove.md).
 
+M2 adds a local execution engine as a library: budget admission, process-group
+termination, capped logs, and atomic stage completion, tested with fake tools.
+`run` stays reserved until a real stage exists, and resume is not supported;
+see [the M2 decision](docs/decisions/0002-local-execution.md).
+
 ## Environment and build
 
 Create the project environment from the repository root, then activate it:
