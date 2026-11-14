@@ -1,0 +1,47 @@
+{
+  "schema_version": 1,
+  "source_revision": "436f7cf4e3574dd77fdff2d0c099bffa5b67bdd1",
+  "upstream_tests_passed": 11,
+  "rust_version": "1.99.1",
+  "parameters": {
+    "k": 21,
+    "c": 20,
+    "g": 300,
+    "query_workers": 7,
+    "additional_query_reader": 1,
+    "RAYON_NUM_THREADS": 7
+  },
+  "input": {
+    "read_pairs": 82767,
+    "read_length": 150,
+    "source_genomes": 5,
+    "reference_records": 6,
+    "reference_bases": 24817326,
+    "sha256": {
+      "demo/R1.fastq.gz": "6b4abe57eafe76e2d9a52f378ca672280da43099fa06af46c41fc6f19614b9bb",
+      "demo/R2.fastq.gz": "d08428f5c05be69980443dae45eae3a5d36d8c0d234e5b1b5a89bd147606acf4",
+      "demo/references.txt": "bbf946f2894e0247c81d3ef9c5268313c665d923ee1180c6e6f25a92618c9e52",
+      "Cargo.lock": "95800c88a27b0ac8f71eed910bc96cf9240e6253961567228312bb4f408dc395"
+    }
+  },
+  "hardware": {
+    "architecture": "x86_64",
+    "cpu": "Intel(R) Xeon(R) Gold 5416S",
+    "host_logical_cpus": 64
+  },
+  "measurements": {
+    "build": {
+      "elapsed": "0:12.04",
+      "max_rss_kib": 928880,
+      "user_seconds": 11.06,
+      "system_seconds": 0.82
+    },
+    "run": {
+      "elapsed": "0:00.44",
+      "max_rss_kib": 182468,
+      "user_seconds": 0.56,
+      "system_seconds": 0.35
+    }
+  },
+  "scope": "one run on bundled demo; OS caches not cleared; no mapper speedup or biological validation measured"
+}
